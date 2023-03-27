@@ -25,7 +25,7 @@ st.dataframe(df_locations.style.format("{:.1f}"))
 
 fig_geo = plot_paleogeography(df_locations, "global")
 
-# st.pyplot(fig_geo)
+st.pyplot(fig_geo)
 
 
 # fn = 'scatter.png'
