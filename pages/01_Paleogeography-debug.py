@@ -18,10 +18,10 @@ modern_lat, modern_lon, user_user_variable = init_widgets()
 for v in [modern_lat, modern_lon, user_user_variable]:
     st.session_state.v = v
 
-## step 1: get paleo position consistent with DeepMIP model geography   
+# step 1: get paleo position consistent with DeepMIP model geography   
 
-# df_locations = get_paleo_location_herold(modern_lat, modern_lon)
-# st.dataframe(df_locations.style.format("{:.1f}"))
+df_locations = get_paleo_location_herold(modern_lat, modern_lon)
+st.dataframe(df_locations.style.format("{:.1f}"))
 
 # fig_geo = plot_paleogeography(df_locations, "global")
 
