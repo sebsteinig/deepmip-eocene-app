@@ -66,8 +66,9 @@ def plot_paleogeography(df, projection):
         proj =ccrs.Orthographic()
 
     # plot global map
-    fig, ax = plt.subplots(1, subplot_kw=dict(projection=proj))
-    
+    # fig, ax = plt.subplots(1, subplot_kw=dict(projection=proj))
+    fig, ax = plt.subplots(1)
+
     # cf1 = ax.contourf(lonsc, lats, geography, cmap='cmo.topo', levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
 
     ds_herold.topo.plot.contourf(
@@ -76,17 +77,17 @@ def plot_paleogeography(df, projection):
         levels=21, 
         vmin=-5000, 
         vmax=5000, 
-        transform=ccrs.PlateCarree(),
+        # transform=ccrs.PlateCarree(),
         extend='both',
         cbar_kwargs={'orientation': 'horizontal', 'label': 'surface elevation [m]', 'pad': 0.1})
     # add modern coastlines for comparison
-    ax.coastlines(color='gray')
+    # ax.coastlines(color='gray')
 
     # add axis tick labels
-    ax.set_xticks([-180,-120, -60, 0, 60, 120, 180], crs=ccrs.PlateCarree())
-    ax.set_yticks([-90, -60, -30, 0, 30, 60, 90], crs=ccrs.PlateCarree())
-    ax.xaxis.set_major_formatter(LongitudeFormatter())
-    ax.yaxis.set_major_formatter(LatitudeFormatter())
+    # ax.set_xticks([-180,-120, -60, 0, 60, 120, 180], crs=ccrs.PlateCarree())
+    # ax.set_yticks([-90, -60, -30, 0, 30, 60, 90], crs=ccrs.PlateCarree())
+    # ax.xaxis.set_major_formatter(LongitudeFormatter())
+    # ax.yaxis.set_major_formatter(LatitudeFormatter())
 
     ax.set_xlabel('')
     ax.set_ylabel('')
@@ -101,11 +102,9 @@ def plot_paleogeography(df, projection):
     # ax2.coastlines()
 
     # add site marker at paleolocation
-    ax.plot(df['modern lon'], df['modern lat'], 'ro', markersize=8, markerfacecolor='none', markeredgecolor='r', transform=ccrs.PlateCarree())
-    # ax2.plot(modernLon, modernLat, 'ro', markersize=12, markerfacecolor='none', markeredgecolor='r', transform=ccrs.PlateCarree())
-    ax.plot(df['Eocene (55Ma) lon'], df['Eocene (55Ma) lat'], 'ro', markersize=8, markeredgecolor='black', transform=ccrs.PlateCarree())
-    # ax2.plot(paleoLon, paleoLat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
-    # if siteName != '':
+    # ax.plot(df['modern lon'], df['modern lat'], 'ro', markersize=8, markerfacecolor='none', markeredgecolor='r', transform=ccrs.PlateCarree())
+    # ax.plot(df['Eocene (55Ma) lon'], df['Eocene (55Ma) lat'], 'ro', markersize=8, markeredgecolor='black', transform=ccrs.PlateCarree())
+    # # if siteName != '':
     #     if (paleoLon > -100):
     #         labelLon = paleoLon-5
     #         labelAlignment = 'right'
