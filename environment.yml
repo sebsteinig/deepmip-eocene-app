@@ -4,4 +4,6 @@ channels:
 dependencies:
   - python=3.9
   - cartopy
-  - tropycal
+  - xarray
+  - netcdf4
+  - cmocean
