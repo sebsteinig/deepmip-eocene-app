@@ -81,7 +81,7 @@ def plot_paleogeography(df, projection):
         extend='both',
         cbar_kwargs={'orientation': 'horizontal', 'label': 'surface elevation [m]', 'pad': 0.1})
     # add modern coastlines for comparison
-    # ax.coastlines(color='gray')
+    ax.coastlines(color='gray')
 
     # add axis tick labels
     # ax.set_xticks([-180,-120, -60, 0, 60, 120, 180], crs=ccrs.PlateCarree())
