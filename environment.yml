@@ -1,9 +1,0 @@
-name: geo
-channels:
-  - conda-forge
-dependencies:
-  - python=3.9
-  - cartopy
-  - xarray
-  - netcdf4
-  - cmocean
