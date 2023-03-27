@@ -71,7 +71,7 @@ def plot_paleogeography(df, projection):
 
     # cf1 = ax.contourf(lonsc, lats, geography, cmap='cmo.topo', levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
 
-    ds_herold.topo.plot.contourf(
+    ds_herold.topo.plot(
         ax=ax, 
         cmap='cmo.topo', 
         levels=21, 
