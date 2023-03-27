@@ -66,8 +66,8 @@ def plot_paleogeography(df, projection):
         proj =ccrs.Orthographic()
 
     # plot global map
-    # fig, ax = plt.subplots(1, subplot_kw=dict(projection=proj))
-    fig, ax = plt.subplots(1)
+    fig, ax = plt.subplots(1, subplot_kw=dict(projection=proj))
+    # fig, ax = plt.subplots(1)
 
     # cf1 = ax.contourf(lonsc, lats, geography, cmap='cmo.topo', levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
 
@@ -77,7 +77,7 @@ def plot_paleogeography(df, projection):
         levels=21, 
         vmin=-5000, 
         vmax=5000, 
-        # transform=ccrs.PlateCarree(),
+        transform=ccrs.PlateCarree(),
         extend='both',
         cbar_kwargs={'orientation': 'horizontal', 'label': 'surface elevation [m]', 'pad': 0.1})
     # add modern coastlines for comparison
