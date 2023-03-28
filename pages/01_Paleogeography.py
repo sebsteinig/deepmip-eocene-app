@@ -13,9 +13,9 @@ for k, v in st.session_state.items():
     if k != "FormSubmitter:my_form-Update":
         st.session_state[k] = v
 
-modern_lat, modern_lon, user_user_variable = init_widgets()
+modern_lat, modern_lon, user_variable = init_widgets()
 
-for v in [modern_lat, modern_lon, user_user_variable]:
+for v in [modern_lat, modern_lon, user_variable]:
     st.session_state.v = v
 
 ## step 1: get paleo position consistent with DeepMIP model geography   
