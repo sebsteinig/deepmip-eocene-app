@@ -75,7 +75,7 @@ def plot_paleogeography(df, projection):
     ds_herold.topo.plot(
         ax=ax, 
         cmap='cmo.topo', 
-        levels=21, 
+        levels=11, 
         vmin=-5000, 
         vmax=5000, 
         transform=ccrs.PlateCarree(),
