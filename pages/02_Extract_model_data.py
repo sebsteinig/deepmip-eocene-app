@@ -23,11 +23,11 @@ modern_lat, modern_lon, user_user_variable = init_widgets()
 #     st.session_state.v = v
 
 ## step 1: find paleoposition for DeepMIP model geography   
-paleoLat, paleoLon = get_paleo_location_herold(modern_lat, modern_lon)
+# paleoLat, paleoLon = get_paleo_location_herold(modern_lat, modern_lon)
 
 
-st.write("PLAT: " + str(paleoLat))
-st.write("PLON: " + str(paleoLon))
+# st.write("PLAT: " + str(paleoLat))
+# st.write("PLON: " + str(paleoLon))
 
 # fig, ax = plt.subplots(subplot_kw=dict(projection=ccrs.Robinson()))
 
