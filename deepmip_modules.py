@@ -54,7 +54,8 @@ def plot_paleogeography(df, projection):
     # cyclic longitude for contourf plot was added with cdo (cdo sethalo,1,0)
     # for better performance, but can also be added in Python with:
     # geography, lonsc = add_cyclic_point(ds_herold.topo, ds_herold.lon)
-    ds_herold = xr.open_dataset('data/herold_etal_eocene_topo_1x1.halo.nc')
+    # ds_herold = xr.open_dataset('data/herold_etal_eocene_topo_1x1.halo.nc')
+    ds_herold = xr.open_dataset('data/herold_etal_eocene_topo_1x1.r180x90.halo.nc')
 
 
     # add cyclic longitude for plotting
@@ -71,7 +72,7 @@ def plot_paleogeography(df, projection):
 
     # cf1 = ax.contourf(lonsc, lats, geography, cmap='cmo.topo', levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
 
-    ds_herold.topo.plot(
+    ds_herold.topo.plot.contourf(
         ax=ax, 
         cmap='cmo.topo', 
         levels=21, 
