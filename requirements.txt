@@ -5,3 +5,4 @@ cmocean
 holoviews
 geoviews
 seaborn
+scipy
