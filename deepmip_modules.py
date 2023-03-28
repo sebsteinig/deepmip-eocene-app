@@ -5,6 +5,8 @@ import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import cmocean
 import seaborn as sns
+import holoviews as hv
+from geoviews import opts
 
 from cartopy.util import add_cyclic_point
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
@@ -12,6 +14,8 @@ from pathlib import Path
 
 from DeepMIP_model_dict import model_dict
 from DeepMIP_variable_dict import variable_dict
+
+hv.extension('bokeh')
 
 def get_paleo_location_herold(modern_lat, modern_lon):
 
@@ -179,26 +183,53 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
                     site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon}, method='nearest').values
 
                 # store results for individual metrics in a dictionary
-                data_list.append(dict(model = model, 
-                                         experiment = expt_labels[exp_count], 
-                                         annualMean = np.mean(site_data), 
-                                         monthlyMin = np.min(site_data), 
-                                         monthlyMax = np.max(site_data), 
-                                         DJF = np.mean(site_data[[11,0,1]]), 
-                                         MAM = np.mean(site_data[[2,3,4]]), 
-                                         JJA = np.mean(site_data[[5,6,7]]), 
-                                         SON = np.mean(site_data[[8,9,10]]) ))
+                data_list.append(dict(  model = model, 
+                                        experiment = expt_labels[exp_count], 
+                                        lat = np.round(lookup_lat, 2),
+                                        lon = np.round(lookup_lon,2),
+                                        var = variable,
+                                        unit = variable_dict[variable]['unit'],
+                                        annual_mean = np.mean(site_data), 
+                                        monthly_min = np.min(site_data), 
+                                        monthly_max = np.max(site_data), 
+                                        DJF = np.mean(site_data[[11,0,1]]), 
+                                        MAM = np.mean(site_data[[2,3,4]]), 
+                                        JJA = np.mean(site_data[[5,6,7]]), 
+                                        SON = np.mean(site_data[[8,9,10]]),
+                                        Jan = site_data[0],
+                                        Feb = site_data[1],
+                                        Mar = site_data[2],
+                                        Apr = site_data[3],
+                                        May = site_data[4],
+                                        Jun = site_data[5],
+                                        Jul = site_data[6],
+                                        Aug = site_data[7],
+                                        Sep = site_data[8],
+                                        Oct = site_data[9],
+                                        Nov = site_data[10],
+                                        Dec = site_data[11] ))
 
 
     # convert dictionary to Pandas dataframe for easier handling and plotting  
     df = pd.DataFrame(data_list)
 
+    # calculate ensemble mean for each site and experiment
+    for exp in expt_labels:  
+        df.loc[len(df)] = df.loc[(df['experiment'] == exp)].mean()
+        # set ensemble mean metadata
+        df.loc[len(df)-1,'model'] = 'ensemble_mean'
+        df.loc[len(df)-1,'experiment'] = exp
+        df.loc[len(df)-1,'var'] = variable
+        df.loc[len(df)-1,'unit'] = variable_dict[variable]['unit']
+
     return df
 
 def location_data_boxplot(df, variable):
 
+    df_plot = df[(df.model != 'ensemble_mean')]
+
     # change dataframe from wide (9 columns) to long (3 columns) format to use hue method in seaborn boxplot
-    dfMelt = pd.melt(df, id_vars=['experiment'], value_vars=['annualMean','monthlyMin','monthlyMin','monthlyMax','DJF','MAM','JJA','SON'])
+    dfMelt = pd.melt(df_plot, id_vars=['experiment'], value_vars=['annual_mean','monthly_min','monthly_min','monthly_max','DJF','MAM','JJA','SON'])
     
     # define figure layout first
     fig, axes = plt.subplots(2, 1, figsize=(13, 16))
@@ -206,8 +237,8 @@ def location_data_boxplot(df, variable):
     expt_labels = ['piControl', 'DeepMIP_1x', 'DeepMIP_2x', 'DeepMIP_3x', 'DeepMIP_4x', 'DeepMIP_6x', 'DeepMIP_9x']
 
     # boxplot with seaborn (https://seaborn.pydata.org/generated/seaborn.boxplot.html)
-    ax3 = sns.boxplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['annualMean', 'monthlyMin', 'monthlyMax'], order=expt_labels, palette = ['tab:green','tab:blue','tab:red'], linewidth=2.0, ax=axes[0])
-    ax3 = sns.swarmplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['annualMean', 'monthlyMin', 'monthlyMax'], order=expt_labels, palette = ['tab:green','tab:blue','tab:red'], linewidth=1.5, edgecolor='black', size=5, dodge=True, ax=axes[0])
+    ax3 = sns.boxplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['annual_mean', 'monthly_min', 'monthly_max'], order=expt_labels, palette = ['tab:green','tab:blue','tab:red'], linewidth=2.0, ax=axes[0])
+    ax3 = sns.swarmplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['annual_mean', 'monthly_min', 'monthly_max'], order=expt_labels, palette = ['tab:green','tab:blue','tab:red'], linewidth=1.5, edgecolor='black', size=5, dodge=True, ax=axes[0])
 
     ax4 = sns.boxplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['DJF', 'MAM', 'JJA', 'SON'], order=expt_labels, palette = ['tab:blue', 'tab:orange', 'tab:green','tab:red'], linewidth=2.0, ax=axes[1])
     ax4 = sns.swarmplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['DJF', 'MAM', 'JJA', 'SON'], order=expt_labels, palette = ['tab:blue', 'tab:orange', 'tab:green','tab:red'], linewidth=1.5, edgecolor='black', size=5, dodge=True, ax=axes[1])
@@ -250,3 +281,27 @@ def location_data_boxplot(df, variable):
     # plt.show()
 
     return fig
+
+def box_whisker_plot(df, metric):
+
+    df_plot = df[(df.model != 'ensemble_mean')]
+    df_Eocene = df_plot.loc[df_plot['experiment'] != 'piControl']
+    
+    box = hv.BoxWhisker(df_plot,
+                         kdims=['experiment'],
+                         vdims=[metric]
+                        ).opts(
+                        opts.BoxWhisker(box_color='white', width=940, height=400, show_legend=False, whisker_color='black',box_fill_color='#63c5da'))
+
+    scatter = hv.Scatter(df_plot,
+                     kdims=['experiment'],
+                     vdims=[metric, 'model']
+                    ).groupby(
+                        'model'
+                    ).overlay(
+                    ).opts(
+                        opts.Scatter(jitter=0.2, width=940, height=400, show_legend=True, legend_position='right', legend_offset=(0, 119), size=12, tools=['hover', 'wheel_zoom'], line_color='black', fontsize={'legend': 10})) 
+    
+    composition = box * scatter
+
+    return composition

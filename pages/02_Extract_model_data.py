@@ -2,9 +2,12 @@ import streamlit as st
 import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
+import holoviews as hv
+
+from DeepMIP_variable_dict import variable_dict
 
 from app_modules import init_widgets
-from deepmip_modules import get_paleo_location_herold, get_model_point_data, location_data_boxplot
+from deepmip_modules import get_paleo_location_herold, get_model_point_data, location_data_boxplot, box_whisker_plot
 
 st.title('DeepMIP database point data')
 
@@ -24,12 +27,9 @@ df_locations = get_paleo_location_herold(modern_lat, modern_lon)
 ## step 2: get model data for paleo position(s) and chosen variable
 
 # convert user variable to DeepMIP variable name
-if user_variable == 'near-surface air temperature':
-    deepmip_var = 'tas'
-elif user_variable == 'sea surface temperature':
-    deepmip_var = 'tas'
-elif user_variable == 'precipitation':
-    deepmip_var = 'pr'
+for variable in variable_dict.keys():
+    if variable_dict[variable]['longname'] == user_variable:
+        deepmip_var = variable
 
 df_model = get_model_point_data(
             float(df_locations['modern lat']), 
@@ -38,12 +38,22 @@ df_model = get_model_point_data(
             float(df_locations['Eocene (55Ma) lon']),
             deepmip_var)
 
-# st.dataframe(df_model.style.format("{:.1f}"))
-st.dataframe(df_model)
 
-# plot results with seaborn
+bokeh_composition = box_whisker_plot(df_model, 'Jul')
 
 fig = location_data_boxplot(df_model, deepmip_var)
 
-st.pyplot(fig)
+
+st.bokeh_chart(hv.render(bokeh_composition, backend='bokeh'))
+st.pyplot(fig) 
+st.dataframe(df_model)
+# fig = hv.BoxWhisker(np.random.randn(1000), vdims='Value')
+
+
+
+
+
+# st.dataframe(df_model.style.format("{:.1f}"))
+
+
 
