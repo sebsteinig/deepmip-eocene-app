@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 import numpy as np
 
-deepmipVariableDict    = dict()
-deepmipVariableDict['tas']    = { \
+variable_dict    = dict()
+variable_dict['tas']    = { \
         'longname' : 'near-surface air temperature',
         'label' : 'temperature [$^\circ$C]',
         'unit' : 'degC',
         }
 
-deepmipVariableDict['pr']    = { \
+variable_dict['pr']    = { \
         'longname' : 'precipitation',
         'label' : 'total precipitation [mm/day]',
         'unit' : 'mm/day',
         }
         
-deepmipVariableDict['tos']    = { \
+variable_dict['tos']    = { \
         'longname' : 'sea surface temperature',
         'label' : 'temperature [$^\circ$C]',
         'unit' : 'degC',

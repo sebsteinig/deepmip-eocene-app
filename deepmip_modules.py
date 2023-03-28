@@ -3,12 +3,15 @@ import xarray as xr
 import pandas as pd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
+import cmocean
+import seaborn as sns
 
 from cartopy.util import add_cyclic_point
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from pathlib import Path
 
 from DeepMIP_model_dict import model_dict
+from DeepMIP_variable_dict import variable_dict
 
 def get_paleo_location_herold(modern_lat, modern_lon):
 
@@ -125,7 +128,7 @@ def plot_paleogeography(df, projection):
 
     return fig
 
-def get_model_point_data(df_input, variable):
+def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable):
 
     # allocate empty list to store results for all models
     data_list = []
@@ -141,12 +144,9 @@ def get_model_point_data(df_input, variable):
             model_file = 'data/User_Model_Database_v1.0/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
                         '/' + model + '-' + exp + '-' + variable + '-' + model_dict[model]['versn'] + '.mean.nc'
 
-            print(model_file)
             # load data if file for model/experiment combination exists
             if Path(model_file).exists():
                 ds_model = xr.open_dataset(model_file, decode_times=False)
-
-                print("found data")
 
                 # get coordinate names
                 for coord in ds_model.coords:
@@ -156,11 +156,11 @@ def get_model_point_data(df_input, variable):
                         lon_name = coord
 
                 if exp == 'piControl':
-                    lookup_lat = float(df_input['modern lat'])
-                    lookup_lon = float(df_input['modern lon'])
+                    lookup_lat = modern_lat
+                    lookup_lon = modern_lon
                 else:
-                    lookup_lat = float(df_input['Eocene (55Ma) lat'])
-                    lookup_lon = float(df_input['Eocene (55Ma) lon'])             
+                    lookup_lat = paleo_lat
+                    lookup_lon = paleo_lon            
 
                 # check for minimum model longitude
                 min_model_lon = np.amin(ds_model.coords[lon_name].values)
@@ -193,6 +193,60 @@ def get_model_point_data(df_input, variable):
     # convert dictionary to Pandas dataframe for easier handling and plotting  
     df = pd.DataFrame(data_list)
 
-    print(df)
-
     return df
+
+def location_data_boxplot(df, variable):
+
+    # change dataframe from wide (9 columns) to long (3 columns) format to use hue method in seaborn boxplot
+    dfMelt = pd.melt(df, id_vars=['experiment'], value_vars=['annualMean','monthlyMin','monthlyMin','monthlyMax','DJF','MAM','JJA','SON'])
+    
+    # define figure layout first
+    fig, axes = plt.subplots(2, 1, figsize=(13, 16))
+
+    expt_labels = ['piControl', 'DeepMIP_1x', 'DeepMIP_2x', 'DeepMIP_3x', 'DeepMIP_4x', 'DeepMIP_6x', 'DeepMIP_9x']
+
+    # boxplot with seaborn (https://seaborn.pydata.org/generated/seaborn.boxplot.html)
+    ax3 = sns.boxplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['annualMean', 'monthlyMin', 'monthlyMax'], order=expt_labels, palette = ['tab:green','tab:blue','tab:red'], linewidth=2.0, ax=axes[0])
+    ax3 = sns.swarmplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['annualMean', 'monthlyMin', 'monthlyMax'], order=expt_labels, palette = ['tab:green','tab:blue','tab:red'], linewidth=1.5, edgecolor='black', size=5, dodge=True, ax=axes[0])
+
+    ax4 = sns.boxplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['DJF', 'MAM', 'JJA', 'SON'], order=expt_labels, palette = ['tab:blue', 'tab:orange', 'tab:green','tab:red'], linewidth=2.0, ax=axes[1])
+    ax4 = sns.swarmplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['DJF', 'MAM', 'JJA', 'SON'], order=expt_labels, palette = ['tab:blue', 'tab:orange', 'tab:green','tab:red'], linewidth=1.5, edgecolor='black', size=5, dodge=True, ax=axes[1])
+
+    # add optional proxy estimates as reference
+    # if (showProxy):
+    #     if proxyMin != '':
+    #         ax3.axhline(proxyMin, ls='--', color='lightcoral', zorder=0.)
+    #         ax4.axhline(proxyMin, ls='--', color='lightcoral', zorder=0.)
+    #     if proxyMax != '':
+    #         ax3.axhline(proxyMax, ls='--', color='lightcoral', zorder=0.)
+    #         ax4.axhline(proxyMax, ls='--', color='lightcoral', zorder=0.) 
+    #     if proxyMin != '' and proxyMax != '':
+    #         ax3.axhspan(proxyMin, proxyMax, facecolor='lightcoral', alpha=0.4, zorder=0.)
+    #         ax4.axhspan(proxyMin, proxyMax, facecolor='lightcoral', alpha=0.4, zorder=0.)
+    #         ax3.text(0.5, proxyMax, proxyLabel, color='lightcoral', verticalalignment='bottom')
+    #         ax4.text(0.5, proxyMax, proxyLabel, color='lightcoral', verticalalignment='bottom')
+
+
+    # modify legends and axes
+    # if (siteName != ''):
+    #     titleString = 'DeepMIP ' + deepmipVariableDict[variable]['longname'] + ' for "' + siteName + '": LAT = ' + str(np.round(paleoLat, 1)) + ', LON = ' + str(np.round(paleoLon, 1)) 
+    # else:
+    #     titleString = 'DeepMIP ' + deepmipVariableDict[variable]['longname'] + ' at: LAT = ' + str(np.round(paleoLat, 1)) + ', LON = ' + str(np.round(paleoLon, 1)) 
+    titleString = 'DeepMIP ' + variable_dict[variable]['longname']
+
+    yLabel = variable_dict[variable]['label']
+
+    handles, labels = ax3.get_legend_handles_labels()
+    ax3.legend(handles[0:3], labels[0:3], fontsize='16');
+    ax3.set(title = titleString, xlabel='', ylabel=yLabel);
+    [ax3.axvline(x, color = 'gray', linestyle='-', linewidth=0.5, zorder=0.) for x in [0.5,1.5,2.5,3.5,4.5,5.5]]
+
+    handles2, labels2 = ax4.get_legend_handles_labels()
+    ax4.legend(handles2[0:4], labels2[0:4], fontsize='16');
+    ax4.set(title = titleString, xlabel='', ylabel=yLabel);
+    [ax4.axvline(x, color = 'gray', linestyle='-', linewidth=0.5, zorder=0.) for x in [0.5,1.5,2.5,3.5,4.5,5.5]]
+
+    # plt.tight_layout()
+    # plt.show()
+
+    return fig

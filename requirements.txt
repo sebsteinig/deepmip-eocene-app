@@ -2,3 +2,4 @@ cartopy
 xarray
 netcdf4
 cmocean
+seaborn
