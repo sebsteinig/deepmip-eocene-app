@@ -3,6 +3,5 @@ xarray
 netcdf4
 cmocean
 holoviews
-geoviews
 seaborn
 scipy

@@ -4,15 +4,18 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import holoviews as hv
 
-from DeepMIP_variable_dict import variable_dict
+from deepmip_dicts import variable_dict
 
-from app_modules import init_widgets
-from deepmip_modules import get_paleo_location_herold, get_model_point_data, location_data_boxplot, box_whisker_plot
+from app_modules import init_widgets, init_sidebar
+
+from deepmip_modules import get_paleo_location_herold, get_model_point_data, box_whisker_plot
 
 st.title('DeepMIP database point data')
 
+init_sidebar()
+
 for k, v in st.session_state.items():
-    if k != "FormSubmitter:my_form-Update":
+    if k != "FormSubmitter:my_form-Get Data":
         st.session_state[k] = v
 
 modern_lat, modern_lon, user_variable = init_widgets()
@@ -41,19 +44,9 @@ df_model = get_model_point_data(
 
 bokeh_composition = box_whisker_plot(df_model, 'Jul')
 
-fig = location_data_boxplot(df_model, deepmip_var)
-
 
 st.bokeh_chart(hv.render(bokeh_composition, backend='bokeh'))
-st.pyplot(fig) 
-st.dataframe(df_model)
-# fig = hv.BoxWhisker(np.random.randn(1000), vdims='Value')
 
-
-
-
-
-# st.dataframe(df_model.style.format("{:.1f}"))
 
 
 

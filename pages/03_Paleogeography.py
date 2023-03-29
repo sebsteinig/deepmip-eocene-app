@@ -4,13 +4,15 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import io
 
-from app_modules import init_widgets
+from app_modules import init_widgets, init_sidebar
 from deepmip_modules import get_paleo_location_herold, plot_paleogeography
 
 st.title('DeepMIP database point data')
 
+init_sidebar()
+
 for k, v in st.session_state.items():
-    if k != "FormSubmitter:my_form-Update":
+    if k != "FormSubmitter:my_form-Get Data":
         st.session_state[k] = v
 
 modern_lat, modern_lon, user_variable = init_widgets()

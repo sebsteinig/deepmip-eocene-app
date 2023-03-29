@@ -6,14 +6,12 @@ import matplotlib.pyplot as plt
 import cmocean
 import seaborn as sns
 import holoviews as hv
-from geoviews import opts
+from holoviews import opts
 
-from cartopy.util import add_cyclic_point
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from pathlib import Path
 
-from DeepMIP_model_dict import model_dict
-from DeepMIP_variable_dict import variable_dict
+from deepmip_dicts import exp_dict, model_dict, variable_dict
 
 hv.extension('bokeh')
 
@@ -137,12 +135,10 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
     # allocate empty list to store results for all models
     data_list = []
 
-    expts = ['piControl', 'deepmip_sens_1xCO2', 'deepmip_sens_2xCO2', 'deepmip_stand_3xCO2', 'deepmip_sens_4xCO2', 'deepmip_stand_6xCO2', 'deepmip_sens_9xCO2']
-    expt_labels = ['piControl', 'DeepMIP_1x', 'DeepMIP_2x', 'DeepMIP_3x', 'DeepMIP_4x', 'DeepMIP_6x', 'DeepMIP_9x']
 
     # loop over all models and experiments
-    for model in model_dict.keys():
-        for exp_count, exp in enumerate(expts):
+    for exp in exp_dict.keys():
+        for model in model_dict.keys():
 
             # construct filename following the DeepMIP convention
             model_file = 'data/User_Model_Database_v1.0/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
@@ -176,19 +172,23 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
                 if variable == 'tas':
                     # convert from Kelvin to Celsius
                     site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon}, method='nearest').values - 273.15
+                    unit = '°C'
                 elif variable == 'pr':
                     # convert from kg m-2 s-1 to mm/day
                     site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon}, method='nearest').values * 86400.
+                    unit = 'mm/day'
                 else:
                     site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon}, method='nearest').values
-
+                    unit = variable_dict[variable]['unit']
                 # store results for individual metrics in a dictionary
-                data_list.append(dict(  model = model, 
-                                        experiment = expt_labels[exp_count], 
+                data_list.append(dict(  model_short = model_dict[model]['abbrv'], 
+                                        model = model,
+                                        experiment = exp_dict[exp]['medium_name'], 
+                                        CO2 = float(exp_dict[exp]['CO2']), 
                                         lat = np.round(lookup_lat, 2),
                                         lon = np.round(lookup_lon,2),
                                         var = variable,
-                                        unit = variable_dict[variable]['unit'],
+                                        unit = unit,
                                         annual_mean = np.mean(site_data), 
                                         monthly_min = np.min(site_data), 
                                         monthly_max = np.max(site_data), 
@@ -209,16 +209,15 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
                                         Nov = site_data[10],
                                         Dec = site_data[11] ))
 
-
     # convert dictionary to Pandas dataframe for easier handling and plotting  
-    df = pd.DataFrame(data_list)
+    df = pd.DataFrame(data_list).round(1)
 
     # calculate ensemble mean for each site and experiment
-    for exp in expt_labels:  
-        df.loc[len(df)] = df.loc[(df['experiment'] == exp)].mean()
+    for exp in exp_dict.keys():  
+        df.loc[len(df)] = df.loc[(df['experiment'] == exp_dict[exp]['medium_name'])].mean(numeric_only=True)
         # set ensemble mean metadata
         df.loc[len(df)-1,'model'] = 'ensemble_mean'
-        df.loc[len(df)-1,'experiment'] = exp
+        df.loc[len(df)-1,'experiment'] = exp_dict[exp]['medium_name']
         df.loc[len(df)-1,'var'] = variable
         df.loc[len(df)-1,'unit'] = variable_dict[variable]['unit']
 
@@ -234,14 +233,17 @@ def location_data_boxplot(df, variable):
     # define figure layout first
     fig, axes = plt.subplots(2, 1, figsize=(13, 16))
 
-    expt_labels = ['piControl', 'DeepMIP_1x', 'DeepMIP_2x', 'DeepMIP_3x', 'DeepMIP_4x', 'DeepMIP_6x', 'DeepMIP_9x']
+    # generate list of medium-length experiment anmes for plot ordering
+    list_medium_names = []
+    for key, value in exp_dict.items():
+        list_medium_names.append(value['medium_name'])
 
     # boxplot with seaborn (https://seaborn.pydata.org/generated/seaborn.boxplot.html)
-    ax3 = sns.boxplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['annual_mean', 'monthly_min', 'monthly_max'], order=expt_labels, palette = ['tab:green','tab:blue','tab:red'], linewidth=2.0, ax=axes[0])
-    ax3 = sns.swarmplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['annual_mean', 'monthly_min', 'monthly_max'], order=expt_labels, palette = ['tab:green','tab:blue','tab:red'], linewidth=1.5, edgecolor='black', size=5, dodge=True, ax=axes[0])
+    ax3 = sns.boxplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['annual_mean', 'monthly_min', 'monthly_max'], order=list_medium_names, palette = ['tab:green','tab:blue','tab:red'], linewidth=2.0, ax=axes[0])
+    ax3 = sns.swarmplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['annual_mean', 'monthly_min', 'monthly_max'], order=list_medium_names, palette = ['tab:green','tab:blue','tab:red'], linewidth=1.5, edgecolor='black', size=5, dodge=True, ax=axes[0])
 
-    ax4 = sns.boxplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['DJF', 'MAM', 'JJA', 'SON'], order=expt_labels, palette = ['tab:blue', 'tab:orange', 'tab:green','tab:red'], linewidth=2.0, ax=axes[1])
-    ax4 = sns.swarmplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['DJF', 'MAM', 'JJA', 'SON'], order=expt_labels, palette = ['tab:blue', 'tab:orange', 'tab:green','tab:red'], linewidth=1.5, edgecolor='black', size=5, dodge=True, ax=axes[1])
+    ax4 = sns.boxplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['DJF', 'MAM', 'JJA', 'SON'], palette = ['tab:blue', 'tab:orange', 'tab:green','tab:red'], linewidth=2.0, ax=axes[1])
+    ax4 = sns.swarmplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['DJF', 'MAM', 'JJA', 'SON'], palette = ['tab:blue', 'tab:orange', 'tab:green','tab:red'], linewidth=1.5, edgecolor='black', size=5, dodge=True, ax=axes[1])
 
     # add optional proxy estimates as reference
     # if (showProxy):
@@ -270,12 +272,12 @@ def location_data_boxplot(df, variable):
     handles, labels = ax3.get_legend_handles_labels()
     ax3.legend(handles[0:3], labels[0:3], fontsize='16');
     ax3.set(title = titleString, xlabel='', ylabel=yLabel);
-    [ax3.axvline(x, color = 'gray', linestyle='-', linewidth=0.5, zorder=0.) for x in [0.5,1.5,2.5,3.5,4.5,5.5]]
+    [ax3.axvline(x, color = 'gray', linestyle='-', linewidth=0.5, zorder=0.) for x in [0.5,1.5,2.5,3.5,4.5,5.5,6.5]]
 
     handles2, labels2 = ax4.get_legend_handles_labels()
     ax4.legend(handles2[0:4], labels2[0:4], fontsize='16');
     ax4.set(title = titleString, xlabel='', ylabel=yLabel);
-    [ax4.axvline(x, color = 'gray', linestyle='-', linewidth=0.5, zorder=0.) for x in [0.5,1.5,2.5,3.5,4.5,5.5]]
+    [ax4.axvline(x, color = 'gray', linestyle='-', linewidth=0.5, zorder=0.) for x in [0.5,1.5,2.5,3.5,4.5,5.5,6.5]]
 
     # plt.tight_layout()
     # plt.show()
@@ -285,23 +287,43 @@ def location_data_boxplot(df, variable):
 def box_whisker_plot(df, metric):
 
     df_plot = df[(df.model != 'ensemble_mean')]
-    df_Eocene = df_plot.loc[df_plot['experiment'] != 'piControl']
-    
-    box = hv.BoxWhisker(df_plot,
-                         kdims=['experiment'],
-                         vdims=[metric]
-                        ).opts(
-                        opts.BoxWhisker(box_color='white', width=940, height=400, show_legend=False, whisker_color='black',box_fill_color='#63c5da'))
+    dfEocene = df_plot.loc[df_plot['experiment'] != 'piControl']
 
-    scatter = hv.Scatter(df_plot,
-                     kdims=['experiment'],
-                     vdims=[metric, 'model']
+        # generate list of medium-length experiment anmes for plot ordering
+    list_medium_names = []
+    for key, value in exp_dict.items():
+        list_medium_names.append(value['medium_name'])
+
+    # box = hv.BoxWhisker(dfEocene,
+    #                      kdims=['CO2'],
+    #                      vdims=[metric]
+    #                     ).opts(
+    #                     opts.BoxWhisker(logx=True,box_color='white', width=940, height=400, show_legend=False, whisker_color='black',box_fill_color='#63c5da')
+    #                     )
+
+    scatter = hv.Scatter(dfEocene,
+                     kdims=['CO2'],
+                     vdims=[metric, 'model_short','annual_mean']
+                    ).redim.values(**{'experiment':list_medium_names}
                     ).groupby(
-                        'model'
+                        'model_short'
                     ).overlay(
                     ).opts(
-                        opts.Scatter(jitter=0.2, width=940, height=400, show_legend=True, legend_position='right', legend_offset=(0, 119), size=12, tools=['hover', 'wheel_zoom'], line_color='black', fontsize={'legend': 10})) 
+                        opts.Scatter(
+                                logx=True,
+                                jitter=0.2,
+                                width=705, 
+                                height=400, 
+                                show_legend=True, 
+                                legend_position='top', 
+                                # legend_offset=(0, 119), 
+                                size=12, 
+                                tools=['hover', 'wheel_zoom'], 
+                                line_color='black', 
+                                fontsize={'legend': 10.8})) 
     
-    composition = box * scatter
+    # composition = box * scatter
+    composition = scatter
+
 
     return composition

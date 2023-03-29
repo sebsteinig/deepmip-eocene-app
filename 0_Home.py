@@ -5,34 +5,17 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import io
 
-from app_modules import init_widgets
+from app_modules import init_sidebar
 
 st.set_page_config(
     page_title="Home",
     page_icon="👋",
 )
 
-for k, v in st.session_state.items():
-    if k != "FormSubmitter:my_form-Update":
-        st.session_state[k] = v
+init_sidebar()
 
-# modernLat = st.sidebar.number_input('site modern latitude', min_value=-90.0, max_value=90.0, value = 51.5, step=1.0, format="%.1f", key="modernLat")
-# modernLon = st.sidebar.number_input('site modern longitude', min_value=-180.0, max_value=180.0, value = -2.6, step=1.0, format="%.1f", key="modernLon")
-# variable  = st.sidebar.selectbox("variable", ["near-surface air temperature", "sea surface temperature", "precipitation"], key="variable")
+st.write("# Welcome to the DeepMIP model database! 👋")
 
-modern_lat, modern_lon, user_variable = init_widgets()
-
-for v in [modern_lat, modern_lon, user_variable]:
-    st.session_state.v = v
-
-
-# st.session_state['modernLat'] = modernLat
-# st.session_state['modernLon'] = modernLon
-# st.session_state['variable'] = variable
-
-st.write("# Welcome to the DeepMIP model databse! 👋")
-
-st.sidebar.success("Select a demo above.")
 
 st.markdown(
     """
@@ -50,6 +33,7 @@ st.markdown(
     interested in.
     3. Click on the analysis of your choice.
 
+
     ### Want to learn more?
     - DeepMIP experimental design paper: [Lunt et al. (2017)](https://doi.org/10.5194/gmd-10-889-2017)
     - Large-scale climate features in the simulations: [Lunt et al. (2021)](https://doi.org/10.5194/cp-17-203-2021)
@@ -59,7 +43,10 @@ st.markdown(
     ### DeepMIP publications
     - 
 
-    ### Get in contact
+    ### Get in touch
     - 
 """
 )
+
+st.markdown("<a href='Extract_model_data' target='_self'>subpage</a>", unsafe_allow_html=True)
+
