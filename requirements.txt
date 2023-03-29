@@ -5,3 +5,4 @@ cmocean
 holoviews
 seaborn
 scipy
+xlsxwriter

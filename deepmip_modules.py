@@ -322,8 +322,20 @@ def box_whisker_plot(df, metric):
                                 line_color='black', 
                                 fontsize={'legend': 10.8})) 
     
+    line = hv.Curve(dfEocene,
+                     kdims=['CO2'],
+                     vdims=[metric, 'model_short','annual_mean']
+                    ).redim.values(**{'experiment':list_medium_names}
+                    ).groupby(
+                        'model_short'
+                    ).overlay(
+                    ).opts(
+                        opts.Scatter(
+                                size=12)) 
+    
+
     # composition = box * scatter
-    composition = scatter
+    composition = line * scatter
 
 
     return composition
