@@ -1,11 +1,14 @@
 import streamlit as st
 import pandas as pd
 import io
+import matplotlib as plt
 
 from deepmip_dicts import variable_dict
 
 from app_modules import init_widgets, init_sidebar
 from deepmip_modules import get_paleo_location_herold, get_model_point_data, location_data_boxplot
+
+init_sidebar()
 
 st.title('Extract model point data')
 
@@ -15,19 +18,16 @@ st.markdown('''
             model geographies and then extracts the data from the closest grid point for all available 
             models and simulations. Results are listed in the interactive table below, which can also 
             be downloaded in different data formats. Basic ensemble statistics of the extracted data 
-            are shwon at the bottom.
-            ''')
-
-st.markdown("<a href='Extract_model_data' target='_self'>subpage</a>", unsafe_allow_html=True)
-st.write('sda')
-
-init_sidebar()
+            are shwon at the bottom. You can also create interactive charts of your extracted data on 
+            the <a href='Analyse_model_data' target='_self'>analysis page</a>.
+            ''', unsafe_allow_html=True
+            )
 
 for k, v in st.session_state.items():
     if k != "FormSubmitter:my_form-Get Data":
         st.session_state[k] = v
 
-modern_lat, modern_lon, user_variable = init_widgets()
+modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label = init_widgets()
 
 for v in [modern_lat, modern_lon, user_variable]:
     st.session_state.v = v
@@ -113,6 +113,63 @@ with col3:
 
 st.subheader('Overview statistics of extracted data')
 
-fig = location_data_boxplot(df_model, deepmip_var)
+st.markdown('''
+            [Box plots](https://en.wikipedia.org/wiki/Box_plot) showing a broad overview of the 
+            distribution of the extracted model data. The box shows the first quartile, the median 
+            and the third quartile, while the bars (whiskers) indicate the maximum
+            and minimum of the distribution, excluding outliers.
+            ''', unsafe_allow_html=True
+            )
 
+
+# proxy_check, proxy_mean, proxy_std, proxy_label = init_proxy_input()
+
+
+fig = location_data_boxplot(df_model, deepmip_var, float(df_locations['Eocene (55Ma) lat']), float(df_locations['Eocene (55Ma) lon']), proxy_check, proxy_mean, proxy_std, proxy_label)
+
+
+# Create an in-memory buffer
+buffer = io.BytesIO()
+
+fn = 'deepmip_boxplot.png'
+img = io.BytesIO()
+fig.savefig(img, format='png')
+
+fn2 = 'deepmip_boxplot.pdf'
+img2 = io.BytesIO()
+fig.savefig(img2, format='pdf')
+
+fn3 = 'deepmip_boxplot.jpg'
+img3 = io.BytesIO()
+fig.savefig(img3, format='jpg')
 st.pyplot(fig) 
+
+
+col4, col5, col6 = st.columns(3)
+
+with col4:
+    st.download_button(
+    label="Download JPG",
+    data=img3,
+    file_name=fn3,
+    mime="image/jpg",
+    use_container_width=True
+    )
+
+with col5:
+    st.download_button(
+    label="Download PNG",
+    data=img,
+    file_name=fn,
+    mime="image/png",
+    use_container_width=True
+    )
+
+with col6:
+    st.download_button(
+    label="Download PDF",
+    data=img2,
+    file_name=fn2,
+    mime="image/pdf",
+    use_container_width=True
+    )

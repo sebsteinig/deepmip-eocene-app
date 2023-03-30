@@ -166,19 +166,22 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
                 min_model_lon = np.amin(ds_model.coords[lon_name].values)
                 if min_model_lon >= 0.0 and lookup_lon < 0.0:
                     # convert lookup_lon from [-180:180] to [0:360]
-                    lookup_lon = lookup_lon + 360.0 
+                    lookup_lon_model = lookup_lon + 360.0 
+                else:
+                    lookup_lon_model = lookup_lon
+
 
                 var_data = getattr(ds_model, variable)
                 if variable == 'tas':
                     # convert from Kelvin to Celsius
-                    site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon}, method='nearest').values - 273.15
+                    site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon_model}, method='nearest').values - 273.15
                     unit = '°C'
                 elif variable == 'pr':
                     # convert from kg m-2 s-1 to mm/day
-                    site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon}, method='nearest').values * 86400.
+                    site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon_model}, method='nearest').values * 86400.
                     unit = 'mm/day'
                 else:
-                    site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon}, method='nearest').values
+                    site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon_model}, method='nearest').values
                     unit = variable_dict[variable]['unit']
                 # store results for individual metrics in a dictionary
                 data_list.append(dict(  model_short = model_dict[model]['abbrv'], 
@@ -217,13 +220,15 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
         df.loc[len(df)] = df.loc[(df['experiment'] == exp_dict[exp]['medium_name'])].mean(numeric_only=True)
         # set ensemble mean metadata
         df.loc[len(df)-1,'model'] = 'ensemble_mean'
+        df.loc[len(df)-1,'model_short'] = 'mean'
         df.loc[len(df)-1,'experiment'] = exp_dict[exp]['medium_name']
         df.loc[len(df)-1,'var'] = variable
-        df.loc[len(df)-1,'unit'] = variable_dict[variable]['unit']
+        df.loc[len(df)-1,'unit'] = unit
 
-    return df
 
-def location_data_boxplot(df, variable):
+    return df.round(1)
+
+def location_data_boxplot(df, variable, plat, plon, proxy_flag, proxy_mean, proxy_std, proxy_label ):
 
     df_plot = df[(df.model != 'ensemble_mean')]
 
@@ -245,19 +250,13 @@ def location_data_boxplot(df, variable):
     ax4 = sns.boxplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['DJF', 'MAM', 'JJA', 'SON'], palette = ['tab:blue', 'tab:orange', 'tab:green','tab:red'], linewidth=2.0, ax=axes[1])
     ax4 = sns.swarmplot(data=dfMelt, x="experiment", y="value", hue='variable', hue_order=['DJF', 'MAM', 'JJA', 'SON'], palette = ['tab:blue', 'tab:orange', 'tab:green','tab:red'], linewidth=1.5, edgecolor='black', size=5, dodge=True, ax=axes[1])
 
-    # add optional proxy estimates as reference
-    # if (showProxy):
-    #     if proxyMin != '':
-    #         ax3.axhline(proxyMin, ls='--', color='lightcoral', zorder=0.)
-    #         ax4.axhline(proxyMin, ls='--', color='lightcoral', zorder=0.)
-    #     if proxyMax != '':
-    #         ax3.axhline(proxyMax, ls='--', color='lightcoral', zorder=0.)
-    #         ax4.axhline(proxyMax, ls='--', color='lightcoral', zorder=0.) 
-    #     if proxyMin != '' and proxyMax != '':
-    #         ax3.axhspan(proxyMin, proxyMax, facecolor='lightcoral', alpha=0.4, zorder=0.)
-    #         ax4.axhspan(proxyMin, proxyMax, facecolor='lightcoral', alpha=0.4, zorder=0.)
-    #         ax3.text(0.5, proxyMax, proxyLabel, color='lightcoral', verticalalignment='bottom')
-    #         ax4.text(0.5, proxyMax, proxyLabel, color='lightcoral', verticalalignment='bottom')
+    #add optional proxy estimates as reference
+    if proxy_flag:
+        if proxy_std != '':
+            ax3.axhspan(proxy_mean - proxy_std, proxy_mean + proxy_std, facecolor='lightcoral', alpha=0.4, zorder=0.)
+            ax4.axhspan(proxy_mean - proxy_std, proxy_mean + proxy_std, facecolor='lightcoral', alpha=0.4, zorder=0.)
+            ax3.text(1.5, proxy_mean + proxy_std, proxy_label, fontsize=20, color='lightcoral', verticalalignment='bottom')
+            ax4.text(1.5, proxy_mean + proxy_std, proxy_label, fontsize=20, color='lightcoral', verticalalignment='bottom')
 
 
     # modify legends and axes
@@ -265,7 +264,7 @@ def location_data_boxplot(df, variable):
     #     titleString = 'DeepMIP ' + deepmipVariableDict[variable]['longname'] + ' for "' + siteName + '": LAT = ' + str(np.round(paleoLat, 1)) + ', LON = ' + str(np.round(paleoLon, 1)) 
     # else:
     #     titleString = 'DeepMIP ' + deepmipVariableDict[variable]['longname'] + ' at: LAT = ' + str(np.round(paleoLat, 1)) + ', LON = ' + str(np.round(paleoLon, 1)) 
-    titleString = 'DeepMIP ' + variable_dict[variable]['longname']
+    titleString = 'DeepMIP (~55 Ma) ' + variable_dict[variable]['longname']+ ' (LAT = ' + str(np.round(plat, 1)) + ' / LON = ' + str(np.round(plon, 1)) + ')' 
 
     yLabel = variable_dict[variable]['label']
 

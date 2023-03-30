@@ -10,7 +10,7 @@ from app_modules import init_widgets, init_sidebar
 
 from deepmip_modules import get_paleo_location_herold, get_model_point_data, box_whisker_plot
 
-st.title('DeepMIP database point data')
+st.title('Analyse model point data')
 
 init_sidebar()
 
@@ -18,9 +18,9 @@ for k, v in st.session_state.items():
     if k != "FormSubmitter:my_form-Get Data":
         st.session_state[k] = v
 
-modern_lat, modern_lon, user_variable = init_widgets()
+modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label = init_widgets()
 
-for v in [modern_lat, modern_lon, user_variable]:
+for v in [modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label]:
     st.session_state.v = v
 
 ## step 1: get paleo position consistent with DeepMIP model geography   
