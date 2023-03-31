@@ -83,7 +83,7 @@ def init_widgets():
 
         with col4:
             st.write("compare to proxy?")
-            if 'modern_lat' in st.session_state:
+            if 'proxy_check' in st.session_state:
                 proxy_check  = st.checkbox(
                         label       = ' ', 
                         key         = "proxy_check")
@@ -93,27 +93,45 @@ def init_widgets():
                         key         = "proxy_check",
                         value       = True)
         with col5:
-            proxy_mean  = st.number_input(
-                    label       = 'proxy mean', 
-                    value       = 24.0,
-                    step        = 1.0, 
-                    format      = "%.1f", 
-                    key         = "proxy_mean")
-                    
+            if 'proxy_mean' in st.session_state:
+                proxy_mean  = st.number_input(
+                        label       = 'proxy mean', 
+                        step        = 1.0, 
+                        format      = "%.1f", 
+                        key         = "proxy_mean")
+            else:
+                proxy_mean  = st.number_input(
+                        label       = 'proxy mean', 
+                        value       = 24.0,
+                        step        = 1.0, 
+                        format      = "%.1f", 
+                        key         = "proxy_mean")
+                                    
         with col6:
-            proxy_std  = st.number_input(
-                    label       = 'proxy uncertainty', 
-                    value       = 5.0,
-                    step        = 1.0, 
-                    format      = "%.1f", 
-                    key         = "proxy_std")
-
+            if 'proxy_std' in st.session_state:
+                proxy_std  = st.number_input(
+                        label       = 'proxy uncertainty', 
+                        step        = 1.0, 
+                        format      = "%.1f", 
+                        key         = "proxy_std")
+            else:
+                proxy_std  = st.number_input(
+                        label       = 'proxy uncertainty', 
+                        value       = 5.0,
+                        step        = 1.0, 
+                        format      = "%.1f", 
+                        key         = "proxy_std")
         with col7:
-            proxy_label  = st.text_input(
-                    label       = 'proxy label', 
-                    value       = 'Bristol dummy',
-                    key         = "proxy_label")
-                                              
+            if 'proxy_label' in st.session_state:
+                proxy_label  = st.text_input(
+                        label       = 'proxy label', 
+                        key         = "proxy_label")
+            else:
+                proxy_label  = st.text_input(
+                        label       = 'proxy label', 
+                        value       = 'Bristol dummy',
+                        key         = "proxy_label")   
+                                                         
         submit_button   = st.form_submit_button(
                         label               = 'Get Data',
                         use_container_width = True)
