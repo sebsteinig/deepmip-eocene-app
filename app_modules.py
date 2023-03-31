@@ -83,11 +83,15 @@ def init_widgets():
 
         with col4:
             st.write("compare to proxy?")
-            proxy_check  = st.checkbox(
-                    label       = ' ', 
-                    key         = "proxy_check",
-                    value       = True)
-
+            if 'modern_lat' in st.session_state:
+                proxy_check  = st.checkbox(
+                        label       = ' ', 
+                        key         = "proxy_check")
+            else:
+                proxy_check  = st.checkbox(
+                        label       = ' ', 
+                        key         = "proxy_check",
+                        value       = True)
         with col5:
             proxy_mean  = st.number_input(
                     label       = 'proxy mean', 
