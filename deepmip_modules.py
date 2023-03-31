@@ -184,11 +184,22 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
                 else:
                     site_data = var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon_model}, method='nearest').values
                     unit = variable_dict[variable]['unit']
+
+                # get GMST
+                exp_list = model_dict[model]['exps']
+                gmst_list = model_dict[model]['gmst']
+
+                # check vailable model experiments against full list
+                for count, model_exp in enumerate(exp_list):
+                    if model_exp == exp:
+                        gmst = gmst_list[count]
+
                 # store results for individual metrics in a dictionary
                 data_list.append(dict(  model_short = model_dict[model]['abbrv'], 
                                         model = model,
                                         experiment = exp_dict[exp]['medium_name'], 
-                                        CO2 = float(exp_dict[exp]['CO2']), 
+                                        CO2 = float(exp_dict[exp]['CO2']),
+                                        GMST = gmst,  
                                         lat = np.round(lookup_lat, 2),
                                         lon = np.round(lookup_lon,2),
                                         var = variable,
@@ -229,11 +240,16 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
 
     return df.round(1)
 
-def location_data_boxplot(df, plat, plon, proxy_flag, proxy_mean, proxy_std, proxy_label ):
+def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label ):
 
     df_plot = df[(df.model != 'ensemble_mean')]
 
-    variable = df.iloc[0]['var']
+    # get paleolocation
+    df_Eocene = df_plot.loc[df_plot['experiment'] != 'piControl']
+    plat = df_Eocene.iloc[0]['lat']
+    plon = df_Eocene.iloc[0]['lon']
+
+    variable = df_plot.iloc[0]['var']
 
     # change dataframe from wide (9 columns) to long (3 columns) format to use hue method in seaborn boxplot
     dfMelt = pd.melt(df_plot, id_vars=['experiment'], value_vars=['annual_mean','monthly_min','monthly_min','monthly_max','DJF','MAM','JJA','SON'])
@@ -286,13 +302,17 @@ def location_data_boxplot(df, plat, plon, proxy_flag, proxy_mean, proxy_std, pro
 
     return fig
 
-def box_whisker_plot(df, var_y, var_x):
+def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy_label):
 
     df_plot = df[(df.model != 'ensemble_mean')]
 
+    # get paleolocation
+    df_Eocene = df_plot.loc[df_plot['experiment'] != 'piControl']
+    plat = df_Eocene.iloc[0]['lat']
+    plon = df_Eocene.iloc[0]['lon']
+
     if var_x == "experiment":
         df_redcued = df_plot
-        
     else:
         df_redcued = df_plot.loc[df_plot['experiment'] != 'piControl']
 
@@ -301,8 +321,21 @@ def box_whisker_plot(df, var_y, var_x):
     for key, value in exp_dict.items():
         list_medium_names.append(value['medium_name'])
 
+    # add proxy reference annotation
+    if proxy_check:
+        hspan  = hv.HSpan(proxy_mean - proxy_std, proxy_mean + proxy_std).opts(
+                    opts.HSpan(color='lightcoral', alpha=0.4))
+        
+        if var_x == "experiment":
+            text_x = 'DeepMIP_1x'
+        elif var_x == "CO2":
+            text_x = 500           
+        elif var_x == "GMST":
+            text_x = 20        
 
-
+        htext  = hv.Text(text_x, proxy_mean + 1.2 * proxy_std, proxy_label).opts(
+                    opts.Text(color='lightcoral'))
+        
     scatter = hv.Scatter(df_redcued,
                      kdims=[var_x],
                      vdims=[var_y, 'model_short']
@@ -318,7 +351,6 @@ def box_whisker_plot(df, var_y, var_x):
                                 height=400, 
                                 show_legend=True, 
                                 legend_position='top', 
-                                # legend_offset=(0, 119), 
                                 size=12, 
                                 tools=['hover', 'wheel_zoom'], 
                                 line_color='black', 
@@ -341,14 +373,18 @@ def box_whisker_plot(df, var_y, var_x):
                                     box_fill_color='#63c5da')
                             )
     
-        composition = box * scatter
+        if proxy_check:
+            composition = hspan * box * scatter * htext
+        else:
+            composition = box * scatter
+          
 
 
     else:
 
         line = hv.Curve(df_redcued,
                         kdims=[var_x],
-                        vdims=[var_y, 'model_short','annual_mean']
+                        vdims=[var_y, 'model_short']
                         ).redim.values(**{'experiment':list_medium_names}
                         ).groupby(
                             'model_short'
@@ -356,13 +392,11 @@ def box_whisker_plot(df, var_y, var_x):
                         ).opts(
                             opts.Scatter(
                                     size=12)) 
-    
 
-        hspan  = hv.HSpan(20, 30).opts(
-                    opts.HSpan(color='lightcoral', alpha=0.4))
-
-        composition =  hspan * scatter * line
-
+        if proxy_check:
+            composition =  hspan * htext * line * scatter
+        else:
+            composition =  scatter * line          
 
 
     return composition

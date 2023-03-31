@@ -58,11 +58,15 @@ with col2:
                     index       = 1,
                     key         = "x_axis")
     
-bokeh_composition = box_whisker_plot(df_model, var_y, var_x)
+bokeh_composition1 = box_whisker_plot(df_model, var_y, 'experiment', proxy_check, proxy_mean, proxy_std, proxy_label)
+st.bokeh_chart(hv.render(bokeh_composition1, backend='bokeh'))
 
-
-st.bokeh_chart(hv.render(bokeh_composition, backend='bokeh'))
-
+    
+bokeh_composition2 = box_whisker_plot(df_model, var_y, 'CO2', proxy_check, proxy_mean, proxy_std, proxy_label)
+st.bokeh_chart(hv.render(bokeh_composition2, backend='bokeh'))
+    
+bokeh_composition3 = box_whisker_plot(df_model, var_y, 'GMST', proxy_check, proxy_mean, proxy_std, proxy_label)
+st.bokeh_chart(hv.render(bokeh_composition3, backend='bokeh'))
 
 
 

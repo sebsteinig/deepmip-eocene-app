@@ -126,7 +126,7 @@ st.markdown('''
 # proxy_check, proxy_mean, proxy_std, proxy_label = init_proxy_input()
 
 
-fig = location_data_boxplot(df_model, float(df_locations['Eocene (55Ma) lat']), float(df_locations['Eocene (55Ma) lon']), proxy_check, proxy_mean, proxy_std, proxy_label)
+fig = location_data_boxplot(df_model, proxy_check, proxy_mean, proxy_std, proxy_label)
 
 
 # Create an in-memory buffer
