@@ -7,6 +7,7 @@ import cmocean
 import seaborn as sns
 import holoviews as hv
 from holoviews import opts
+from bokeh.models import BoxAnnotation
 
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from pathlib import Path
@@ -228,9 +229,11 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
 
     return df.round(1)
 
-def location_data_boxplot(df, variable, plat, plon, proxy_flag, proxy_mean, proxy_std, proxy_label ):
+def location_data_boxplot(df, plat, plon, proxy_flag, proxy_mean, proxy_std, proxy_label ):
 
     df_plot = df[(df.model != 'ensemble_mean')]
+
+    variable = df.iloc[0]['var']
 
     # change dataframe from wide (9 columns) to long (3 columns) format to use hue method in seaborn boxplot
     dfMelt = pd.melt(df_plot, id_vars=['experiment'], value_vars=['annual_mean','monthly_min','monthly_min','monthly_max','DJF','MAM','JJA','SON'])
@@ -266,7 +269,7 @@ def location_data_boxplot(df, variable, plat, plon, proxy_flag, proxy_mean, prox
     #     titleString = 'DeepMIP ' + deepmipVariableDict[variable]['longname'] + ' at: LAT = ' + str(np.round(paleoLat, 1)) + ', LON = ' + str(np.round(paleoLon, 1)) 
     titleString = 'DeepMIP (~55 Ma) ' + variable_dict[variable]['longname']+ ' (LAT = ' + str(np.round(plat, 1)) + ' / LON = ' + str(np.round(plon, 1)) + ')' 
 
-    yLabel = variable_dict[variable]['label']
+    yLabel = variable_dict[variable]['longname'] + ' [' + df.iloc[0]['unit'] + ']'
 
     handles, labels = ax3.get_legend_handles_labels()
     ax3.legend(handles[0:3], labels[0:3], fontsize='16');
@@ -283,26 +286,26 @@ def location_data_boxplot(df, variable, plat, plon, proxy_flag, proxy_mean, prox
 
     return fig
 
-def box_whisker_plot(df, metric):
+def box_whisker_plot(df, var_y, var_x):
 
     df_plot = df[(df.model != 'ensemble_mean')]
-    dfEocene = df_plot.loc[df_plot['experiment'] != 'piControl']
+
+    if var_x == "experiment":
+        df_redcued = df_plot
+        
+    else:
+        df_redcued = df_plot.loc[df_plot['experiment'] != 'piControl']
 
         # generate list of medium-length experiment anmes for plot ordering
     list_medium_names = []
     for key, value in exp_dict.items():
         list_medium_names.append(value['medium_name'])
 
-    # box = hv.BoxWhisker(dfEocene,
-    #                      kdims=['CO2'],
-    #                      vdims=[metric]
-    #                     ).opts(
-    #                     opts.BoxWhisker(logx=True,box_color='white', width=940, height=400, show_legend=False, whisker_color='black',box_fill_color='#63c5da')
-    #                     )
 
-    scatter = hv.Scatter(dfEocene,
-                     kdims=['CO2'],
-                     vdims=[metric, 'model_short','annual_mean']
+
+    scatter = hv.Scatter(df_redcued,
+                     kdims=[var_x],
+                     vdims=[var_y, 'model_short']
                     ).redim.values(**{'experiment':list_medium_names}
                     ).groupby(
                         'model_short'
@@ -321,20 +324,45 @@ def box_whisker_plot(df, metric):
                                 line_color='black', 
                                 fontsize={'legend': 10.8})) 
     
-    line = hv.Curve(dfEocene,
-                     kdims=['CO2'],
-                     vdims=[metric, 'model_short','annual_mean']
-                    ).redim.values(**{'experiment':list_medium_names}
-                    ).groupby(
-                        'model_short'
-                    ).overlay(
-                    ).opts(
-                        opts.Scatter(
-                                size=12)) 
+
+    if var_x == "experiment":
+
+        box = hv.BoxWhisker(df_redcued,
+                            kdims=[var_x],
+                            vdims=[var_y]
+                            ).opts(
+                            opts.BoxWhisker(
+                                    logx=True,
+                                    box_color='white',
+                                    width=705, 
+                                    height=400, 
+                                    show_legend=False, 
+                                    whisker_color='black',
+                                    box_fill_color='#63c5da')
+                            )
+    
+        composition = box * scatter
+
+
+    else:
+
+        line = hv.Curve(df_redcued,
+                        kdims=[var_x],
+                        vdims=[var_y, 'model_short','annual_mean']
+                        ).redim.values(**{'experiment':list_medium_names}
+                        ).groupby(
+                            'model_short'
+                        ).overlay(
+                        ).opts(
+                            opts.Scatter(
+                                    size=12)) 
     
 
-    # composition = box * scatter
-    composition = line * scatter
+        hspan  = hv.HSpan(20, 30).opts(
+                    opts.HSpan(color='lightcoral', alpha=0.4))
+
+        composition =  hspan * scatter * line
+
 
 
     return composition

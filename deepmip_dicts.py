@@ -129,18 +129,18 @@ model_dict['MIROC4m']   = { \
 variable_dict    = dict()
 variable_dict['tas']    = { \
         'longname' : 'near-surface air temperature',
-        'label' : 'temperature [K]',
+        'label' : 'temperature',
         'unit' : 'K',
         }
 
 variable_dict['pr']    = { \
         'longname' : 'precipitation',
-        'label' : 'total precipitation [mm/day]',
+        'label' : 'total precipitation',
         'unit' : 'kgm-2s-1',
         }
         
 variable_dict['tos']    = { \
         'longname' : 'sea surface temperature',
-        'label' : 'temperature [$^\circ$C]',
-        'unit' : 'degC',
+        'label' : 'temperature',
+        'unit' : '°C',
         }
