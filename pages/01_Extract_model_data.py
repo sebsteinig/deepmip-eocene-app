@@ -23,13 +23,14 @@ st.markdown('''
             ''', unsafe_allow_html=True
             )
 
+
 for k, v in st.session_state.items():
     if k != "FormSubmitter:my_form-Get Data":
         st.session_state[k] = v
 
 modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label = init_widgets()
 
-for v in [modern_lat, modern_lon, user_variable]:
+for v in [modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label]:
     st.session_state.v = v
 
 ## step 1: get paleo position consistent with DeepMIP model geography   
