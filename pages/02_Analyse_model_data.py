@@ -43,20 +43,11 @@ df_model = get_model_point_data(
 
 
 
-col1, col2 = st.columns(2)
 
-with col1:
-    var_y   = st.selectbox(
-                    label       = "y-axis variable", 
-                    options     = ["annual_mean", "monthly_min", "monthly_max", "DJF", "MAM", "JJA", "SON", "Jan", "Feb", "Mar", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                    key         = "y_axis")
-
-with col2:
-    var_x   = st.selectbox(
-                    label       = "x-axis variable", 
-                    options     = ["experiment", "CO2", "GMST"],
-                    index       = 1,
-                    key         = "x_axis")
+var_y   = st.selectbox(
+                label       = "y-axis variable", 
+                options     = ["annual_mean", "monthly_min", "monthly_max", "DJF", "MAM", "JJA", "SON", "Jan", "Feb", "Mar", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                key         = "y_axis")
     
 bokeh_composition1 = box_whisker_plot(df_model, var_y, 'experiment', proxy_check, proxy_mean, proxy_std, proxy_label)
 st.bokeh_chart(hv.render(bokeh_composition1, backend='bokeh'))

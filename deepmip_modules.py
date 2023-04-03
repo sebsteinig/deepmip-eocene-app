@@ -313,9 +313,15 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
 
     if var_x == "experiment":
         df_redcued = df_plot
-    else:
+        log_x = False
+    elif var_x == "CO2":
+        log_x = True
         df_redcued = df_plot.loc[df_plot['experiment'] != 'piControl']
+    elif var_x == "GMST":
+        log_x = False
+        df_redcued = df_plot.loc[df_plot['experiment'] != 'piControl']   
 
+    x_label='tes'   
         # generate list of medium-length experiment anmes for plot ordering
     list_medium_names = []
     for key, value in exp_dict.items():
@@ -338,14 +344,15 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
         
     scatter = hv.Scatter(df_redcued,
                      kdims=[var_x],
-                     vdims=[var_y, 'model_short']
+                     vdims=[var_y, 'model_short'],
                     ).redim.values(**{'experiment':list_medium_names}
                     ).groupby(
                         'model_short'
                     ).overlay(
                     ).opts(
                         opts.Scatter(
-                                logx=True,
+                                logx=log_x,
+                                xlabel='Custom x-label',
                                 jitter=0.2,
                                 width=705, 
                                 height=400, 
@@ -364,7 +371,7 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
                             vdims=[var_y]
                             ).opts(
                             opts.BoxWhisker(
-                                    logx=True,
+                                    logx=log_x,
                                     box_color='white',
                                     width=705, 
                                     height=400, 
