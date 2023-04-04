@@ -16,8 +16,6 @@ RUN git clone https://github.com/sebsteinig/deepmip_database_app.git .
 
 RUN pip3 install -r requirements.txt
 
-ENV PATH=“${PATH}:/root/.local/bin”
-
 EXPOSE 8501
 
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
