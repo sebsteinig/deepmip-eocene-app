@@ -9,12 +9,17 @@ RUN apt-get update && apt-get install -y \
     curl \
     software-properties-common \
     git \
+    python3-dev \
     libgeos-dev \
     && rm -rf /var/lib/apt/lists/*
 
+RUN python3 -m pip install --upgrade pip setuptools wheel
+
 RUN git clone https://github.com/sebsteinig/deepmip_database_app.git .
 
-RUN pip3 install -r requirements.txt
+#RUN pip3 install -r requirements.txt
+ADD requirements.txt .
+RUN python3 -m pip install --no-cache-dir --compile -r requirements.txt
 
 EXPOSE 8501
 
