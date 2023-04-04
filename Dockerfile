@@ -9,14 +9,14 @@ RUN apt-get update && apt-get install -y \
     curl \
     software-properties-common \
     git \
+    libgeos-dev \
     && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y \
-    libgeos-dev
 
 RUN git clone https://github.com/sebsteinig/deepmip_database_app.git .
 
 RUN pip3 install -r requirements.txt
+
+ENV PATH=“${PATH}:/root/.local/bin”
 
 EXPOSE 8501
 
