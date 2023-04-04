@@ -15,9 +15,9 @@ RUN apt-get update && apt-get install -y \
 
 RUN python3 -m pip install --upgrade pip setuptools wheel
 
-RUN git clone https://github.com/sebsteinig/deepmip_database_app.git .
+RUN pip3 install "shapely<2" --no-binary shapely
 
-RUN pip3 install --upgrade --no-binary shapely shapely
+RUN git clone https://github.com/sebsteinig/deepmip_database_app.git .
 
 #RUN pip3 install -r requirements.txt
 ADD requirements.txt .
