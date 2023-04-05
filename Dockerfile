@@ -13,13 +13,13 @@ RUN apt-get update && apt-get install -y \
     libgeos-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# libgeos-dev above and next two lines necessary to fix issues with cartopy projections
 RUN python3 -m pip install --upgrade pip setuptools wheel
-
 RUN pip3 install "shapely<2" --no-binary shapely
 
 RUN git clone https://github.com/sebsteinig/deepmip_database_app.git .
 
-#RUN pip3 install -r requirements.txt
+# install dependencies with pip
 ADD requirements.txt .
 RUN python3 -m pip install --no-cache-dir --compile -r requirements.txt
 
