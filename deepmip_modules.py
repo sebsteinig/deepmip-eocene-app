@@ -136,15 +136,19 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
     # allocate empty list to store results for all models
     data_list = []
 
-
     # loop over all models and experiments
     for exp in exp_dict.keys():
         for model in model_dict.keys():
+            print(model)
 
             # construct filename following the DeepMIP convention
-            model_file = 'data/User_Model_Database_v1.0/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
-                        '/' + model + '-' + exp + '-' + variable + '-' + model_dict[model]['versn'] + '.mean.nc'
-
+            if variable == "tos":
+                model_file = 'data/data_for_DeepMIP_app/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
+                            '/' + model + '-' + exp + '-' + variable + '-' + model_dict[model]['versn'] + '.mean.r180x90.filled.nc'
+            else:
+                model_file = 'data/data_for_DeepMIP_app/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
+                            '/' + model + '-' + exp + '-' + variable + '-' + model_dict[model]['versn'] + '.mean.r180x90.nc'    
+                            
             # load data if file for model/experiment combination exists
             if Path(model_file).exists():
                 ds_model = xr.open_dataset(model_file, decode_times=False)
