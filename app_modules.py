@@ -37,7 +37,7 @@ def init_widgets():
                             label       = 'modern latitude of site', 
                             min_value   = -90.0,
                             max_value   = 90.0, 
-                            value       = 54.5, 
+                            value       = 51.5, 
                             step        = 1.0, 
                             format      = "%.1f", 
                             key         = "modern_lat")
@@ -129,7 +129,7 @@ def init_widgets():
             else:
                 proxy_label  = st.text_input(
                         label       = 'proxy label', 
-                        value       = 'Bristol dummy',
+                        value       = 'Bristol',
                         key         = "proxy_label")   
                                                          
         submit_button   = st.form_submit_button(

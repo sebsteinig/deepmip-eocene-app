@@ -9,7 +9,9 @@ import holoviews as hv
 from holoviews import opts
 from bokeh.models import BoxAnnotation
 
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from matplotlib.colors import BoundaryNorm
+import matplotlib.colors as colors
+
 from pathlib import Path
 
 from deepmip_dicts import exp_dict, model_dict, variable_dict
@@ -55,84 +57,6 @@ def get_paleo_location_herold(modern_lat, modern_lon):
     # return DataFrame    
     return df
 
-def plot_global_paleogeography(df, projection):
-    ### plot Eocene paleogeography with rotated site(s)
-    
-    # open Herold et al. (2014) paleogeography
-    # cyclic longitude for contourf plot was added with cdo (cdo sethalo,1,0)
-    # for better performance, but can also be added in Python with:
-    # geography, lonsc = add_cyclic_point(ds_herold.topo, ds_herold.lon)
-    ds_herold = xr.open_dataset('data/herold_etal_eocene_topo_1x1.halo.nc')
-    # ds_herold = xr.open_dataset('data/herold_etal_eocene_topo_1x1.r180x90.halo.nc')
-
-
-    # add cyclic longitude for plotting
-    
-
-    if projection == "global":
-        proj =ccrs.PlateCarree()
-    elif projection == "ortho":
-        proj =ccrs.Orthographic(central_longitude= float(df['Eocene (55Ma) lon']), central_latitude= float(df['Eocene (55Ma) lat']))
-
-    # plot global map
-    fig, ax = plt.subplots(1, subplot_kw=dict(projection=proj))
-    # fig, ax = plt.subplots(1)
-
-    # cf1 = ax.contourf(lonsc, lats, geography, cmap='cmo.topo', levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
-
-    ds_herold.topo.plot.contourf(
-        ax=ax, 
-        cmap='cmo.topo', 
-        levels=21, 
-        vmin=-5000, 
-        vmax=5000, 
-        transform=ccrs.PlateCarree(),
-        extend='both',
-        cbar_kwargs={'orientation': 'horizontal', 'label': 'surface elevation [m]', 'pad': 0.1})
-    # add modern coastlines for comparison
-    ax.coastlines(color='gray')
-
-    if projection == "global":
-        # add axis tick labels
-        ax.set_xticks([-180,-120, -60, 0, 60, 120, 180], crs=ccrs.PlateCarree())
-        ax.set_yticks([-90, -60, -30, 0, 30, 60, 90], crs=ccrs.PlateCarree())
-        ax.xaxis.set_major_formatter(LongitudeFormatter())
-        ax.yaxis.set_major_formatter(LatitudeFormatter())
-
-        ax.set_xlabel('')
-        ax.set_ylabel('')
-
-    # ax.set(title = '55Ma paleolocation: LAT = ' + str(np.round(df['Eocene (55Ma) lat'], 1)) + ', LON = ' + str(np.round(df['Eocene (55Ma) lon'], 1)) , xlabel='', ylabel='')
-
-    # plot orthographic ma with site in center
-    # ax2 = plt.subplot(gs[1], projection=ccrs.Orthographic(paleo_lon, paleo_lat))
-    # ax2 = plt.subplot(gs[1], projection=ccrs.Orthographic(0, 0))
-    # # ax2.contourf(lonsc, lats, geography, levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
-    # ax2.contourf(lonsc, lats, geography, cmap='cmo.topo', levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
-    # ax2.coastlines()
-
-    # add site marker at paleolocation
-    ax.plot(df['modern lon'], df['modern lat'], 'ro', markersize=8, markerfacecolor='none', markeredgecolor='r', transform=ccrs.PlateCarree())
-    ax.plot(df['Eocene (55Ma) lon'], df['Eocene (55Ma) lat'], 'ro', markersize=8, markeredgecolor='black', transform=ccrs.PlateCarree())
-    ax.set_global()
-    # # if siteName != '':
-    #     if (paleo_lon > -100):
-    #         labelLon = paleo_lon-5
-    #         labelAlignment = 'right'
-    #     else:
-    #         labelLon = paleo_lon+5
-    #         labelAlignment = 'left'        
-    #     ax1.text(labelLon, paleo_lat-15, siteName, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=12, transform=ccrs.PlateCarree())
-    #     ax2.text(labelLon, paleo_lat-10, siteName, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=12, transform=ccrs.PlateCarree())
-
-    # add common colorbar
-    # cbar_ax = fig1.add_axes([0.15, 0.05, 0.7, 0.05])
-    # cb = plt.colorbar(cf1, cax=cbar_ax, orientation='horizontal', extend='both')
-    # cb.set_label('surface elevation [m]', size=12)
-    # plt.tight_layout()
-
-    return fig
-
 def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable):
 
     # allocate empty list to store results for all models
@@ -141,7 +65,6 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
     # loop over all models and experiments
     for exp in exp_dict.keys():
         for model in model_dict.keys():
-            print(model)
 
             # construct filename following the DeepMIP convention
             if variable == "tos":
@@ -358,7 +281,8 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
                     ).opts(
                         opts.Scatter(
                                 logx=log_x,
-                                xlabel='Custom x-label',
+                                xlabel=var_x,
+                                ylabel=var_y,
                                 jitter=0.2,
                                 width=705, 
                                 height=400, 
@@ -413,3 +337,233 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
 
 
     return composition
+
+def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid_check, labels_check):
+    ### plot Eocene paleogeography with rotated site(s)
+    
+    # open Herold et al. (2014) paleogeography
+    # cyclic longitude for contourf plot was added with cdo (cdo sethalo,1,0)
+    # for better performance, but can also be added in Python with:
+    # geography, lonsc = add_cyclic_point(ds_herold.topo, ds_herold.lon)
+    ds_herold = xr.open_dataset('data/herold_etal_eocene_topo_1x1.halo.nc')
+    # ds_herold = xr.open_dataset('data/herold_etal_eocene_topo_1x1.r180x90.halo.nc')
+
+
+    # add cyclic longitude for plotting
+    
+
+    if projection == "Equirectangular":
+        proj =ccrs.PlateCarree()
+        cbar_orientation = 'horizontal'
+        cbar_pad = 0.1
+    elif projection == "Robinson":
+        proj =ccrs.Robinson(central_longitude=0)
+        cbar_orientation = 'horizontal'
+        cbar_pad = 0.1
+    elif projection == "Orthographic":
+        proj =ccrs.Orthographic(central_longitude=float(df['Eocene (55Ma) lon']), central_latitude= float(df['Eocene (55Ma) lat']))
+        cbar_orientation = 'vertical'
+        cbar_pad = 0.05
+
+    # plot global map
+    fig, ax = plt.subplots(1, subplot_kw=dict(projection=proj))
+    # fig, ax = plt.subplots(1)
+
+    # cf1 = ax.contourf(lonsc, lats, geography, cmap='cmo.topo', levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
+
+    ds_herold.topo.plot.contourf(
+        ax=ax, 
+        cmap='cmo.topo', 
+        levels=21, 
+        vmin=-5000, 
+        vmax=5000, 
+        transform=ccrs.PlateCarree(),
+        extend='both',
+        cbar_kwargs={'orientation': cbar_orientation, 'label': 'surface elevation [m]', 'pad': cbar_pad})
+    # add modern coastlines for comparison
+    ax.coastlines(color=outline_colour)
+
+    gl = ax.gridlines(draw_labels = labels_check, linewidth=1., color='gray', alpha=0.5, linestyle='--')
+    gl.top_labels = False
+    gl.xlines = grid_check
+    gl.ylines = grid_check
+
+    if proxy_label != '':
+        ax.set_title(label = '55 Ma paleolocation for ' + proxy_label +  ': LAT = ' + str(np.round(float(df['Eocene (55Ma) lat']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon']), 1)) , fontsize=10)
+    else:
+        ax.set_title(label = '55 Ma paleolocation: LAT = ' + str(np.round(float(df['Eocene (55Ma) lat']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon']), 1)) , fontsize=10)
+
+    # plot orthographic ma with site in center
+    # ax2 = plt.subplot(gs[1], projection=ccrs.Orthographic(paleo_lon, paleo_lat))
+    # ax2 = plt.subplot(gs[1], projection=ccrs.Orthographic(0, 0))
+    # # ax2.contourf(lonsc, lats, geography, levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
+    # ax2.contourf(lonsc, lats, geography, cmap='cmo.topo', levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
+    # ax2.coastlines()
+
+    # add site marker at paleolocation
+    ax.plot(df['modern lon'], df['modern lat'], 'ro', markersize=9, markerfacecolor='none', markeredgecolor='r', transform=ccrs.PlateCarree())
+    ax.plot(df['Eocene (55Ma) lon'], df['Eocene (55Ma) lat'], 'ro', markersize=9, markeredgecolor='black', transform=ccrs.PlateCarree())
+    ax.set_global()
+    if proxy_label != '':
+        if (float(df['Eocene (55Ma) lon']) > -100):
+            labelLon = float(df['Eocene (55Ma) lon'])-5
+            labelAlignment = 'right'
+        else:
+            labelLon = float(df['Eocene (55Ma) lon'])+5
+            labelAlignment = 'left' 
+
+        if projection == "Orthographic":      
+            ax.text(labelLon, float(df['Eocene (55Ma) lat'])-7, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+        elif projection == "Robinson": 
+            ax.text(labelLon, float(df['Eocene (55Ma) lat'])-15, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+        else:
+            ax.text(labelLon, float(df['Eocene (55Ma) lat'])-18, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+
+    # add common colorbar
+    # cbar_ax = fig1.add_axes([0.15, 0.05, 0.7, 0.05])
+    # cb = plt.colorbar(cf1, cax=cbar_ax, orientation='horizontal', extend='both')
+    # cb.set_label('surface elevation [m]', size=12)
+    # plt.tight_layout()
+
+    return fig
+
+def plot_model_geographies(df, projection):
+    ### plot Eocene paleogeography around rotated site for each DeepMIP model
+    
+    if projection == "Equirectangular":
+        proj =ccrs.PlateCarree()
+        cbar_orientation = 'horizontal'
+        cbar_pad = 0.1
+    elif projection == "Robinson":
+        proj =ccrs.Robinson(central_longitude=0)
+        cbar_orientation = 'horizontal'
+        cbar_pad = 0.1
+    elif projection == "Orthographic":
+        proj =ccrs.Orthographic(central_longitude=float(df['Eocene (55Ma) lon']), central_latitude= float(df['Eocene (55Ma) lat']))
+        cbar_orientation = 'vertical'
+        cbar_pad = 0.05
+
+    # plot global map
+    fig, ax = plt.subplots(nrows=8, ncols=2, figsize=(9.6, 32), subplot_kw=dict(projection=proj))
+
+    for model_count,model in enumerate(model_dict.keys()):
+            
+            # get boundary conditions from first Eocene simulation
+            exp = model_dict[model]['exps'][1]
+
+            model_file_orog = 'data/data_for_DeepMIP_app/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
+                            '/' + model + '-' + exp + '-orog-' + model_dict[model]['versn'] + '.nc'    
+            model_file_deptho = 'data/data_for_DeepMIP_app/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
+                            '/' + model + '-' + exp + '-deptho-' + model_dict[model]['versn'] + '.nc'    
+
+            cmap = plt.cm.get_cmap('cmo.topo').copy()
+            # land color
+            cmap.set_under('DarkGray')
+
+            plat = df['Eocene (55Ma) lat']
+            plon = df['Eocene (55Ma) lon']
+
+            levels_mean = np.arange(-5000,5000,250)
+
+            #norm = BoundaryNorm(levels_mean, ncolors=cmap.N, clip=False)
+            norm = colors.TwoSlopeNorm(vmin=-5500., vcenter=0, vmax=3000)
+                               
+            # load data if file for model/experiment combination exists
+            if Path(model_file_orog).exists():
+                ds_orog = xr.open_dataset(model_file_orog, decode_times=False)
+                ds_deptho = xr.open_dataset(model_file_deptho, decode_times=False)
+
+                # orog = 
+
+                # get coordinate names
+                for coord in ds_orog.coords:
+                    if coord in ['lat', 'latitude', 'lat_2']:
+                        lat_name_orog = coord
+                    elif coord in ['lon', 'longitude']:
+                        lon_name_orog = coord
+
+                for coord in ds_deptho.coords:
+                    if coord in ['lat', 'latitude', 'lat_2', 'nav_lat','TLAT','geolat_t']:
+                        lat_name_deptho = coord
+                    elif coord in ['lon', 'longitude', 'nav_lon','TLONG','geolon_t']:
+                        lon_name_deptho = coord
+
+                # im_orog=ax[model_count,0].pcolormesh(ds.lon_name, ds.lat_name, ds.squeeze().fillna(-999).orog, transform=ccrs.PlateCarree(), cmap=cmap, norm=norm)
+                im_deptho=ax[model_count,0].pcolormesh(ds_deptho[str(lon_name_deptho)], ds_deptho[str(lat_name_deptho)], ds_deptho.squeeze().where(ds_deptho.squeeze().deptho>0.).fillna(9999).deptho*-1., transform=ccrs.PlateCarree(), cmap=cmap, norm=norm, edgecolors=(0, 0, 0, 0.1), linewidths=0.1)
+                im_orog=ax[model_count,1].pcolormesh(ds_orog[str(lon_name_orog)], ds_orog[str(lat_name_orog)], ds_orog.squeeze().orog.where(ds_orog.squeeze().orog>0.).fillna(-9999), transform=ccrs.PlateCarree(), cmap=cmap, norm=norm, edgecolors=(0, 0, 0, 0.1), linewidths=0.1)
+
+                # ax[model_count,0].coastlines(color="black")
+                # ax[model_count,1].coastlines(color="black")
+
+                ax[model_count,0].set_title(model_dict[model]['abbrv'] + ' bathymetry', fontsize=12)
+                ax[model_count,1].set_title(model_dict[model]['abbrv'] + ' orography', fontsize=12)
+
+                ax[model_count,0].set_extent([plon-30, plon+30, plat-25, plat+25])
+                ax[model_count,1].set_extent([plon-30, plon+30, plat-25, plat+25])
+
+                ax[model_count,0].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
+                ax[model_count,1].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
+
+                gl1 = ax[model_count,0].gridlines(draw_labels = True, linewidth=1., color='gray', alpha=0.5, linestyle='--')
+                gl1.top_labels = False
+                gl1.right_labels = False
+                gl1.xlines = False
+                gl1.ylines = False
+                gl2 = ax[model_count,1].gridlines(draw_labels = True, linewidth=1., color='gray', alpha=0.5, linestyle='--')
+                gl2.top_labels = False
+                gl2.xlines = False
+                gl2.ylines = False
+
+                # ds.plot.contourf(
+                #     ax=ax[model_count,0], 
+                #     cmap='cmo.topo', 
+                #     levels=21, 
+                #     vmin=0, 
+                #     vmax=5000, 
+                #     transform=ccrs.PlateCarree(),
+                #     extend='both')
+
+    # add common colorbar
+    cbar_ax1 = fig.add_axes([0.2, 0.03, 0.6, 0.01])
+    cbar1 = fig.colorbar(im_orog, cax=cbar_ax1, extend="neither", orientation='horizontal')
+    cbar1.ax.tick_params(labelsize=14)
+    cbar1.set_label('surface elevation [m]',size=18)
+
+    fig.subplots_adjust(bottom=0.06, hspace=0.2, wspace=0.0)
+            
+    # add modern coastlines for comparison
+    # ax.coastlines(color=outline_colour)
+
+    # gl = ax.gridlines(draw_labels = labels_check, linewidth=1., color='gray', alpha=0.5, linestyle='--')
+    # gl.top_labels = False
+    # gl.xlines = grid_check
+    # gl.ylines = grid_check
+
+    # if proxy_label != '':
+    #     ax.set_title(label = '55 Ma paleolocation for ' + proxy_label +  ': LAT = ' + str(np.round(float(df['Eocene (55Ma) lat']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon']), 1)) , fontsize=10)
+    # else:
+    #     ax.set_title(label = '55 Ma paleolocation: LAT = ' + str(np.round(float(df['Eocene (55Ma) lat']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon']), 1)) , fontsize=10)
+
+    # # add site marker at paleolocation
+    # ax.plot(df['modern lon'], df['modern lat'], 'ro', markersize=9, markerfacecolor='none', markeredgecolor='r', transform=ccrs.PlateCarree())
+    # ax.plot(df['Eocene (55Ma) lon'], df['Eocene (55Ma) lat'], 'ro', markersize=9, markeredgecolor='black', transform=ccrs.PlateCarree())
+    # ax.set_global()
+    # if proxy_label != '':
+    #     if (float(df['Eocene (55Ma) lon']) > -100):
+    #         labelLon = float(df['Eocene (55Ma) lon'])-5
+    #         labelAlignment = 'right'
+    #     else:
+    #         labelLon = float(df['Eocene (55Ma) lon'])+5
+    #         labelAlignment = 'left' 
+
+    #     if projection == "Orthographic":      
+    #         ax.text(labelLon, float(df['Eocene (55Ma) lat'])-7, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+    #     elif projection == "Robinson": 
+    #         ax.text(labelLon, float(df['Eocene (55Ma) lat'])-15, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+    #     else:
+    #         ax.text(labelLon, float(df['Eocene (55Ma) lat'])-18, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+
+
+
+    return fig
+
