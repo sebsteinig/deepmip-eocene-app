@@ -5,7 +5,7 @@ import cartopy.crs as ccrs
 import io
 
 from app_modules import init_widgets, init_sidebar
-from deepmip_modules import get_paleo_location_herold, plot_paleogeography
+from deepmip_modules import get_paleo_location_herold, plot_global_paleogeography
 
 st.title('DeepMIP database point data')
 
@@ -25,7 +25,7 @@ for v in [modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_
 df_locations = get_paleo_location_herold(modern_lat, modern_lon)
 st.dataframe(df_locations.style.format("{:.1f}"))
 
-fig_geo = plot_paleogeography(df_locations, "global")
+fig_geo = plot_global_paleogeography(df_locations, "ortho")
 
 # fig, ax = plt.subplots(subplot_kw=dict(projection=ccrs.Robinson()))
 
