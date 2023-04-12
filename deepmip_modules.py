@@ -55,7 +55,7 @@ def get_paleo_location_herold(modern_lat, modern_lon):
     # return DataFrame    
     return df
 
-def plot_paleogeography(df, projection):
+def plot_global_paleogeography(df, projection):
     ### plot Eocene paleogeography with rotated site(s)
     
     # open Herold et al. (2014) paleogeography
@@ -72,7 +72,7 @@ def plot_paleogeography(df, projection):
     if projection == "global":
         proj =ccrs.PlateCarree()
     elif projection == "ortho":
-        proj =ccrs.Orthographic()
+        proj =ccrs.Orthographic(central_longitude= float(df['Eocene (55Ma) lon']), central_latitude= float(df['Eocene (55Ma) lat']))
 
     # plot global map
     fig, ax = plt.subplots(1, subplot_kw=dict(projection=proj))
@@ -92,14 +92,15 @@ def plot_paleogeography(df, projection):
     # add modern coastlines for comparison
     ax.coastlines(color='gray')
 
-    # add axis tick labels
-    ax.set_xticks([-180,-120, -60, 0, 60, 120, 180], crs=ccrs.PlateCarree())
-    ax.set_yticks([-90, -60, -30, 0, 30, 60, 90], crs=ccrs.PlateCarree())
-    ax.xaxis.set_major_formatter(LongitudeFormatter())
-    ax.yaxis.set_major_formatter(LatitudeFormatter())
+    if projection == "global":
+        # add axis tick labels
+        ax.set_xticks([-180,-120, -60, 0, 60, 120, 180], crs=ccrs.PlateCarree())
+        ax.set_yticks([-90, -60, -30, 0, 30, 60, 90], crs=ccrs.PlateCarree())
+        ax.xaxis.set_major_formatter(LongitudeFormatter())
+        ax.yaxis.set_major_formatter(LatitudeFormatter())
 
-    ax.set_xlabel('')
-    ax.set_ylabel('')
+        ax.set_xlabel('')
+        ax.set_ylabel('')
 
     # ax.set(title = '55Ma paleolocation: LAT = ' + str(np.round(df['Eocene (55Ma) lat'], 1)) + ', LON = ' + str(np.round(df['Eocene (55Ma) lon'], 1)) , xlabel='', ylabel='')
 
@@ -113,6 +114,7 @@ def plot_paleogeography(df, projection):
     # add site marker at paleolocation
     ax.plot(df['modern lon'], df['modern lat'], 'ro', markersize=8, markerfacecolor='none', markeredgecolor='r', transform=ccrs.PlateCarree())
     ax.plot(df['Eocene (55Ma) lon'], df['Eocene (55Ma) lat'], 'ro', markersize=8, markeredgecolor='black', transform=ccrs.PlateCarree())
+    ax.set_global()
     # # if siteName != '':
     #     if (paleo_lon > -100):
     #         labelLon = paleo_lon-5
@@ -136,15 +138,19 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
     # allocate empty list to store results for all models
     data_list = []
 
-
     # loop over all models and experiments
     for exp in exp_dict.keys():
         for model in model_dict.keys():
+            print(model)
 
             # construct filename following the DeepMIP convention
-            model_file = 'data/User_Model_Database_v1.0/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
-                        '/' + model + '-' + exp + '-' + variable + '-' + model_dict[model]['versn'] + '.mean.nc'
-
+            if variable == "tos":
+                model_file = 'data/data_for_DeepMIP_app/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
+                            '/' + model + '-' + exp + '-' + variable + '-' + model_dict[model]['versn'] + '.mean.r180x90.filled.nc'
+            else:
+                model_file = 'data/data_for_DeepMIP_app/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
+                            '/' + model + '-' + exp + '-' + variable + '-' + model_dict[model]['versn'] + '.mean.r180x90.nc'    
+                            
             # load data if file for model/experiment combination exists
             if Path(model_file).exists():
                 ds_model = xr.open_dataset(model_file, decode_times=False)

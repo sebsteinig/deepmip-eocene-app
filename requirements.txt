@@ -1,9 +1,9 @@
 cartopy==0.21.0
 xarray
-netcdf4
+h5netcdf
 cmocean
 holoviews
 seaborn
 scipy
 xlsxwriter
-streamlit
+streamlit==1.20.0
