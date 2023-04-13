@@ -464,8 +464,8 @@ def plot_model_geographies(df, projection):
             # land color
             cmap.set_under('DarkGray')
 
-            plat = df['Eocene (55Ma) lat']
-            plon = df['Eocene (55Ma) lon']
+            plat = float(df['Eocene (55Ma) lat'])
+            plon = float(df['Eocene (55Ma) lon'])
 
             levels_mean = np.arange(-5000,5000,250)
 
@@ -525,8 +525,12 @@ def plot_model_geographies(df, projection):
                 ax[model_count,0].set_title(model_dict[model]['abbrv'] + ' bathymetry', fontsize=12)
                 ax[model_count,1].set_title(model_dict[model]['abbrv'] + ' orography', fontsize=12)
 
-                ax[model_count,0].set_extent([plon-30, plon+30, plat-25, plat+25])
-                ax[model_count,1].set_extent([plon-30, plon+30, plat-25, plat+25])
+                def clip(value, lower, upper):
+                    return lower if value < lower else upper if value > upper else value
+
+                
+                ax[model_count,0].set_extent([plon-30, plon+30, clip(plat-25.,-90.,90.), clip(plat+25,-90.,90.)])
+                ax[model_count,1].set_extent([plon-30, plon+30, clip(plat-25.,-90.,90.), clip(plat+25,-90.,90.)])
 
                 ax[model_count,0].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
                 ax[model_count,1].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
