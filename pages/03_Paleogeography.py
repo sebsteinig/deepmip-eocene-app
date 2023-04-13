@@ -25,6 +25,7 @@ for v in [modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_
 df_locations = get_paleo_location_herold(modern_lat, modern_lon)
 # st.dataframe(df_locations.style.format("{:.1f}"))
 
+
 st.subheader(' DeepMIP geography (Herold et al., 2014)')
 st.markdown('''
             Reconstruction of the chosen site's paleolocation at ~55 Ma using the original DeepMIP 

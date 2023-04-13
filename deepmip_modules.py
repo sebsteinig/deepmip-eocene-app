@@ -11,6 +11,7 @@ from bokeh.models import BoxAnnotation
 
 from matplotlib.colors import BoundaryNorm
 import matplotlib.colors as colors
+from cartopy.util import add_cyclic_point
 
 from pathlib import Path
 
@@ -456,6 +457,9 @@ def plot_model_geographies(df, projection):
             model_file_deptho = 'data/data_for_DeepMIP_app/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
                             '/' + model + '-' + exp + '-deptho-' + model_dict[model]['versn'] + '.nc'    
 
+            model_file_sftlf = 'data/data_for_DeepMIP_app/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
+                            '/' + model + '-' + exp + '-sftlf-' + model_dict[model]['versn'] + '.nc'    
+
             cmap = plt.cm.get_cmap('cmo.topo').copy()
             # land color
             cmap.set_under('DarkGray')
@@ -472,6 +476,7 @@ def plot_model_geographies(df, projection):
             if Path(model_file_orog).exists():
                 ds_orog = xr.open_dataset(model_file_orog, decode_times=False)
                 ds_deptho = xr.open_dataset(model_file_deptho, decode_times=False)
+                ds_sftlf = xr.open_dataset(model_file_sftlf, decode_times=False)
 
                 # orog = 
 
@@ -488,9 +493,31 @@ def plot_model_geographies(df, projection):
                     elif coord in ['lon', 'longitude', 'nav_lon','TLONG','geolon_t']:
                         lon_name_deptho = coord
 
+                for coord in ds_sftlf.coords:
+                    if coord in ['lat', 'latitude', 'lat_2', 'nav_lat','TLAT','geolat_t']:
+                        lat_name_sftlf = coord
+                    elif coord in ['lon', 'longitude', 'nav_lon','TLONG','geolon_t']:
+                        lon_name_sftlf = coord
+                
+                sftlf, lonsc = add_cyclic_point(ds_sftlf.squeeze().sftlf, ds_sftlf[str(lon_name_orog)])
+
+                a = ds_orog.squeeze().orog
+                b = ds_sftlf.squeeze().sftlf
+
+                if model_count == 0 or model_count == 1 or model_count == 3 or model_count == 4 or model_count == 5 or model_count == 6 or model_count == 7:
+                    orog = ds_orog.squeeze().orog.where(b>0.5)
+                else:
+                    orog = ds_orog.squeeze().orog.where(ds_orog.squeeze().orog > 0)
+
+                print(orog.shape)
+                print(lat_name_orog)
+
                 # im_orog=ax[model_count,0].pcolormesh(ds.lon_name, ds.lat_name, ds.squeeze().fillna(-999).orog, transform=ccrs.PlateCarree(), cmap=cmap, norm=norm)
                 im_deptho=ax[model_count,0].pcolormesh(ds_deptho[str(lon_name_deptho)], ds_deptho[str(lat_name_deptho)], ds_deptho.squeeze().where(ds_deptho.squeeze().deptho>0.).fillna(9999).deptho*-1., transform=ccrs.PlateCarree(), cmap=cmap, norm=norm, edgecolors=(0, 0, 0, 0.1), linewidths=0.1)
-                im_orog=ax[model_count,1].pcolormesh(ds_orog[str(lon_name_orog)], ds_orog[str(lat_name_orog)], ds_orog.squeeze().orog.where(ds_orog.squeeze().orog>0.).fillna(-9999), transform=ccrs.PlateCarree(), cmap=cmap, norm=norm, edgecolors=(0, 0, 0, 0.1), linewidths=0.1)
+                im_orog=ax[model_count,1].pcolormesh(ds_orog[str(lon_name_orog)], ds_orog[str(lat_name_orog)], orog.fillna(-9999), transform=ccrs.PlateCarree(), cmap=cmap, norm=norm, edgecolors=(0, 0, 0, 0.1), linewidths=0.1)
+
+                ax[model_count,0].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=["black"])
+                ax[model_count,1].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=["black"])
 
                 # ax[model_count,0].coastlines(color="black")
                 # ax[model_count,1].coastlines(color="black")
