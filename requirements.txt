@@ -1,4 +1,4 @@
-cartopy==0.20.0
+cartopy==0.21.1
 xarray
 h5netcdf
 cmocean
