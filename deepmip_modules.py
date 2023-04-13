@@ -531,17 +531,17 @@ def plot_model_geographies(df, projection):
                 ax[model_count,0].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
                 ax[model_count,1].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
 
-                ax[model_count,0].gridlines(draw_labels = True)
-                # gl1 = ax[model_count,0].gridlines(draw_labels = True)
-                # gl1.top_labels = False
-                # gl1.right_labels = False
-                # gl1.xlines = False
-                # gl1.ylines = False
-                ax[model_count,1].gridlines(draw_labels = True)
-                # gl2 = ax[model_count,1].gridlines(draw_labels = True)
-                # gl2.top_labels = False
-                # gl2.xlines = False
-                # gl2.ylines = False
+                # ax[model_count,0].gridlines(draw_labels = True)
+                gl1 = ax[model_count,0].gridlines(draw_labels = True)
+                gl1.top_labels = False
+                gl1.right_labels = False
+                gl1.xlines = False
+                gl1.ylines = False
+                # ax[model_count,1].gridlines(draw_labels = True)
+                gl2 = ax[model_count,1].gridlines(draw_labels = True)
+                gl2.top_labels = False
+                gl2.xlines = False
+                gl2.ylines = False
 
                 # ds.plot.contourf(
                 #     ax=ax[model_count,0], 

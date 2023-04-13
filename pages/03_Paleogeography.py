@@ -113,7 +113,7 @@ st.markdown('''
             onto different grids in the atmosphere and ocean ...
             ''')
 
-fig_models = plot_model_geographies(df_locations, projection)
+fig_models = plot_model_geographies(df_locations, "Orthographic")
 
 st.pyplot(fig_models) 
 
