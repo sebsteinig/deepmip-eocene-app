@@ -529,8 +529,8 @@ def plot_model_geographies(df, projection):
                     return lower if value < lower else upper if value > upper else value
 
                 
-                ax[model_count,0].set_extent([plon-30, plon+30, clip(plat-25.,-90.,90.), clip(plat+25,-90.,90.)])
-                ax[model_count,1].set_extent([plon-30, plon+30, clip(plat-25.,-90.,90.), clip(plat+25,-90.,90.)])
+                ax[model_count,0].set_extent([clip(plon-30.,-180.,180.), clip(plon-30.,-180.,180.), clip(plat-25.,-90.,90.), clip(plat+25,-90.,90.)])
+                ax[model_count,1].set_extent([clip(plon-30.,-180.,180.), clip(plon-30.,-180.,180.), clip(plat-25.,-90.,90.), clip(plat+25,-90.,90.)])
 
                 ax[model_count,0].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
                 ax[model_count,1].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
