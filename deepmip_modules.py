@@ -368,23 +368,28 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
 
     # plot global map
     fig, ax = plt.subplots(1, subplot_kw=dict(projection=proj))
-    # fig, ax = plt.subplots(1)
 
-    # cf1 = ax.contourf(lonsc, lats, geography, cmap='cmo.topo', levels=20, vmin=-5200, vmax=5200, transform=ccrs.PlateCarree())
+    # modify colors for shallow ocean and high orography slightly  
+    cmap = plt.cm.get_cmap(cmocean.cm.topo)
+    cmaplist = [cmap(i) for i in range(cmap.N)]
+    cmaplist[106] = cmaplist[122]
+    cmaplist[255] = cmaplist[245]
+    cmap_mod = colors.LinearSegmentedColormap.from_list('mcm',cmaplist, cmap.N)
+    norm = colors.TwoSlopeNorm(vmin=-6000., vcenter=0, vmax=3500)
 
     ds_herold.topo.plot.contourf(
         ax=ax, 
-        cmap='cmo.topo', 
-        levels=21, 
-        vmin=-5000, 
-        vmax=5000, 
+        # cmap='cmo.topo', 
+        cmap = cmap_mod,
+        norm = norm,
+        levels = [-6000,-5000,-4000,-3000,-2000,-1000,0,500,1000,1500,2000,2500,3000,3500],
         transform=ccrs.PlateCarree(),
-        extend='both',
+        extend='neither',
         cbar_kwargs={'orientation': cbar_orientation, 'label': 'surface elevation [m]', 'pad': cbar_pad})
     # add modern coastlines for comparison
     ax.coastlines(color=outline_colour)
 
-    gl = ax.gridlines(draw_labels = labels_check, linewidth=1., color='gray', alpha=0.5, linestyle='--')
+    gl = ax.gridlines(draw_labels = labels_check, linewidth=1., color='darkgray', alpha=0.5, linestyle='--')
     gl.top_labels = False
     gl.xlines = grid_check
     gl.ylines = grid_check
@@ -451,8 +456,20 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
     # plot global map
     fig, ax = plt.subplots(nrows=8, ncols=2, figsize=(9.6, 32), subplot_kw=dict(projection=proj))
 
+    # modify colors for shallow ocean and high orography slightly  
+    cmap_mod = plt.cm.get_cmap(cmocean.cm.topo)
+    # cmaplist = [cmap(i) for i in range(cmap.N)]
+    # cmaplist[106] = cmaplist[122]
+    # cmaplist[255] = cmaplist[245]
+    # cmap_mod = colors.LinearSegmentedColormap.from_list('mcm',cmaplist, cmap.N)
+    norm = colors.TwoSlopeNorm(vmin=-6000., vcenter=0, vmax=3500)
+    # norm = colors.TwoSlopeNorm([-6000,-5000,-4000,-3000,-2000,-1000,0,500,1000,1500,2000,2500,3000,3500], ncolors=cmap_mod.N, clip=True )
+
     for model_count,model in enumerate(model_dict.keys()):
-            
+
+
+            cmap = plt.cm.get_cmap(cmocean.cm.topo)
+
             # get boundary conditions from first Eocene simulation
             exp = model_dict[model]['exps'][1]
 
@@ -464,17 +481,14 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
             model_file_sftlf = 'data/data_for_DeepMIP_app/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
                             '/' + model + '-' + exp + '-sftlf-' + model_dict[model]['versn'] + '.nc'    
 
-            cmap = plt.cm.get_cmap('cmo.topo').copy()
             # land color
-            cmap.set_under('DarkGray')
+            cmap_mod.set_under('DarkGray')
 
             plat = float(df['Eocene (55Ma) lat'])
             plon = float(df['Eocene (55Ma) lon'])
 
-            levels_mean = np.arange(-5000,5000,250)
-
             #norm = BoundaryNorm(levels_mean, ncolors=cmap.N, clip=False)
-            norm = colors.TwoSlopeNorm(vmin=-5500., vcenter=0, vmax=3000)
+            # norm = colors.TwoSlopeNorm(vmin=-5500., vcenter=0, vmax=3000)
                                
             # load data if file for model/experiment combination exists
             if Path(model_file_orog).exists():
@@ -505,20 +519,35 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 
                 sftlf, lonsc = add_cyclic_point(ds_sftlf.squeeze().sftlf, ds_sftlf[str(lon_name_orog)])
 
-                a = ds_orog.squeeze().orog
-                b = ds_sftlf.squeeze().sftlf
-
                 if model_count == 0 or model_count == 1 or model_count == 3 or model_count == 4 or model_count == 5 or model_count == 6 or model_count == 7:
-                    orog = ds_orog.squeeze().orog.where(b>0.5)
+                    orog = ds_orog.squeeze().orog.where(ds_sftlf.squeeze().sftlf>0.5)
                 else:
                     orog = ds_orog.squeeze().orog.where(ds_orog.squeeze().orog > 0)
 
                 print(orog.shape)
                 print(lat_name_orog)
 
-                # im_orog=ax[model_count,0].pcolormesh(ds.lon_name, ds.lat_name, ds.squeeze().fillna(-999).orog, transform=ccrs.PlateCarree(), cmap=cmap, norm=norm)
-                im_deptho=ax[model_count,0].pcolormesh(ds_deptho[str(lon_name_deptho)], ds_deptho[str(lat_name_deptho)], ds_deptho.squeeze().where(ds_deptho.squeeze().deptho>0.).fillna(9999).deptho*-1., transform=ccrs.PlateCarree(), cmap=cmap, norm=norm, edgecolors=(0, 0, 0, 0.1), linewidths=0.1)
-                im_orog=ax[model_count,1].pcolormesh(ds_orog[str(lon_name_orog)], ds_orog[str(lat_name_orog)], orog.fillna(-9999), transform=ccrs.PlateCarree(), cmap=cmap, norm=norm, edgecolors=(0, 0, 0, 0.1), linewidths=0.1)
+                im_deptho=ax[model_count,0].pcolormesh(
+                    ds_deptho[str(lon_name_deptho)], 
+                    ds_deptho[str(lat_name_deptho)], 
+                    ds_deptho.squeeze().where(ds_deptho.squeeze().deptho>0.).fillna(9999).deptho*-1., 
+                    transform=ccrs.PlateCarree(), 
+                    cmap=cmap_mod, 
+                    norm=norm, 
+                    # levels = [-6000,-5000,-4000,-3000,-2000,-1000,0,500,1000,1500,2000,2500,3000,3500],
+                    edgecolors=(0, 0, 0, 0.1), 
+                    linewidths=0.1)
+                
+                im_orog=ax[model_count,1].pcolormesh(
+                    ds_orog[str(lon_name_orog)], 
+                    ds_orog[str(lat_name_orog)], 
+                    orog.fillna(-9999), 
+                    transform=ccrs.PlateCarree(), 
+                    cmap=cmap_mod, 
+                    norm=norm, 
+                    # levels = [-6000,-5000,-4000,-3000,-2000,-1000,0,500,1000,1500,2000,2500,3000,3500],
+                    edgecolors=(0, 0, 0, 0.1), 
+                    linewidths=0.1)
 
                 ax[model_count,0].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=[outline_colour])
                 ax[model_count,1].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=[outline_colour])
@@ -540,13 +569,13 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 ax[model_count,1].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
 
                 # ax[model_count,0].gridlines(draw_labels = True)
-                gl1 = ax[model_count,0].gridlines(draw_labels = labels_check)
+                gl1 = ax[model_count,0].gridlines(draw_labels = labels_check, linewidth=1., color='darkgray', alpha=0.5, linestyle='--')
                 gl1.top_labels = False
                 gl1.right_labels = False
                 gl1.xlines = grid_check
                 gl1.ylines = grid_check
                 # ax[model_count,1].gridlines(draw_labels = True)
-                gl2 = ax[model_count,1].gridlines(draw_labels = labels_check)
+                gl2 = ax[model_count,1].gridlines(draw_labels = labels_check, linewidth=1., color='darkgray', alpha=0.5, linestyle='--')
                 gl2.top_labels = False
                 gl2.xlines = grid_check
                 gl2.ylines = grid_check
@@ -570,7 +599,7 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
 
     # add common colorbar
     cbar_ax1 = fig.add_axes([0.2, 0.03, 0.6, 0.01])
-    cbar1 = fig.colorbar(im_orog, cax=cbar_ax1, extend="neither", orientation='horizontal')
+    cbar1 = fig.colorbar(im_deptho, cax=cbar_ax1, extend="neither", orientation='horizontal')
     cbar1.ax.tick_params(labelsize=14)
     cbar1.set_label('surface elevation [m]',size=18)
 
