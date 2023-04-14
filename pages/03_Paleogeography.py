@@ -113,7 +113,7 @@ st.markdown('''
             onto different grids in the atmosphere and ocean ...
             ''')
 
-fig_models = plot_model_geographies(df_locations, projection)
+fig_models = plot_model_geographies(df_locations, projection, proxy_label, outline_colour, grid_check, labels_check)
 
 st.pyplot(fig_models) 
 

@@ -389,6 +389,10 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
     gl.xlines = grid_check
     gl.ylines = grid_check
 
+    if projection == "Robinson" or projection == "Orthographic":
+            gl.bottom_labels = False
+
+
     if proxy_label != '':
         ax.set_title(label = '55 Ma paleolocation for ' + proxy_label +  ': LAT = ' + str(np.round(float(df['Eocene (55Ma) lat']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon']), 1)) , fontsize=10)
     else:
@@ -428,7 +432,7 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
 
     return fig
 
-def plot_model_geographies(df, projection):
+def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_check, labels_check):
     ### plot Eocene paleogeography around rotated site for each DeepMIP model
     
     if projection == "Equirectangular":
@@ -516,8 +520,8 @@ def plot_model_geographies(df, projection):
                 im_deptho=ax[model_count,0].pcolormesh(ds_deptho[str(lon_name_deptho)], ds_deptho[str(lat_name_deptho)], ds_deptho.squeeze().where(ds_deptho.squeeze().deptho>0.).fillna(9999).deptho*-1., transform=ccrs.PlateCarree(), cmap=cmap, norm=norm, edgecolors=(0, 0, 0, 0.1), linewidths=0.1)
                 im_orog=ax[model_count,1].pcolormesh(ds_orog[str(lon_name_orog)], ds_orog[str(lat_name_orog)], orog.fillna(-9999), transform=ccrs.PlateCarree(), cmap=cmap, norm=norm, edgecolors=(0, 0, 0, 0.1), linewidths=0.1)
 
-                ax[model_count,0].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=["black"])
-                ax[model_count,1].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=["black"])
+                ax[model_count,0].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=[outline_colour])
+                ax[model_count,1].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=[outline_colour])
 
                 # ax[model_count,0].coastlines(color="black")
                 # ax[model_count,1].coastlines(color="black")
@@ -536,21 +540,25 @@ def plot_model_geographies(df, projection):
                 ax[model_count,1].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
 
                 # ax[model_count,0].gridlines(draw_labels = True)
-                gl1 = ax[model_count,0].gridlines(draw_labels = True)
+                gl1 = ax[model_count,0].gridlines(draw_labels = labels_check)
                 gl1.top_labels = False
                 gl1.right_labels = False
-                gl1.xlines = False
-                gl1.ylines = False
+                gl1.xlines = grid_check
+                gl1.ylines = grid_check
                 # ax[model_count,1].gridlines(draw_labels = True)
-                gl2 = ax[model_count,1].gridlines(draw_labels = True)
+                gl2 = ax[model_count,1].gridlines(draw_labels = labels_check)
                 gl2.top_labels = False
-                gl2.xlines = False
-                gl2.ylines = False
+                gl2.xlines = grid_check
+                gl2.ylines = grid_check
 
-                plt.draw()
+                if projection == "Robinson" or projection == "Orthographic":
+                    gl1.bottom_labels = False
+                    gl2.bottom_labels = False
 
-                for ea in gl1.left_label_artists+gl1.right_label_artists:
-                    ea.set_visible(True)
+                # plt.draw()
+
+                # for ea in gl1.left_label_artists+gl1.right_label_artists:
+                #     ea.set_visible(True)
                 # ds.plot.contourf(
                 #     ax=ax[model_count,0], 
                 #     cmap='cmo.topo', 
