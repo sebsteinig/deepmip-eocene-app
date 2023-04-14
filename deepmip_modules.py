@@ -547,6 +547,10 @@ def plot_model_geographies(df, projection):
                 gl2.xlines = False
                 gl2.ylines = False
 
+                plt.draw()
+
+                for ea in gl1.left_label_artists+gl1.right_label_artists:
+                    ea.set_visible(True)
                 # ds.plot.contourf(
                 #     ax=ax[model_count,0], 
                 #     cmap='cmo.topo', 
@@ -564,6 +568,9 @@ def plot_model_geographies(df, projection):
 
     fig.subplots_adjust(bottom=0.06, hspace=0.2, wspace=0.0)
             
+    # plt.draw()
+
+    
     # add modern coastlines for comparison
     # ax.coastlines(color=outline_colour)
 
