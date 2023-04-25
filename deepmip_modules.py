@@ -19,37 +19,44 @@ from deepmip_dicts import exp_dict, model_dict, variable_dict
 
 hv.extension('bokeh')
 
-def get_paleo_location_herold(modern_lat, modern_lon):
+def get_paleo_locations(modern_lat, modern_lon):
 
-    # open Herold et al. (2014) rotation file
-    rotation_file = xr.open_dataset('data/LatLon_PD_55Ma_Herold2014.nc') 
+    # models use two different paleogeographic reconstructions:
+    # 1. most model use the Herold et al. (2014) reconstruction, hereafter "H14"
+    # 2. NorESM1_F uses the Baatsen et al. (2016) reconstruction, hereafter "B16"
+
+    # open both rotation files used by the models
+    rotation_file_H14 = xr.open_dataset('data/LatLon_PD_55Ma_Herold2014.nc') 
+    rotation_file_B16 = xr.open_dataset('data/LatLon_PD_55Ma_Baatsen2016.nc') 
+
     # 1. coarse approximation: look up paleolocation for modern coordinates in rotation file
-    paleo_lat = rotation_file.LAT.sel(latitude=modern_lat, longitude=modern_lon, method='nearest').values
-    paleo_lon = rotation_file.LON.sel(latitude=modern_lat, longitude=modern_lon, method='nearest').values
+    paleo_lat_H14 = rotation_file_H14.LAT.sel(latitude=modern_lat, longitude=modern_lon, method='nearest').values
+    paleo_lon_H14 = rotation_file_H14.LON.sel(latitude=modern_lat, longitude=modern_lon, method='nearest').values
+  
+    paleo_lat_B16 = rotation_file_B16.LAT.sel(latitude=modern_lat, longitude=modern_lon, method='nearest').values
+    paleo_lon_B16 = rotation_file_B16.LON.sel(latitude=modern_lat, longitude=modern_lon, method='nearest').values
+
     # 2. fine approximation: add delta between modern selected and rotation grid coordinates back to paleolocation
-    delta_lat = modern_lat - rotation_file.latitude.sel(latitude=modern_lat, method='nearest').values
-    delta_lon = modern_lon - rotation_file.longitude.sel(longitude=modern_lon, method='nearest').values
-    paleo_lat += delta_lat
-    paleo_lon += delta_lon
+    delta_lat_H14 = modern_lat - rotation_file_H14.latitude.sel(latitude=modern_lat, method='nearest').values
+    delta_lon_H14 = modern_lon - rotation_file_H14.longitude.sel(longitude=modern_lon, method='nearest').values
+    paleo_lat_H14 += delta_lat_H14
+    paleo_lon_H14 += delta_lon_H14
+
+    delta_lat_B16 = modern_lat - rotation_file_H14.latitude.sel(latitude=modern_lat, method='nearest').values
+    delta_lon_B16 = modern_lon - rotation_file_H14.longitude.sel(longitude=modern_lon, method='nearest').values
+    paleo_lat_B16 += delta_lat_B16
+    paleo_lon_B16 += delta_lon_B16
 
     # build dictionary iteratively and convert to dataframe
     d = []
-    # for count,lat in enumerate(modern_lat):
-    #     d.append(
-    #         {
-    #             'modern lat': lat,
-    #             'modern lon': modern_lon,
-    #             'Eocene (55Ma) lat': paleo_lat,
-    #             'Eocene (55Ma) lon': paleo_lon,
-    #         }
-    #     )
-
     d.append(
         {
             'modern lat': modern_lat,
             'modern lon': modern_lon,
-            'Eocene (55Ma) lat': paleo_lat,
-            'Eocene (55Ma) lon': paleo_lon,
+            'Eocene (55Ma) lat H14': paleo_lat_H14,
+            'Eocene (55Ma) lon H14': paleo_lon_H14,
+            'Eocene (55Ma) lat B16': paleo_lat_B16,
+            'Eocene (55Ma) lon B16': paleo_lon_B16,
         }
     )
 
@@ -58,7 +65,8 @@ def get_paleo_location_herold(modern_lat, modern_lon):
     # return DataFrame    
     return df
 
-def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable):
+# def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable):
+def get_model_point_data(df, variable):
 
     # allocate empty list to store results for all models
     data_list = []
@@ -87,11 +95,13 @@ def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable)
                         lon_name = coord
 
                 if exp == 'piControl':
-                    lookup_lat = modern_lat
-                    lookup_lon = modern_lon
+                    lookup_lat = float(df['modern lat'])
+                    lookup_lon = float(df['modern lon'])
                 else:
-                    lookup_lat = paleo_lat
-                    lookup_lon = paleo_lon            
+                    lookup_lat = float(df['Eocene (55Ma) lat ' + model_dict[model]['rotation']])
+                    lookup_lon = float(df['Eocene (55Ma) lon ' + model_dict[model]['rotation']])            
+
+
 
                 # check for minimum model longitude
                 min_model_lon = np.amin(ds_model.coords[lon_name].values)
@@ -362,7 +372,7 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
         cbar_orientation = 'horizontal'
         cbar_pad = 0.1
     elif projection == "Orthographic":
-        proj =ccrs.Orthographic(central_longitude=float(df['Eocene (55Ma) lon']), central_latitude= float(df['Eocene (55Ma) lat']))
+        proj =ccrs.Orthographic(central_longitude=float(df['Eocene (55Ma) lon H14']), central_latitude= float(df['Eocene (55Ma) lat H14']))
         cbar_orientation = 'vertical'
         cbar_pad = 0.05
 
@@ -399,9 +409,9 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
 
 
     if proxy_label != '':
-        ax.set_title(label = '55 Ma paleolocation for ' + proxy_label +  ': LAT = ' + str(np.round(float(df['Eocene (55Ma) lat']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon']), 1)) , fontsize=10)
+        ax.set_title(label = '55 Ma paleolocation for ' + proxy_label +  ': LAT = ' + str(np.round(float(df['Eocene (55Ma) lat H14']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon H14']), 1)) , fontsize=10)
     else:
-        ax.set_title(label = '55 Ma paleolocation: LAT = ' + str(np.round(float(df['Eocene (55Ma) lat']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon']), 1)) , fontsize=10)
+        ax.set_title(label = '55 Ma paleolocation: LAT = ' + str(np.round(float(df['Eocene (55Ma) lat H14']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon H14']), 1)) , fontsize=10)
 
     # plot orthographic ma with site in center
     # ax2 = plt.subplot(gs[1], projection=ccrs.Orthographic(paleo_lon, paleo_lat))
@@ -412,22 +422,22 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
 
     # add site marker at paleolocation
     ax.plot(df['modern lon'], df['modern lat'], 'ro', markersize=9, markerfacecolor='none', markeredgecolor='r', transform=ccrs.PlateCarree())
-    ax.plot(df['Eocene (55Ma) lon'], df['Eocene (55Ma) lat'], 'ro', markersize=9, markeredgecolor='black', transform=ccrs.PlateCarree())
+    ax.plot(df['Eocene (55Ma) lon H14'], df['Eocene (55Ma) lat H14'], 'ro', markersize=9, markeredgecolor='black', transform=ccrs.PlateCarree())
     ax.set_global()
     if proxy_label != '':
-        if (float(df['Eocene (55Ma) lon']) > -100):
-            labelLon = float(df['Eocene (55Ma) lon'])-5
+        if (float(df['Eocene (55Ma) lon H14']) > -100):
+            labelLon = float(df['Eocene (55Ma) lon H14'])-5
             labelAlignment = 'right'
         else:
-            labelLon = float(df['Eocene (55Ma) lon'])+5
+            labelLon = float(df['Eocene (55Ma) lon H14'])+5
             labelAlignment = 'left' 
 
         if projection == "Orthographic":      
-            ax.text(labelLon, float(df['Eocene (55Ma) lat'])-7, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+            ax.text(labelLon, float(df['Eocene (55Ma) lat H14'])-7, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
         elif projection == "Robinson": 
-            ax.text(labelLon, float(df['Eocene (55Ma) lat'])-15, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+            ax.text(labelLon, float(df['Eocene (55Ma) lat H14'])-15, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
         else:
-            ax.text(labelLon, float(df['Eocene (55Ma) lat'])-18, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+            ax.text(labelLon, float(df['Eocene (55Ma) lat H14'])-18, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
 
     # add common colorbar
     # cbar_ax = fig1.add_axes([0.15, 0.05, 0.7, 0.05])
@@ -449,12 +459,12 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
         cbar_orientation = 'horizontal'
         cbar_pad = 0.1
     elif projection == "Orthographic":
-        proj =ccrs.Orthographic(central_longitude=float(df['Eocene (55Ma) lon']), central_latitude= float(df['Eocene (55Ma) lat']))
+        proj =ccrs.Orthographic(central_longitude=float(df['Eocene (55Ma) lon H14']), central_latitude= float(df['Eocene (55Ma) lat H14']))
         cbar_orientation = 'vertical'
         cbar_pad = 0.05
 
     # plot global map
-    fig, ax = plt.subplots(nrows=8, ncols=2, figsize=(9.6, 32), subplot_kw=dict(projection=proj))
+    fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=2, figsize=(9.6, 32), subplot_kw=dict(projection=proj))
 
     # modify colors for shallow ocean and high orography slightly  
     cmap_mod = plt.cm.get_cmap(cmocean.cm.topo)
@@ -484,8 +494,8 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
             # land color
             cmap_mod.set_under('DarkGray')
 
-            plat = float(df['Eocene (55Ma) lat'])
-            plon = float(df['Eocene (55Ma) lon'])
+            plat = float(df['Eocene (55Ma) lat ' + model_dict[model]['rotation']])
+            plon = float(df['Eocene (55Ma) lon ' + model_dict[model]['rotation']])
 
             #norm = BoundaryNorm(levels_mean, ncolors=cmap.N, clip=False)
             # norm = colors.TwoSlopeNorm(vmin=-5500., vcenter=0, vmax=3000)
@@ -617,28 +627,28 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
     # gl.ylines = grid_check
 
     # if proxy_label != '':
-    #     ax.set_title(label = '55 Ma paleolocation for ' + proxy_label +  ': LAT = ' + str(np.round(float(df['Eocene (55Ma) lat']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon']), 1)) , fontsize=10)
+    #     ax.set_title(label = '55 Ma paleolocation for ' + proxy_label +  ': LAT = ' + str(np.round(float(df['Eocene (55Ma) lat H14']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon H14']), 1)) , fontsize=10)
     # else:
-    #     ax.set_title(label = '55 Ma paleolocation: LAT = ' + str(np.round(float(df['Eocene (55Ma) lat']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon']), 1)) , fontsize=10)
+    #     ax.set_title(label = '55 Ma paleolocation: LAT = ' + str(np.round(float(df['Eocene (55Ma) lat H14']), 1)) + ', LON = ' + str(np.round(float(df['Eocene (55Ma) lon H14']), 1)) , fontsize=10)
 
     # # add site marker at paleolocation
     # ax.plot(df['modern lon'], df['modern lat'], 'ro', markersize=9, markerfacecolor='none', markeredgecolor='r', transform=ccrs.PlateCarree())
-    # ax.plot(df['Eocene (55Ma) lon'], df['Eocene (55Ma) lat'], 'ro', markersize=9, markeredgecolor='black', transform=ccrs.PlateCarree())
+    # ax.plot(df['Eocene (55Ma) lon H14'], df['Eocene (55Ma) lat H14'], 'ro', markersize=9, markeredgecolor='black', transform=ccrs.PlateCarree())
     # ax.set_global()
     # if proxy_label != '':
-    #     if (float(df['Eocene (55Ma) lon']) > -100):
-    #         labelLon = float(df['Eocene (55Ma) lon'])-5
+    #     if (float(df['Eocene (55Ma) lon H14']) > -100):
+    #         labelLon = float(df['Eocene (55Ma) lon H14'])-5
     #         labelAlignment = 'right'
     #     else:
-    #         labelLon = float(df['Eocene (55Ma) lon'])+5
+    #         labelLon = float(df['Eocene (55Ma) lon H14'])+5
     #         labelAlignment = 'left' 
 
     #     if projection == "Orthographic":      
-    #         ax.text(labelLon, float(df['Eocene (55Ma) lat'])-7, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+    #         ax.text(labelLon, float(df['Eocene (55Ma) lat H14'])-7, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
     #     elif projection == "Robinson": 
-    #         ax.text(labelLon, float(df['Eocene (55Ma) lat'])-15, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+    #         ax.text(labelLon, float(df['Eocene (55Ma) lat H14'])-15, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
     #     else:
-    #         ax.text(labelLon, float(df['Eocene (55Ma) lat'])-18, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
+    #         ax.text(labelLon, float(df['Eocene (55Ma) lat H14'])-18, proxy_label, horizontalalignment=labelAlignment, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), fontsize=10, transform=ccrs.PlateCarree())
 
 
 

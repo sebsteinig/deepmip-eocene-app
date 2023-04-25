@@ -5,7 +5,7 @@ import cartopy.crs as ccrs
 import io
 
 from app_modules import init_widgets, init_sidebar
-from deepmip_modules import get_paleo_location_herold, plot_global_paleogeography, plot_model_geographies
+from deepmip_modules import get_paleo_locations, plot_global_paleogeography, plot_model_geographies
 
 st.title('Paleogeographic reconstruction')
 
@@ -22,7 +22,7 @@ for v in [modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_
 
 ## step 1: get paleo position consistent with DeepMIP model geography   
 
-df_locations = get_paleo_location_herold(modern_lat, modern_lon)
+df_locations = get_paleo_locations(modern_lat, modern_lon)
 # st.dataframe(df_locations.style.format("{:.1f}"))
 
 

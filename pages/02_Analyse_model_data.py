@@ -8,7 +8,7 @@ from deepmip_dicts import variable_dict
 
 from app_modules import init_widgets, init_sidebar
 
-from deepmip_modules import get_paleo_location_herold, get_model_point_data, box_whisker_plot
+from deepmip_modules import get_paleo_locations, get_model_point_data, box_whisker_plot
 
 st.title('Analyse model point data')
 
@@ -25,7 +25,7 @@ for v in [modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_
 
 ## step 1: get paleo position consistent with DeepMIP model geography   
 
-df_locations = get_paleo_location_herold(modern_lat, modern_lon)
+df_locations = get_paleo_locations(modern_lat, modern_lon)
 
 ## step 2: get model data for paleo position(s) and chosen variable
 
@@ -34,12 +34,15 @@ for variable in variable_dict.keys():
     if variable_dict[variable]['longname'] == user_variable:
         deepmip_var = variable
 
-df_model = get_model_point_data(
-            float(df_locations['modern lat']), 
-            float(df_locations['modern lon']),
-            float(df_locations['Eocene (55Ma) lat']),
-            float(df_locations['Eocene (55Ma) lon']),
-            deepmip_var)
+# df_model = get_model_point_data(
+#             float(df_locations['modern lat']), 
+#             float(df_locations['modern lon']),
+#             float(df_locations['Eocene (55Ma) lat H14']),
+#             float(df_locations['Eocene (55Ma) lon H14']),
+#             deepmip_var)
+
+
+df_model = get_model_point_data(df_locations, deepmip_var)
 
 
 

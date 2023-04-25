@@ -6,7 +6,7 @@ import matplotlib as plt
 from deepmip_dicts import variable_dict
 
 from app_modules import init_widgets, init_sidebar
-from deepmip_modules import get_paleo_location_herold, get_model_point_data, location_data_boxplot
+from deepmip_modules import get_paleo_locations, get_model_point_data, location_data_boxplot
 
 init_sidebar()
 
@@ -33,9 +33,8 @@ modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy
 for v in [modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label]:
     st.session_state.v = v
 
-## step 1: get paleo position consistent with DeepMIP model geography   
-
-df_locations = get_paleo_location_herold(modern_lat, modern_lon)
+## step 1: get paleo position consistent with DeepMIP model geographies
+df_locations = get_paleo_locations(modern_lat, modern_lon)
 
 ## step 2: get model data for paleo position(s) and chosen variable
 
@@ -44,12 +43,14 @@ for key, value in variable_dict.items():
     if value['longname'] == user_variable:
         deepmip_var = key
 
-df_model = get_model_point_data(
-            float(df_locations['modern lat']), 
-            float(df_locations['modern lon']),
-            float(df_locations['Eocene (55Ma) lat']),
-            float(df_locations['Eocene (55Ma) lon']),
-            deepmip_var)
+# df_model = get_model_point_data(
+#             float(df_locations['modern lat']), 
+#             float(df_locations['modern lon']),
+#             float(df_locations['Eocene (55Ma) lat H14']),
+#             float(df_locations['Eocene (55Ma) lon H14']),
+#             deepmip_var)
+
+df_model = get_model_point_data(df_locations, deepmip_var)
 
 # add donwload buttons for CSV and XLSX
 # from https://stackoverflow.com/a/75334543

@@ -72,7 +72,8 @@ model_dict['CESM1.2_CAM5']    = { \
         'abbrv' : 'CESM',
         'pcolor': 'red',
         'exps'  : ['piControl', 'deepmip_sens_1xCO2', 'deepmip_stand_3xCO2', 'deepmip_stand_6xCO2', 'deepmip_sens_9xCO2'],
-        'gmst'  : [13.2, 18.4, 25.0, 29.8, 35.5]
+        'gmst'  : [13.2, 18.4, 25.0, 29.8, 35.5],
+        'rotation' : 'H14'
         }
 
 model_dict['COSMOS-landveg_r2413']  = { \
@@ -81,7 +82,8 @@ model_dict['COSMOS-landveg_r2413']  = { \
         'abbrv' : 'COSMOS',
         'pcolor': 'magenta',
         'exps'  : ['piControl', 'deepmip_sens_1xCO2', 'deepmip_stand_3xCO2', 'deepmip_sens_4xCO2'],
-        'gmst'  : [13.9, 17.0, 25.2, 26.9]
+        'gmst'  : [13.9, 17.0, 25.2, 26.9],
+        'rotation' : 'H14'
         }
 
 model_dict['GFDL_CM2.1']      = { \
@@ -90,7 +92,8 @@ model_dict['GFDL_CM2.1']      = { \
         'abbrv' : 'GFDL',
         'pcolor': 'orange',
         'exps'  : ['piControl', 'deepmip_sens_1xCO2', 'deepmip_sens_2xCO2', 'deepmip_stand_3xCO2', 'deepmip_sens_4xCO2', 'deepmip_stand_6xCO2'],
-        'gmst'  : [15.6, 19.2, 22.9, 25.4, 27.5, 30.2]
+        'gmst'  : [15.6, 19.2, 22.9, 25.4, 27.5, 30.2],
+        'rotation' : 'H14'
         }
 
 model_dict['HadCM3B_M2.1aN']  = { \
@@ -99,7 +102,8 @@ model_dict['HadCM3B_M2.1aN']  = { \
         'abbrv' : 'HadCM3',
         'pcolor': 'maroon',
         'exps'  : ['piControl', 'deepmip_sens_1xCO2', 'deepmip_sens_2xCO2', 'deepmip_stand_3xCO2'],
-        'gmst'  : [13.9, 17.4, 21.2, 25.0]
+        'gmst'  : [13.9, 17.4, 21.2, 25.0],
+        'rotation' : 'H14'
         }
 
 model_dict['HadCM3BL_M2.1aN'] = { \
@@ -108,7 +112,8 @@ model_dict['HadCM3BL_M2.1aN'] = { \
         'abbrv' : 'HadCM3L',
         'pcolor': 'darkgoldenrod',
         'exps'  : ['piControl', 'deepmip_sens_1xCO2', 'deepmip_sens_2xCO2', 'deepmip_stand_3xCO2'],
-        'gmst'  : [13.2, 16.9, 21.1, 26.0]
+        'gmst'  : [13.2, 16.9, 21.1, 26.0],
+        'rotation' : 'H14'
         }
 
 model_dict['INM-CM4-8']    = { \
@@ -117,7 +122,8 @@ model_dict['INM-CM4-8']    = { \
         'abbrv' : 'INM',
         'pcolor': 'lime',
         'exps'  : ['piControl','deepmip_stand_6xCO2'],
-        'gmst'  : [13.2, 23.4]
+        'gmst'  : [13.2, 23.4],
+        'rotation' : 'H14'
         }
 
 model_dict['IPSLCM5A2']    = { \
@@ -126,7 +132,8 @@ model_dict['IPSLCM5A2']    = { \
         'abbrv' : 'IPSL',
         'pcolor': 'blue',
         'exps'  : ['piControl', 'deepmip_sens_1.5xCO2', 'deepmip_stand_3xCO2'],
-        'gmst'  : [13.2, 19.4, 25.0]
+        'gmst'  : [13.2, 19.4, 25.0],
+        'rotation' : 'H14'
         }
 
 model_dict['MIROC4m']   = { \
@@ -135,7 +142,18 @@ model_dict['MIROC4m']   = { \
         'abbrv' : 'MIROC',
         'pcolor': 'darkgreen',
         'exps'  : ['piControl', 'deepmip_sens_1xCO2', 'deepmip_sens_2xCO2', 'deepmip_stand_3xCO2'],
-        'gmst'  : [12.9, 16.6, 20.4, 23.5]
+        'gmst'  : [12.9, 16.6, 20.4, 23.5],
+        'rotation' : 'H14'
+        }
+
+model_dict['NorESM1_F']   = { \
+        'versn' : 'v1.0',
+        'group' : 'NorESM',
+        'abbrv' : 'NorESM',
+        'pcolor': 'purple',
+        'exps'  : ['piControl', 'deepmip_sens_2xCO2', 'deepmip_sens_4xCO2'],
+        'gmst'  : [14.5, 21.2, 24.1],
+        'rotation' : 'B16'
         }
 
 #################################################################################
