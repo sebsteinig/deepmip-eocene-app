@@ -8,6 +8,11 @@ from deepmip_dicts import variable_dict
 from app_modules import init_widgets, init_sidebar
 from deepmip_modules import get_paleo_locations, get_model_point_data, location_data_boxplot
 
+st.set_page_config(
+    page_title="Extract model data",
+    layout="wide",
+)
+
 init_sidebar()
 
 st.title('Extract model point data')

@@ -295,8 +295,9 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
                                 xlabel=var_x,
                                 ylabel=var_y,
                                 jitter=0.2,
-                                width=705, 
-                                height=400, 
+                                # width=705, 
+                                height=500, 
+                                responsive=True,
                                 show_legend=True, 
                                 legend_position='top', 
                                 size=12, 
@@ -314,8 +315,9 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
                             opts.BoxWhisker(
                                     logx=log_x,
                                     box_color='white',
-                                    width=705, 
-                                    height=400, 
+                                    # width=705, 
+                                    height=500, 
+                                    responsive=True,
                                     show_legend=False, 
                                     whisker_color='black',
                                     box_fill_color='#63c5da')
@@ -464,7 +466,7 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
         cbar_pad = 0.05
 
     # plot global map
-    fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=2, figsize=(12.6, 32), subplot_kw=dict(projection=proj))
+    fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=2, figsize=(9.6, 32), subplot_kw=dict(projection=proj))
 
     # modify colors for shallow ocean and high orography slightly  
     cmap_mod = plt.cm.get_cmap(cmocean.cm.topo)
@@ -529,13 +531,17 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 
                 sftlf, lonsc = add_cyclic_point(ds_sftlf.squeeze().sftlf, ds_sftlf[str(lon_name_orog)])
 
-                if model_count == 0 or model_count == 1 or model_count == 3 or model_count == 4 or model_count == 5 or model_count == 6 or model_count == 7:
-                    orog = ds_orog.squeeze().orog.where(ds_sftlf.squeeze().sftlf>0.5)
-                else:
-                    orog = ds_orog.squeeze().orog.where(ds_orog.squeeze().orog > 0)
+                # if model_count == 0 or model_count == 1 or model_count == 3 or model_count == 4 or model_count == 5 or model_count == 6 or model_count == 7:
+                #     orog = ds_orog.squeeze().orog.where(ds_sftlf.squeeze().sftlf>0.5)
+                # else:
+                #     orog = ds_orog.squeeze().orog.where(ds_orog.squeeze().orog > 0)
 
-                print(orog.shape)
-                print(lat_name_orog)
+                print(model)
+                print(ds_orog.orog.squeeze())
+                print(ds_sftlf.sftlf.squeeze())
+
+                orog = ds_orog.squeeze().orog.where(ds_sftlf.squeeze().sftlf>0.5)
+
 
                 im_deptho=ax[model_count,0].pcolormesh(
                     ds_deptho[str(lon_name_deptho)], 

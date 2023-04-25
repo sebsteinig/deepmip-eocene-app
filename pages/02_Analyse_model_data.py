@@ -10,6 +10,11 @@ from app_modules import init_widgets, init_sidebar
 
 from deepmip_modules import get_paleo_locations, get_model_point_data, box_whisker_plot
 
+st.set_page_config(
+    page_title="Analyse model data",
+    layout="wide",
+)
+
 st.title('Analyse model point data')
 
 init_sidebar()

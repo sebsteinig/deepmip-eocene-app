@@ -7,6 +7,11 @@ import io
 from app_modules import init_widgets, init_sidebar
 from deepmip_modules import get_paleo_locations, plot_global_paleogeography, plot_model_geographies
 
+st.set_page_config(
+    page_title="Paleogeography",
+    layout="wide",
+)
+
 st.title('Paleogeographic reconstruction')
 
 init_sidebar()
