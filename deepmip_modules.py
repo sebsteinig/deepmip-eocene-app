@@ -9,6 +9,8 @@ import holoviews as hv
 from holoviews import opts
 from bokeh.models import BoxAnnotation
 
+import streamlit as st
+
 from matplotlib.colors import BoundaryNorm
 import matplotlib.colors as colors
 from cartopy.util import add_cyclic_point
@@ -466,7 +468,8 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
         cbar_pad = 0.05
 
     # plot global map
-    fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=2, figsize=(9.6, 32), subplot_kw=dict(projection=proj))
+    # fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=2, figsize=(9.6, 32), subplot_kw=dict(projection=proj))
+    fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=3, figsize=(14, 32), subplot_kw=dict(projection=proj))
 
     # modify colors for shallow ocean and high orography slightly  
     cmap_mod = plt.cm.get_cmap(cmocean.cm.topo)
@@ -476,8 +479,16 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
     # cmap_mod = colors.LinearSegmentedColormap.from_list('mcm',cmaplist, cmap.N)
     norm = colors.TwoSlopeNorm(vmin=-6000., vcenter=0, vmax=3500)
     # norm = colors.TwoSlopeNorm([-6000,-5000,-4000,-3000,-2000,-1000,0,500,1000,1500,2000,2500,3000,3500], ncolors=cmap_mod.N, clip=True )
+    cmap_slftf = plt.cm.get_cmap('PiYG')
+    norm_slftf =  colors.BoundaryNorm([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], cmap_slftf.N)
+
+    progress_text = "Operation in progress. Please wait."
+    my_bar = st.progress(0, text=progress_text)
 
     for model_count,model in enumerate(model_dict.keys()):
+            
+            
+            my_bar.progress( ((model_count+1)/len(model_dict.keys())), text='Processing data for ' + model)
 
 
             cmap = plt.cm.get_cmap(cmocean.cm.topo)
@@ -536,11 +547,8 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 # else:
                 #     orog = ds_orog.squeeze().orog.where(ds_orog.squeeze().orog > 0)
 
-                print(model)
-                print(ds_orog.orog.squeeze())
-                print(ds_sftlf.sftlf.squeeze())
-
-                orog = ds_orog.squeeze().orog.where(ds_sftlf.squeeze().sftlf>0.5)
+                # orog = ds_orog.squeeze().orog.where(ds_sftlf.squeeze().sftlf>0.5)
+                orog = ds_orog.squeeze().orog.where(ds_orog.squeeze().orog>0)
 
 
                 im_deptho=ax[model_count,0].pcolormesh(
@@ -565,14 +573,27 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                     edgecolors=(0, 0, 0, 0.1), 
                     linewidths=0.1)
 
+                im_sftlf=ax[model_count,2].pcolormesh(
+                    ds_sftlf[str(lon_name_orog)], 
+                    ds_sftlf[str(lat_name_orog)], 
+                    ds_sftlf.squeeze().sftlf, 
+                    transform=ccrs.PlateCarree(), 
+                    cmap=cmap_slftf, 
+                    norm=norm_slftf, 
+                    # levels = [-6000,-5000,-4000,-3000,-2000,-1000,0,500,1000,1500,2000,2500,3000,3500],
+                    edgecolors=(0, 0, 0, 0.1), 
+                    linewidths=0.1)
+                
                 ax[model_count,0].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=[outline_colour])
                 ax[model_count,1].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=[outline_colour])
+                ax[model_count,2].contour(lonsc, ds_orog[str(lat_name_orog)], sftlf, transform=ccrs.PlateCarree(), levels=[0.5], colors=[outline_colour])
 
                 # ax[model_count,0].coastlines(color="black")
                 # ax[model_count,1].coastlines(color="black")
 
                 ax[model_count,0].set_title(model_dict[model]['abbrv'] + ' bathymetry', fontsize=12)
                 ax[model_count,1].set_title(model_dict[model]['abbrv'] + ' orography', fontsize=12)
+                ax[model_count,2].set_title(model_dict[model]['abbrv'] + ' land-sea fraction', fontsize=12)
 
                 def clip(value, lower, upper):
                     return lower if value < lower else upper if value > upper else value
@@ -580,9 +601,11 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 
                 ax[model_count,0].set_extent([clip(plon-30.,-180.,180.), clip(plon+30.,-180.,180.), clip(plat-25.,-90.,90.), clip(plat+25,-90.,90.)])
                 ax[model_count,1].set_extent([clip(plon-30.,-180.,180.), clip(plon+30.,-180.,180.), clip(plat-25.,-90.,90.), clip(plat+25,-90.,90.)])
+                ax[model_count,2].set_extent([clip(plon-30.,-180.,180.), clip(plon+30.,-180.,180.), clip(plat-25.,-90.,90.), clip(plat+25,-90.,90.)])
 
                 ax[model_count,0].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
                 ax[model_count,1].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
+                ax[model_count,2].plot(plon, plat, 'ro', markersize=12, markeredgecolor='black', transform=ccrs.PlateCarree())
 
                 # ax[model_count,0].gridlines(draw_labels = True)
                 gl1 = ax[model_count,0].gridlines(draw_labels = labels_check, linewidth=1., color='darkgray', alpha=0.5, linestyle='--')
@@ -593,12 +616,20 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 # ax[model_count,1].gridlines(draw_labels = True)
                 gl2 = ax[model_count,1].gridlines(draw_labels = labels_check, linewidth=1., color='darkgray', alpha=0.5, linestyle='--')
                 gl2.top_labels = False
+                gl2.right_labels = False
                 gl2.xlines = grid_check
                 gl2.ylines = grid_check
+
+                gl3 = ax[model_count,2].gridlines(draw_labels = labels_check, linewidth=1., color='darkgray', alpha=0.5, linestyle='--')
+                gl3.top_labels = False
+                gl3.xlines = grid_check
+                gl3.ylines = grid_check
+
 
                 if projection == "Robinson" or projection == "Orthographic":
                     gl1.bottom_labels = False
                     gl2.bottom_labels = False
+                    gl3.bottom_labels = False
 
                 # plt.draw()
 
