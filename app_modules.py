@@ -2,7 +2,7 @@ import streamlit as st
 import base64
 
 def init_widgets():
-
+    
     st.subheader('User input')
 
     # check whether user input is already in session state

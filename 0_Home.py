@@ -10,6 +10,7 @@ from app_modules import init_sidebar
 st.set_page_config(
     page_title="Home",
     page_icon="👋",
+    layout="wide",
 )
 
 init_sidebar()

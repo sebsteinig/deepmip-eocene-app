@@ -464,7 +464,7 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
         cbar_pad = 0.05
 
     # plot global map
-    fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=2, figsize=(9.6, 32), subplot_kw=dict(projection=proj))
+    fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=2, figsize=(12.6, 32), subplot_kw=dict(projection=proj))
 
     # modify colors for shallow ocean and high orography slightly  
     cmap_mod = plt.cm.get_cmap(cmocean.cm.topo)
