@@ -38,34 +38,40 @@ def get_paleo_locations(modern_lat, modern_lon):
     paleo_lat_B16 = rotation_file_B16.LAT.sel(latitude=modern_lat, longitude=modern_lon, method="nearest").values
     paleo_lon_B16 = rotation_file_B16.LON.sel(latitude=modern_lat, longitude=modern_lon, method="nearest").values
 
-    # 2. fine approximation: add delta between modern selected and rotation grid coordinates back to paleolocation
-    delta_lat_H14 = modern_lat - rotation_file_H14.latitude.sel(latitude=modern_lat, method="nearest").values
-    delta_lon_H14 = modern_lon - rotation_file_H14.longitude.sel(longitude=modern_lon, method="nearest").values
-    paleo_lat_H14 += delta_lat_H14
-    paleo_lon_H14 += delta_lon_H14
+    if np.isfinite(paleo_lat_H14) and np.isfinite(paleo_lat_B16):
+        # 2. fine approximation: add delta between modern selected and rotation grid coordinates back to paleolocation
+        delta_lat_H14 = modern_lat - rotation_file_H14.latitude.sel(latitude=modern_lat, method="nearest").values
+        delta_lon_H14 = modern_lon - rotation_file_H14.longitude.sel(longitude=modern_lon, method="nearest").values
+        paleo_lat_H14 += delta_lat_H14
+        paleo_lon_H14 += delta_lon_H14
 
-    delta_lat_B16 = modern_lat - rotation_file_H14.latitude.sel(latitude=modern_lat, method="nearest").values
-    delta_lon_B16 = modern_lon - rotation_file_H14.longitude.sel(longitude=modern_lon, method="nearest").values
-    paleo_lat_B16 += delta_lat_B16
-    paleo_lon_B16 += delta_lon_B16
+        delta_lat_B16 = modern_lat - rotation_file_H14.latitude.sel(latitude=modern_lat, method="nearest").values
+        delta_lon_B16 = modern_lon - rotation_file_H14.longitude.sel(longitude=modern_lon, method="nearest").values
+        paleo_lat_B16 += delta_lat_B16
+        paleo_lon_B16 += delta_lon_B16
 
-    # build dictionary iteratively and convert to dataframe
-    d = []
-    d.append(
-        {
-            "modern lat": modern_lat,
-            "modern lon": modern_lon,
-            "Eocene (55Ma) lat H14": paleo_lat_H14,
-            "Eocene (55Ma) lon H14": paleo_lon_H14,
-            "Eocene (55Ma) lat B16": paleo_lat_B16,
-            "Eocene (55Ma) lon B16": paleo_lon_B16,
-        }
-    )
+        # build dictionary iteratively and convert to dataframe
+        d = []
+        d.append(
+            {
+                "modern lat": modern_lat,
+                "modern lon": modern_lon,
+                "Eocene (55Ma) lat H14": paleo_lat_H14,
+                "Eocene (55Ma) lon H14": paleo_lon_H14,
+                "Eocene (55Ma) lat B16": paleo_lat_B16,
+                "Eocene (55Ma) lon B16": paleo_lon_B16,
+            }
+        )
 
-    df = pd.DataFrame(d)
+        df = pd.DataFrame(d)
 
-    # return DataFrame
-    return df
+        # return DataFrame
+        return df
+    else:
+        st.exception(
+            ValueError("No paleo location found for modern coordinates. Please try again with a different location.")
+        )
+        st.stop()
 
 
 # def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable):
