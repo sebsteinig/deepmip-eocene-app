@@ -15,18 +15,20 @@ st.set_page_config(
 
 init_sidebar()
 
-st.title('Extract model point data')
+st.title("Extract model point data")
 
-st.markdown('''
-            **Get all available model data for a variable of your choice anywhere on the globe.**
-            The app calculates the respective early Eocene (~55 Ma) paleolocation consistent with the 
-            model geographies and then extracts the data from the closest grid point for all available 
-            models and simulations. Results are listed in the interactive table below, which can also 
-            be downloaded in different data formats. Basic ensemble statistics of the extracted data 
-            are shwon at the bottom. You can also create interactive charts of your extracted data on 
-            the <a href='Analyse_model_data' target='_self'>analysis page</a>.
-            ''', unsafe_allow_html=True
-            )
+st.markdown(
+    """
+        **Get all available model data for a variable of your choice anywhere on the globe.**
+        The app calculates the respective early Eocene (~55 Ma) paleolocation consistent with the 
+        model geographies and then extracts the data from the closest grid point for all available 
+        models and simulations. Results are listed in the interactive table below, which can also 
+        be downloaded in different data formats. Basic ensemble statistics of the extracted data 
+        are shwon at the bottom. You can also create interactive charts of your extracted data on 
+        the <a href='Analyse_model_data' target='_self'>analysis page</a>.
+    """,
+    unsafe_allow_html=True,
+)
 
 
 for k, v in st.session_state.items():
@@ -45,11 +47,11 @@ df_locations = get_paleo_locations(modern_lat, modern_lon)
 
 # convert user variable to DeepMIP variable name
 for key, value in variable_dict.items():
-    if value['longname'] == user_variable:
+    if value["longname"] == user_variable:
         deepmip_var = key
 
 # df_model = get_model_point_data(
-#             float(df_locations['modern lat']), 
+#             float(df_locations['modern lat']),
 #             float(df_locations['modern lon']),
 #             float(df_locations['Eocene (55Ma) lat H14']),
 #             float(df_locations['Eocene (55Ma) lon H14']),
@@ -61,18 +63,21 @@ df_model = get_model_point_data(df_locations, deepmip_var)
 # from https://stackoverflow.com/a/75334543
 buffer = io.BytesIO()
 
+
 @st.cache_data
 def convert_to_csv(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
-    return df.to_csv(index=False).encode('utf-8')
+    return df.to_csv(index=False).encode("utf-8")
+
 
 @st.cache_data
 def convert_to_json(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
-    return df.to_json().encode('utf-8')
+    return df.to_json().encode("utf-8")
+
 
 tab = st.container()
-st.subheader('Extracted model data')
+st.subheader("Extracted model data")
 
 # display the dataframe on streamlit app
 st.write(df_model)
@@ -85,25 +90,25 @@ with col1:
     download1 = st.download_button(
         label="Download data as CSV",
         data=csv,
-        file_name='deepmip_model_point_data.csv',
-        mime='text/csv',
-        use_container_width=True
+        file_name="deepmip_model_point_data.csv",
+        mime="text/csv",
+        use_container_width=True,
     )
 
 with col2:
     # download button 2 to download dataframe as xlsx
-    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
         # Write each dataframe to a different worksheet.
-        df_model.to_excel(writer, sheet_name='Sheet1', index=False)
+        df_model.to_excel(writer, sheet_name="Sheet1", index=False)
         # Close the Pandas Excel writer and output the Excel file to the buffer
         writer.save()
 
         download2 = st.download_button(
             label="Download data as Excel",
             data=buffer,
-            file_name='deepmip_model_point_data.xlsx',
-            mime='application/vnd.ms-excel',
-            use_container_width=True
+            file_name="deepmip_model_point_data.xlsx",
+            mime="application/vnd.ms-excel",
+            use_container_width=True,
         )
 
 with col3:
@@ -112,21 +117,23 @@ with col3:
     download1 = st.download_button(
         label="Download data as JSON",
         data=json,
-        file_name='deepmip_model_point_data.json',
-        mime='text/csv',
-        use_container_width=True
+        file_name="deepmip_model_point_data.json",
+        mime="text/csv",
+        use_container_width=True,
     )
 
 
-st.subheader('Overview statistics of extracted data')
+st.subheader("Overview statistics of extracted data")
 
-st.markdown('''
-            [Box plots](https://en.wikipedia.org/wiki/Box_plot) showing a broad overview of the 
-            distribution of the extracted model data. The box shows the first quartile, the median 
-            and the third quartile, while the bars (whiskers) indicate the maximum
-            and minimum of the distribution, excluding outliers.
-            ''', unsafe_allow_html=True
-            )
+st.markdown(
+    """
+        [Box plots](https://en.wikipedia.org/wiki/Box_plot) showing a broad overview of the 
+        distribution of the extracted model data. The box shows the first quartile, the median 
+        and the third quartile, while the bars (whiskers) indicate the maximum
+        and minimum of the distribution, excluding outliers.
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # proxy_check, proxy_mean, proxy_std, proxy_label = init_proxy_input()
@@ -138,45 +145,27 @@ fig = location_data_boxplot(df_model, proxy_check, proxy_mean, proxy_std, proxy_
 # Create an in-memory buffer
 buffer = io.BytesIO()
 
-fn = 'deepmip_boxplot.png'
+fn = "deepmip_boxplot.png"
 img = io.BytesIO()
-fig.savefig(img, format='png')
+fig.savefig(img, format="png")
 
-fn2 = 'deepmip_boxplot.pdf'
+fn2 = "deepmip_boxplot.pdf"
 img2 = io.BytesIO()
-fig.savefig(img2, format='pdf')
+fig.savefig(img2, format="pdf")
 
-fn3 = 'deepmip_boxplot.jpg'
+fn3 = "deepmip_boxplot.jpg"
 img3 = io.BytesIO()
-fig.savefig(img3, format='jpg')
-st.pyplot(fig) 
+fig.savefig(img3, format="jpg")
+st.pyplot(fig)
 
 
 col4, col5, col6 = st.columns(3)
 
 with col4:
-    st.download_button(
-    label="Download JPG",
-    data=img3,
-    file_name=fn3,
-    mime="image/jpg",
-    use_container_width=True
-    )
+    st.download_button(label="Download JPG", data=img3, file_name=fn3, mime="image/jpg", use_container_width=True)
 
 with col5:
-    st.download_button(
-    label="Download PNG",
-    data=img,
-    file_name=fn,
-    mime="image/png",
-    use_container_width=True
-    )
+    st.download_button(label="Download PNG", data=img, file_name=fn, mime="image/png", use_container_width=True)
 
 with col6:
-    st.download_button(
-    label="Download PDF",
-    data=img2,
-    file_name=fn2,
-    mime="image/pdf",
-    use_container_width=True
-    )
+    st.download_button(label="Download PDF", data=img2, file_name=fn2, mime="image/pdf", use_container_width=True)

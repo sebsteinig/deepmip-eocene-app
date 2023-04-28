@@ -15,7 +15,7 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title('Analyse model point data')
+st.title("Analyse model point data")
 
 init_sidebar()
 
@@ -28,7 +28,7 @@ modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy
 for v in [modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label]:
     st.session_state.v = v
 
-## step 1: get paleo position consistent with DeepMIP model geography   
+## step 1: get paleo position consistent with DeepMIP model geography
 
 df_locations = get_paleo_locations(modern_lat, modern_lon)
 
@@ -36,11 +36,11 @@ df_locations = get_paleo_locations(modern_lat, modern_lon)
 
 # convert user variable to DeepMIP variable name
 for variable in variable_dict.keys():
-    if variable_dict[variable]['longname'] == user_variable:
+    if variable_dict[variable]["longname"] == user_variable:
         deepmip_var = variable
 
 # df_model = get_model_point_data(
-#             float(df_locations['modern lat']), 
+#             float(df_locations['modern lat']),
 #             float(df_locations['modern lon']),
 #             float(df_locations['Eocene (55Ma) lat H14']),
 #             float(df_locations['Eocene (55Ma) lon H14']),
@@ -50,22 +50,37 @@ for variable in variable_dict.keys():
 df_model = get_model_point_data(df_locations, deepmip_var)
 
 
+var_y = st.selectbox(
+    label="y-axis variable",
+    options=[
+        "annual_mean",
+        "monthly_min",
+        "monthly_max",
+        "DJF",
+        "MAM",
+        "JJA",
+        "SON",
+        "Jan",
+        "Feb",
+        "Mar",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+    ],
+    key="y_axis",
+)
+
+bokeh_composition1 = box_whisker_plot(df_model, var_y, "experiment", proxy_check, proxy_mean, proxy_std, proxy_label)
+st.bokeh_chart(hv.render(bokeh_composition1, backend="bokeh"))
 
 
-var_y   = st.selectbox(
-                label       = "y-axis variable", 
-                options     = ["annual_mean", "monthly_min", "monthly_max", "DJF", "MAM", "JJA", "SON", "Jan", "Feb", "Mar", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                key         = "y_axis")
-    
-bokeh_composition1 = box_whisker_plot(df_model, var_y, 'experiment', proxy_check, proxy_mean, proxy_std, proxy_label)
-st.bokeh_chart(hv.render(bokeh_composition1, backend='bokeh'))
+bokeh_composition2 = box_whisker_plot(df_model, var_y, "CO2", proxy_check, proxy_mean, proxy_std, proxy_label)
+st.bokeh_chart(hv.render(bokeh_composition2, backend="bokeh"))
 
-    
-bokeh_composition2 = box_whisker_plot(df_model, var_y, 'CO2', proxy_check, proxy_mean, proxy_std, proxy_label)
-st.bokeh_chart(hv.render(bokeh_composition2, backend='bokeh'))
-    
-bokeh_composition3 = box_whisker_plot(df_model, var_y, 'GMST', proxy_check, proxy_mean, proxy_std, proxy_label)
-st.bokeh_chart(hv.render(bokeh_composition3, backend='bokeh'))
-
-
-
+bokeh_composition3 = box_whisker_plot(df_model, var_y, "GMST", proxy_check, proxy_mean, proxy_std, proxy_label)
+st.bokeh_chart(hv.render(bokeh_composition3, backend="bokeh"))

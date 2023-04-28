@@ -46,8 +46,7 @@ st.markdown(
 
     ### Get in touch
     - 
-"""
+    """
 )
 
 st.markdown("<a href='Extract_model_data' target='_self'>subpage</a>", unsafe_allow_html=True)
-
