@@ -471,25 +471,44 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
     # fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=2, figsize=(9.6, 32), subplot_kw=dict(projection=proj))
     fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=3, figsize=(14, 32), subplot_kw=dict(projection=proj))
 
+    # from https://stackoverflow.com/a/40930194
+    import matplotlib.colors as mcolors
+    def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=-1):
+        if n == -1:
+            n = cmap.N
+        new_cmap = mcolors.LinearSegmentedColormap.from_list(
+            'trunc({name},{a:.2f},{b:.2f})'.format(name=cmap.name, a=minval, b=maxval),
+            cmap(np.linspace(minval, maxval, n)))
+        return new_cmap
+    
     # modify colors for shallow ocean and high orography slightly  
     cmap_mod = plt.cm.get_cmap(cmocean.cm.topo)
     # cmaplist = [cmap(i) for i in range(cmap.N)]
     # cmaplist[106] = cmaplist[122]
     # cmaplist[255] = cmaplist[245]
     # cmap_mod = colors.LinearSegmentedColormap.from_list('mcm',cmaplist, cmap.N)
-    norm = colors.TwoSlopeNorm(vmin=-6000., vcenter=0, vmax=3500)
-    # norm = colors.TwoSlopeNorm([-6000,-5000,-4000,-3000,-2000,-1000,0,500,1000,1500,2000,2500,3000,3500], ncolors=cmap_mod.N, clip=True )
-    cmap_slftf = plt.cm.get_cmap('PiYG')
-    norm_slftf =  colors.BoundaryNorm([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], cmap_slftf.N)
+    norm = colors.TwoSlopeNorm(vmin=-6000., vcenter=0, vmax=2500)
 
-    progress_text = "Operation in progress. Please wait."
-    my_bar = st.progress(0, text=progress_text)
+    cmap_bathy = plt.cm.get_cmap(cmocean.cm.deep_r)
+    norm_bathy = colors.BoundaryNorm(np.arange(-6000,0,500), cmap_bathy.N)
+    cmap_bathy.set_under('DarkGray')
+
+    cmap_orog = truncate_colormap(plt.cm.get_cmap('terrain'), 0.15, 1.0)
+    norm_orog =  colors.BoundaryNorm(np.arange(-250,3000,250), cmap_orog.N)
+    
+    cmap_slftf = plt.cm.get_cmap('PiYG')
+    norm_slftf =  colors.BoundaryNorm([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], cmap_slftf.N)
+
+#    cmap_sftlf = plt.colormaps['PiYG']
+#     norm_sftlf = BoundaryNorm([0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0], ncolors=cmap_sftlf.N, clip=True)
+
+
+    progress_bar = st.progress(0)
 
     for model_count,model in enumerate(model_dict.keys()):
             
             
-            my_bar.progress( ((model_count+1)/len(model_dict.keys())), text='Processing data for ' + model)
-
+            progress_bar.progress( ((model_count+1)/(len(model_dict.keys())+1)), text='Processing data for ' + model)
 
             cmap = plt.cm.get_cmap(cmocean.cm.topo)
 
@@ -504,8 +523,6 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
             model_file_sftlf = 'data/data_for_DeepMIP_app/' + model_dict[model]['group'] + '/' + model + '/' + exp + '/' + model_dict[model]['versn'] + \
                             '/' + model + '-' + exp + '-sftlf-' + model_dict[model]['versn'] + '.nc'    
 
-            # land color
-            cmap_mod.set_under('DarkGray')
 
             plat = float(df['Eocene (55Ma) lat ' + model_dict[model]['rotation']])
             plon = float(df['Eocene (55Ma) lon ' + model_dict[model]['rotation']])
@@ -548,7 +565,8 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 #     orog = ds_orog.squeeze().orog.where(ds_orog.squeeze().orog > 0)
 
                 # orog = ds_orog.squeeze().orog.where(ds_sftlf.squeeze().sftlf>0.5)
-                orog = ds_orog.squeeze().orog.where(ds_orog.squeeze().orog>0)
+                # orog = ds_orog.squeeze().orog.where(ds_orog.squeeze().orog>0)
+                orog = ds_orog.squeeze().orog
 
 
                 im_deptho=ax[model_count,0].pcolormesh(
@@ -556,8 +574,8 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                     ds_deptho[str(lat_name_deptho)], 
                     ds_deptho.squeeze().where(ds_deptho.squeeze().deptho>0.).fillna(9999).deptho*-1., 
                     transform=ccrs.PlateCarree(), 
-                    cmap=cmap_mod, 
-                    norm=norm, 
+                    cmap=cmap_bathy, 
+                    norm=norm_bathy, 
                     # levels = [-6000,-5000,-4000,-3000,-2000,-1000,0,500,1000,1500,2000,2500,3000,3500],
                     edgecolors=(0, 0, 0, 0.1), 
                     linewidths=0.1)
@@ -567,8 +585,8 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                     ds_orog[str(lat_name_orog)], 
                     orog.fillna(-9999), 
                     transform=ccrs.PlateCarree(), 
-                    cmap=cmap_mod, 
-                    norm=norm, 
+                    cmap=cmap_orog, 
+                    norm=norm_orog, 
                     # levels = [-6000,-5000,-4000,-3000,-2000,-1000,0,500,1000,1500,2000,2500,3000,3500],
                     edgecolors=(0, 0, 0, 0.1), 
                     linewidths=0.1)
@@ -593,7 +611,7 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
 
                 ax[model_count,0].set_title(model_dict[model]['abbrv'] + ' bathymetry', fontsize=12)
                 ax[model_count,1].set_title(model_dict[model]['abbrv'] + ' orography', fontsize=12)
-                ax[model_count,2].set_title(model_dict[model]['abbrv'] + ' land-sea fraction', fontsize=12)
+                ax[model_count,2].set_title(model_dict[model]['abbrv'] + ' land-sea mask', fontsize=12)
 
                 def clip(value, lower, upper):
                     return lower if value < lower else upper if value > upper else value
@@ -644,11 +662,24 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 #     transform=ccrs.PlateCarree(),
                 #     extend='both')
 
-    # add common colorbar
-    cbar_ax1 = fig.add_axes([0.2, 0.03, 0.6, 0.01])
+    progress_bar.progress( ((model_count+2)/(len(model_dict.keys())+1)), text='Creating Figure ... ')
+
+    # add common colorbars
+
+    cbar_ax1 = fig.add_axes([0.155, 0.035, 0.2, 0.01])
     cbar1 = fig.colorbar(im_deptho, cax=cbar_ax1, extend="neither", orientation='horizontal')
-    cbar1.ax.tick_params(labelsize=14)
-    cbar1.set_label('surface elevation [m]',size=18)
+    cbar1.ax.tick_params(labelsize=10)
+    cbar1.set_label('bathymetry [m]',size=14) 
+
+    cbar_ax2 = fig.add_axes([0.413, 0.035, 0.2, 0.01])
+    cbar2 = fig.colorbar(im_orog, cax=cbar_ax2, extend="neither", orientation='horizontal')
+    cbar2.ax.tick_params(labelsize=10)
+    cbar2.set_label('orography [m]',size=14)
+
+    cbar_ax3 = fig.add_axes([0.671, 0.035, 0.2, 0.01])
+    cbar3 = fig.colorbar(im_sftlf, cax=cbar_ax3, extend="neither", orientation='horizontal')
+    cbar3.ax.tick_params(labelsize=10)
+    cbar3.set_label('land fraction [m]',size=14)
 
     fig.subplots_adjust(bottom=0.06, hspace=0.2, wspace=0.0)
             
@@ -689,5 +720,5 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
 
 
 
-    return fig
+    return fig, progress_bar
 
