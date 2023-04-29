@@ -1,6 +1,7 @@
 import streamlit as st
 
 from app_modules import init_sidebar
+from deepmip_modules import model_table
 
 st.set_page_config(
     page_title="Home",
@@ -29,10 +30,15 @@ st.markdown(
     the model data. 
     4. Click 'Get Data' and wait for the results to update.
 
-    
-    ###  DeepMIP Models
+    """
+)
+
+st.subheader("DeepMIP Models")
+st.dataframe(model_table(), use_container_width=False)
 
 
+st.markdown(
+    """
     ### Want to learn more?
     - DeepMIP experimental design paper: 
     [Lunt et al. (2017)](https://doi.org/10.5194/gmd-10-889-2017)

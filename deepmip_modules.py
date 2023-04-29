@@ -17,6 +17,34 @@ from deepmip_dicts import exp_dict, model_dict, variable_dict
 hv.extension("bokeh")
 
 
+def model_table():
+    df = pd.DataFrame(
+        columns=["Model", "Short Name", "CMIP generation", "Paleogeography"]
+    )
+
+    for model in model_dict.keys():
+        df.loc[len(df)] = [
+            model,
+            model_dict[model]["abbrv"],
+            model_dict[model]["CMIP generation"],
+            "Herold et al. (2014)"
+            if model_dict[model]["rotation"] == "H14"
+            else "Baatsen et al. (2016)",
+        ]
+
+    for exp in exp_dict.keys():
+        ticks = []
+        for model in model_dict.keys():
+            if exp in model_dict[model]["exps"]:
+                ticks.append(True)
+            else:
+                ticks.append(False)
+
+        df[exp_dict[exp]["short_name"]] = ticks
+
+    return df
+
+
 def get_paleo_locations(modern_lat, modern_lon):
     # models use two different paleogeographic reconstructions:
     # 1. most model use the Herold et al. (2014) reconstruction, hereafter "H14"
