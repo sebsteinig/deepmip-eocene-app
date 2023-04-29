@@ -70,15 +70,25 @@ def init_widgets():
                 )
 
         with col3:
-            variable_list = ["near-surface air temperature", "sea surface temperature", "precipitation"]
+            variable_list = [
+                "near-surface air temperature",
+                "sea surface temperature",
+                "precipitation",
+            ]
             if "user_variable" in st.session_state:
-                var_index = variable_list.index(st.session_state["user_variable"])
+                var_index = variable_list.index(
+                    st.session_state["user_variable"]
+                )
             else:
                 var_index = 0
 
             user_variable = st.selectbox(
                 label="variable",
-                options=["near-surface air temperature", "sea surface temperature", "precipitation"],
+                options=[
+                    "near-surface air temperature",
+                    "sea surface temperature",
+                    "precipitation",
+                ],
                 index=var_index,
                 key="user_variable",
             )
@@ -90,29 +100,65 @@ def init_widgets():
             if "proxy_check" in st.session_state:
                 proxy_check = st.checkbox(label=" ", key="proxy_check")
             else:
-                proxy_check = st.checkbox(label=" ", key="proxy_check", value=True)
+                proxy_check = st.checkbox(
+                    label=" ", key="proxy_check", value=True
+                )
         with col5:
             if "proxy_mean" in st.session_state:
-                proxy_mean = st.number_input(label="proxy mean", step=1.0, format="%.1f", key="proxy_mean")
+                proxy_mean = st.number_input(
+                    label="proxy mean",
+                    step=1.0,
+                    format="%.1f",
+                    key="proxy_mean",
+                )
             else:
-                proxy_mean = st.number_input(label="proxy mean", value=24.0, step=1.0, format="%.1f", key="proxy_mean")
+                proxy_mean = st.number_input(
+                    label="proxy mean",
+                    value=24.0,
+                    step=1.0,
+                    format="%.1f",
+                    key="proxy_mean",
+                )
 
         with col6:
             if "proxy_std" in st.session_state:
-                proxy_std = st.number_input(label="proxy uncertainty", step=1.0, format="%.1f", key="proxy_std")
+                proxy_std = st.number_input(
+                    label="proxy uncertainty",
+                    step=1.0,
+                    format="%.1f",
+                    key="proxy_std",
+                )
             else:
                 proxy_std = st.number_input(
-                    label="proxy uncertainty", value=5.0, step=1.0, format="%.1f", key="proxy_std"
+                    label="proxy uncertainty",
+                    value=5.0,
+                    step=1.0,
+                    format="%.1f",
+                    key="proxy_std",
                 )
         with col7:
             if "proxy_label" in st.session_state:
-                proxy_label = st.text_input(label="proxy label", key="proxy_label")
+                proxy_label = st.text_input(
+                    label="proxy label", key="proxy_label"
+                )
             else:
-                proxy_label = st.text_input(label="proxy label", value="Bristol", key="proxy_label")
+                proxy_label = st.text_input(
+                    label="proxy label", value="Bristol", key="proxy_label"
+                )
 
-        submit_button = st.form_submit_button(label="Get Data", use_container_width=True)
+        submit_button = st.form_submit_button(
+            label="Get Data", use_container_width=True
+        )
 
-    return modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label
+    return (
+        modern_lat,
+        modern_lon,
+        user_variable,
+        proxy_check,
+        proxy_mean,
+        proxy_std,
+        proxy_label,
+    )
 
 
 def get_base64(bin_file):
@@ -132,12 +178,12 @@ def add_logo():
             background-image: url("data:image/png;base64,%s");
             background-repeat: no-repeat;
             padding-top: 115px;
-            background-position: 45px 30px;
+            background-position: 60px 30px;
             background-size: 150px 150px;
         }
         [data-testid="stSidebarNav"]::before {
-            content: "DeepMIP database";
-            margin-left: 23px;
+            content: "DeepMIP Eocene Database";
+            margin-left: 22px;
             margin-top: 20px;
             font-size:22px;
             position: relative;
@@ -152,16 +198,20 @@ def add_logo():
 
 def init_sidebar():
     add_logo()
-    # st.sidebar.success("Select analysis above.")
-    # st.sidebar.image("deepmip_logo.png", use_column_width=True)
 
-    # Add Link to your repo
-    """
-    [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/AvratanuBiswas/PubLit) 
+    st.sidebar.success("How to Get Started")
+    st.sidebar.markdown(
+        """
+        1. ☝️ Use the navigation above to select the analysis of your choice. 
+        2. Select the present-day location of your site and the variable you are 
+        interested in.
+        3. Optionally, you can add a proxy estimate for quick comparison with 
+        the model data. 
+        4. Click 'Get Data' and wait for the results to update.
+        """
+    )
 
-    """
     st.sidebar.subheader("Links")
-
     st.sidebar.markdown(
         "Get the code: [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/sebsteinig/deepmip_database_app)",
         unsafe_allow_html=True,
@@ -170,4 +220,8 @@ def init_sidebar():
         "Get in touch: [![Repo](https://badgen.net/badge/icon/sebsteinig?icon=twitter&label)](https://twitter.com/sebsteinig)",
         unsafe_allow_html=True,
     )
-    st.sidebar.markdown("[www.deepmip.org](https://www.deepmip.org)", unsafe_allow_html=True)
+    st.sidebar.markdown(
+        # "Get more info: [www.deepmip.org](https://www.deepmip.org)",
+        "Get more info: [![Repo](https://badgen.net/badge/icon/deepmip.org?icon=chrome&label)](https://www.deepmip.org)",
+        unsafe_allow_html=True,
+    )

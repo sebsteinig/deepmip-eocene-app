@@ -8,7 +8,11 @@ from deepmip_dicts import variable_dict
 
 from app_modules import init_widgets, init_sidebar
 
-from deepmip_modules import get_paleo_locations, get_model_point_data, box_whisker_plot
+from deepmip_modules import (
+    get_paleo_locations,
+    get_model_point_data,
+    box_whisker_plot,
+)
 
 st.set_page_config(
     page_title="Analyse model data",
@@ -23,9 +27,25 @@ for k, v in st.session_state.items():
     if k != "FormSubmitter:my_form-Get Data":
         st.session_state[k] = v
 
-modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label = init_widgets()
+(
+    modern_lat,
+    modern_lon,
+    user_variable,
+    proxy_check,
+    proxy_mean,
+    proxy_std,
+    proxy_label,
+) = init_widgets()
 
-for v in [modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label]:
+for v in [
+    modern_lat,
+    modern_lon,
+    user_variable,
+    proxy_check,
+    proxy_mean,
+    proxy_std,
+    proxy_label,
+]:
     st.session_state.v = v
 
 ## step 1: get paleo position consistent with DeepMIP model geography
@@ -75,12 +95,24 @@ var_y = st.selectbox(
     key="y_axis",
 )
 
-bokeh_composition1 = box_whisker_plot(df_model, var_y, "experiment", proxy_check, proxy_mean, proxy_std, proxy_label)
+bokeh_composition1 = box_whisker_plot(
+    df_model,
+    var_y,
+    "experiment",
+    proxy_check,
+    proxy_mean,
+    proxy_std,
+    proxy_label,
+)
 st.bokeh_chart(hv.render(bokeh_composition1, backend="bokeh"))
 
 
-bokeh_composition2 = box_whisker_plot(df_model, var_y, "CO2", proxy_check, proxy_mean, proxy_std, proxy_label)
+bokeh_composition2 = box_whisker_plot(
+    df_model, var_y, "CO2", proxy_check, proxy_mean, proxy_std, proxy_label
+)
 st.bokeh_chart(hv.render(bokeh_composition2, backend="bokeh"))
 
-bokeh_composition3 = box_whisker_plot(df_model, var_y, "GMST", proxy_check, proxy_mean, proxy_std, proxy_label)
+bokeh_composition3 = box_whisker_plot(
+    df_model, var_y, "GMST", proxy_check, proxy_mean, proxy_std, proxy_label
+)
 st.bokeh_chart(hv.render(bokeh_composition3, backend="bokeh"))

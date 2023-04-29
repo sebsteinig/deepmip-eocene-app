@@ -7,14 +7,9 @@ import cmocean
 import seaborn as sns
 import holoviews as hv
 from holoviews import opts
-from bokeh.models import BoxAnnotation
-
 import streamlit as st
-
-from matplotlib.colors import BoundaryNorm
 import matplotlib.colors as colors
 from cartopy.util import add_cyclic_point
-
 from pathlib import Path
 
 from deepmip_dicts import exp_dict, model_dict, variable_dict
@@ -31,26 +26,58 @@ def get_paleo_locations(modern_lat, modern_lon):
     rotation_file_H14 = xr.open_dataset("data/LatLon_PD_55Ma_Herold2014.nc")
     rotation_file_B16 = xr.open_dataset("data/LatLon_PD_55Ma_Baatsen2016.nc")
 
-    # 1. coarse approximation: look up paleolocation for modern coordinates in rotation file
-    paleo_lat_H14 = rotation_file_H14.LAT.sel(latitude=modern_lat, longitude=modern_lon, method="nearest").values
-    paleo_lon_H14 = rotation_file_H14.LON.sel(latitude=modern_lat, longitude=modern_lon, method="nearest").values
+    # 1. coarse approximation: look up paleolocation for modern coordinates
+    # in rotation file
+    paleo_lat_H14 = rotation_file_H14.LAT.sel(
+        latitude=modern_lat, longitude=modern_lon, method="nearest"
+    ).values
+    paleo_lon_H14 = rotation_file_H14.LON.sel(
+        latitude=modern_lat, longitude=modern_lon, method="nearest"
+    ).values
 
-    paleo_lat_B16 = rotation_file_B16.LAT.sel(latitude=modern_lat, longitude=modern_lon, method="nearest").values
-    paleo_lon_B16 = rotation_file_B16.LON.sel(latitude=modern_lat, longitude=modern_lon, method="nearest").values
+    paleo_lat_B16 = rotation_file_B16.LAT.sel(
+        latitude=modern_lat, longitude=modern_lon, method="nearest"
+    ).values
+    paleo_lon_B16 = rotation_file_B16.LON.sel(
+        latitude=modern_lat, longitude=modern_lon, method="nearest"
+    ).values
 
+    # check if paleo location is found
     if np.isfinite(paleo_lat_H14) and np.isfinite(paleo_lat_B16):
-        # 2. fine approximation: add delta between modern selected and rotation grid coordinates back to paleolocation
-        delta_lat_H14 = modern_lat - rotation_file_H14.latitude.sel(latitude=modern_lat, method="nearest").values
-        delta_lon_H14 = modern_lon - rotation_file_H14.longitude.sel(longitude=modern_lon, method="nearest").values
+        # 2. fine approximation: add delta between modern selected and
+        # rotation grid coordinates back to paleolocation
+        delta_lat_H14 = (
+            modern_lat
+            - rotation_file_H14.latitude.sel(
+                latitude=modern_lat, method="nearest"
+            ).values
+        )
+        delta_lon_H14 = (
+            modern_lon
+            - rotation_file_H14.longitude.sel(
+                longitude=modern_lon, method="nearest"
+            ).values
+        )
         paleo_lat_H14 += delta_lat_H14
         paleo_lon_H14 += delta_lon_H14
 
-        delta_lat_B16 = modern_lat - rotation_file_H14.latitude.sel(latitude=modern_lat, method="nearest").values
-        delta_lon_B16 = modern_lon - rotation_file_H14.longitude.sel(longitude=modern_lon, method="nearest").values
+        delta_lat_B16 = (
+            modern_lat
+            - rotation_file_H14.latitude.sel(
+                latitude=modern_lat, method="nearest"
+            ).values
+        )
+        delta_lon_B16 = (
+            modern_lon
+            - rotation_file_H14.longitude.sel(
+                longitude=modern_lon, method="nearest"
+            ).values
+        )
         paleo_lat_B16 += delta_lat_B16
         paleo_lon_B16 += delta_lon_B16
 
-        # build dictionary iteratively and convert to dataframe
+        # build dictionary iteratively to allow for multiple sites
+        # and convert to dataframe
         d = []
         d.append(
             {
@@ -64,12 +91,14 @@ def get_paleo_locations(modern_lat, modern_lon):
         )
 
         df = pd.DataFrame(d)
-
         # return DataFrame
         return df
     else:
         st.exception(
-            ValueError("No paleo location found for modern coordinates. Please try again with a different location.")
+            ValueError(
+                "No paleo location found for modern coordinates. Please try "
+                "again with a different location."
+            )
         )
         st.stop()
 
@@ -139,8 +168,12 @@ def get_model_point_data(df, variable):
                     lookup_lat = float(df["modern lat"])
                     lookup_lon = float(df["modern lon"])
                 else:
-                    lookup_lat = float(df["Eocene (55Ma) lat " + model_dict[model]["rotation"]])
-                    lookup_lon = float(df["Eocene (55Ma) lon " + model_dict[model]["rotation"]])
+                    lookup_lat = float(
+                        df["Eocene (55Ma) lat " + model_dict[model]["rotation"]]
+                    )
+                    lookup_lon = float(
+                        df["Eocene (55Ma) lon " + model_dict[model]["rotation"]]
+                    )
 
                 # check for minimum model longitude
                 min_model_lon = np.amin(ds_model.coords[lon_name].values)
@@ -154,20 +187,30 @@ def get_model_point_data(df, variable):
                 if variable == "tas":
                     # convert from Kelvin to Celsius
                     site_data = (
-                        var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon_model}, method="nearest").values
+                        var_data.sel(
+                            **{lat_name: lookup_lat},
+                            **{lon_name: lookup_lon_model},
+                            method="nearest"
+                        ).values
                         - 273.15
                     )
                     unit = "°C"
                 elif variable == "pr":
                     # convert from kg m-2 s-1 to mm/day
                     site_data = (
-                        var_data.sel(**{lat_name: lookup_lat}, **{lon_name: lookup_lon_model}, method="nearest").values
+                        var_data.sel(
+                            **{lat_name: lookup_lat},
+                            **{lon_name: lookup_lon_model},
+                            method="nearest"
+                        ).values
                         * 86400.0
                     )
                     unit = "mm/day"
                 else:
                     site_data = var_data.sel(
-                        **{lat_name: lookup_lat}, **{lon_name: lookup_lon_model}, method="nearest"
+                        **{lat_name: lookup_lat},
+                        **{lon_name: lookup_lon_model},
+                        method="nearest"
                     ).values
                     unit = variable_dict[variable]["unit"]
 
@@ -219,7 +262,9 @@ def get_model_point_data(df, variable):
 
     # calculate ensemble mean for each site and experiment
     for exp in exp_dict.keys():
-        df.loc[len(df)] = df.loc[(df["experiment"] == exp_dict[exp]["medium_name"])].mean(numeric_only=True)
+        df.loc[len(df)] = df.loc[
+            (df["experiment"] == exp_dict[exp]["medium_name"])
+        ].mean(numeric_only=True)
         # set ensemble mean metadata
         df.loc[len(df) - 1, "model"] = "ensemble_mean"
         df.loc[len(df) - 1, "model_short"] = "mean"
@@ -240,11 +285,21 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
 
     variable = df_plot.iloc[0]["var"]
 
-    # change dataframe from wide (9 columns) to long (3 columns) format to use hue method in seaborn boxplot
+    # change dataframe from wide (9 columns) to long (3 columns) format to use
+    # hue method in seaborn boxplot
     dfMelt = pd.melt(
         df_plot,
         id_vars=["experiment"],
-        value_vars=["annual_mean", "monthly_min", "monthly_min", "monthly_max", "DJF", "MAM", "JJA", "SON"],
+        value_vars=[
+            "annual_mean",
+            "monthly_min",
+            "monthly_min",
+            "monthly_max",
+            "DJF",
+            "MAM",
+            "JJA",
+            "SON",
+        ],
     )
 
     # define figure layout first
@@ -255,7 +310,8 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
     for key, value in exp_dict.items():
         list_medium_names.append(value["medium_name"])
 
-    # boxplot with seaborn (https://seaborn.pydata.org/generated/seaborn.boxplot.html)
+    # boxplot with seaborn
+    # (https://seaborn.pydata.org/generated/seaborn.boxplot.html)
     ax3 = sns.boxplot(
         data=dfMelt,
         x="experiment",
@@ -309,13 +365,35 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
     # add optional proxy estimates as reference
     if proxy_flag:
         if proxy_std != "":
-            ax3.axhspan(proxy_mean - proxy_std, proxy_mean + proxy_std, facecolor="lightcoral", alpha=0.4, zorder=0.0)
-            ax4.axhspan(proxy_mean - proxy_std, proxy_mean + proxy_std, facecolor="lightcoral", alpha=0.4, zorder=0.0)
+            ax3.axhspan(
+                proxy_mean - proxy_std,
+                proxy_mean + proxy_std,
+                facecolor="lightcoral",
+                alpha=0.4,
+                zorder=0.0,
+            )
+            ax4.axhspan(
+                proxy_mean - proxy_std,
+                proxy_mean + proxy_std,
+                facecolor="lightcoral",
+                alpha=0.4,
+                zorder=0.0,
+            )
             ax3.text(
-                1.5, proxy_mean + proxy_std, proxy_label, fontsize=20, color="lightcoral", verticalalignment="bottom"
+                1.5,
+                proxy_mean + proxy_std,
+                proxy_label,
+                fontsize=20,
+                color="lightcoral",
+                verticalalignment="bottom",
             )
             ax4.text(
-                1.5, proxy_mean + proxy_std, proxy_label, fontsize=20, color="lightcoral", verticalalignment="bottom"
+                1.5,
+                proxy_mean + proxy_std,
+                proxy_label,
+                fontsize=20,
+                color="lightcoral",
+                verticalalignment="bottom",
             )
 
     titleString = (
@@ -328,7 +406,9 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
         + ")"
     )
 
-    yLabel = variable_dict[variable]["longname"] + " [" + df.iloc[0]["unit"] + "]"
+    yLabel = (
+        variable_dict[variable]["longname"] + " [" + df.iloc[0]["unit"] + "]"
+    )
 
     handles, labels = ax3.get_legend_handles_labels()
     ax3.legend(handles[0:3], labels[0:3], fontsize="16")
@@ -349,7 +429,9 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
     return fig
 
 
-def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy_label):
+def box_whisker_plot(
+    df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy_label
+):
     df_plot = df[(df.model != "ensemble_mean")]
 
     # get paleolocation
@@ -375,7 +457,9 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
 
     # add proxy reference annotation
     if proxy_check:
-        hspan = hv.HSpan(proxy_mean - proxy_std, proxy_mean + proxy_std).opts(opts.HSpan(color="lightcoral", alpha=0.4))
+        hspan = hv.HSpan(proxy_mean - proxy_std, proxy_mean + proxy_std).opts(
+            opts.HSpan(color="lightcoral", alpha=0.4)
+        )
 
         if var_x == "experiment":
             text_x = "DeepMIP_1x"
@@ -384,7 +468,9 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
         elif var_x == "GMST":
             text_x = 20
 
-        htext = hv.Text(text_x, proxy_mean + 1.2 * proxy_std, proxy_label).opts(opts.Text(color="lightcoral"))
+        htext = hv.Text(text_x, proxy_mean + 1.2 * proxy_std, proxy_label).opts(
+            opts.Text(color="lightcoral")
+        )
 
     scatter = (
         hv.Scatter(
@@ -450,7 +536,9 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
     return composition
 
 
-def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid_check, labels_check):
+def plot_global_paleogeography(
+    df, projection, proxy_label, outline_colour, grid_check, labels_check
+):
     ### plot Eocene paleogeography with rotated site(s)
 
     # open Herold et al. (2014) paleogeography
@@ -469,7 +557,8 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
         cbar_pad = 0.1
     elif projection == "Orthographic":
         proj = ccrs.Orthographic(
-            central_longitude=float(df["Eocene (55Ma) lon H14"]), central_latitude=float(df["Eocene (55Ma) lat H14"])
+            central_longitude=float(df["Eocene (55Ma) lon H14"]),
+            central_latitude=float(df["Eocene (55Ma) lat H14"]),
         )
         cbar_orientation = "vertical"
         cbar_pad = 0.05
@@ -490,15 +579,40 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
         # cmap='cmo.topo',
         cmap=cmap_mod,
         norm=norm,
-        levels=[-6000, -5000, -4000, -3000, -2000, -1000, 0, 500, 1000, 1500, 2000, 2500, 3000, 3500],
+        levels=[
+            -6000,
+            -5000,
+            -4000,
+            -3000,
+            -2000,
+            -1000,
+            0,
+            500,
+            1000,
+            1500,
+            2000,
+            2500,
+            3000,
+            3500,
+        ],
         transform=ccrs.PlateCarree(),
         extend="neither",
-        cbar_kwargs={"orientation": cbar_orientation, "label": "surface elevation [m]", "pad": cbar_pad},
+        cbar_kwargs={
+            "orientation": cbar_orientation,
+            "label": "surface elevation [m]",
+            "pad": cbar_pad,
+        },
     )
     # add modern coastlines for comparison
     ax.coastlines(color=outline_colour)
 
-    gl = ax.gridlines(draw_labels=labels_check, linewidth=1.0, color="darkgray", alpha=0.5, linestyle="--")
+    gl = ax.gridlines(
+        draw_labels=labels_check,
+        linewidth=1.0,
+        color="darkgray",
+        alpha=0.5,
+        linestyle="--",
+    )
     gl.top_labels = False
     gl.xlines = grid_check
     gl.ylines = grid_check
@@ -558,7 +672,9 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
                 float(df["Eocene (55Ma) lat H14"]) - 7,
                 proxy_label,
                 horizontalalignment=labelAlignment,
-                bbox=dict(facecolor="white", edgecolor="black", boxstyle="round"),
+                bbox=dict(
+                    facecolor="white", edgecolor="black", boxstyle="round"
+                ),
                 fontsize=10,
                 transform=ccrs.PlateCarree(),
             )
@@ -568,7 +684,9 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
                 float(df["Eocene (55Ma) lat H14"]) - 15,
                 proxy_label,
                 horizontalalignment=labelAlignment,
-                bbox=dict(facecolor="white", edgecolor="black", boxstyle="round"),
+                bbox=dict(
+                    facecolor="white", edgecolor="black", boxstyle="round"
+                ),
                 fontsize=10,
                 transform=ccrs.PlateCarree(),
             )
@@ -578,7 +696,9 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
                 float(df["Eocene (55Ma) lat H14"]) - 18,
                 proxy_label,
                 horizontalalignment=labelAlignment,
-                bbox=dict(facecolor="white", edgecolor="black", boxstyle="round"),
+                bbox=dict(
+                    facecolor="white", edgecolor="black", boxstyle="round"
+                ),
                 fontsize=10,
                 transform=ccrs.PlateCarree(),
             )
@@ -586,7 +706,9 @@ def plot_global_paleogeography(df, projection, proxy_label, outline_colour, grid
     return fig
 
 
-def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_check, labels_check):
+def plot_model_geographies(
+    df, projection, proxy_label, outline_colour, grid_check, labels_check
+):
     ### plot Eocene paleogeography around rotated site for each DeepMIP model
 
     if projection == "Equirectangular":
@@ -599,13 +721,19 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
         cbar_pad = 0.1
     elif projection == "Orthographic":
         proj = ccrs.Orthographic(
-            central_longitude=float(df["Eocene (55Ma) lon H14"]), central_latitude=float(df["Eocene (55Ma) lat H14"])
+            central_longitude=float(df["Eocene (55Ma) lon H14"]),
+            central_latitude=float(df["Eocene (55Ma) lat H14"]),
         )
         cbar_orientation = "vertical"
         cbar_pad = 0.05
 
     # plot global map
-    fig, ax = plt.subplots(nrows=len(model_dict.keys()), ncols=3, figsize=(14, 32), subplot_kw=dict(projection=proj))
+    fig, ax = plt.subplots(
+        nrows=len(model_dict.keys()),
+        ncols=3,
+        figsize=(14, 32),
+        subplot_kw=dict(projection=proj),
+    )
 
     # from https://stackoverflow.com/a/40930194
     import matplotlib.colors as mcolors
@@ -614,7 +742,9 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
         if n == -1:
             n = cmap.N
         new_cmap = mcolors.LinearSegmentedColormap.from_list(
-            "trunc({name},{a:.2f},{b:.2f})".format(name=cmap.name, a=minval, b=maxval),
+            "trunc({name},{a:.2f},{b:.2f})".format(
+                name=cmap.name, a=minval, b=maxval
+            ),
             cmap(np.linspace(minval, maxval, n)),
         )
         return new_cmap
@@ -627,12 +757,17 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
     norm_orog = colors.BoundaryNorm(np.arange(-250, 3000, 250), cmap_orog.N)
 
     cmap_slftf = plt.cm.get_cmap("PiYG")
-    norm_slftf = colors.BoundaryNorm([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], cmap_slftf.N)
+    norm_slftf = colors.BoundaryNorm(
+        [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], cmap_slftf.N
+    )
 
     progress_bar = st.progress(0)
 
     for model_count, model in enumerate(model_dict.keys()):
-        progress_bar.progress(((model_count + 1) / (len(model_dict.keys()) + 1)), text="Processing data for " + model)
+        progress_bar.progress(
+            ((model_count + 1) / (len(model_dict.keys()) + 1)),
+            text="Processing data for " + model,
+        )
 
         # get boundary conditions from first Eocene simulation
         exp = model_dict[model]["exps"][1]
@@ -707,25 +842,57 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                     lon_name_orog = coord
 
             for coord in ds_deptho.coords:
-                if coord in ["lat", "latitude", "lat_2", "nav_lat", "TLAT", "geolat_t"]:
+                if coord in [
+                    "lat",
+                    "latitude",
+                    "lat_2",
+                    "nav_lat",
+                    "TLAT",
+                    "geolat_t",
+                ]:
                     lat_name_deptho = coord
-                elif coord in ["lon", "longitude", "nav_lon", "TLONG", "geolon_t"]:
+                elif coord in [
+                    "lon",
+                    "longitude",
+                    "nav_lon",
+                    "TLONG",
+                    "geolon_t",
+                ]:
                     lon_name_deptho = coord
 
             for coord in ds_sftlf.coords:
-                if coord in ["lat", "latitude", "lat_2", "nav_lat", "TLAT", "geolat_t"]:
+                if coord in [
+                    "lat",
+                    "latitude",
+                    "lat_2",
+                    "nav_lat",
+                    "TLAT",
+                    "geolat_t",
+                ]:
                     lat_name_sftlf = coord
-                elif coord in ["lon", "longitude", "nav_lon", "TLONG", "geolon_t"]:
+                elif coord in [
+                    "lon",
+                    "longitude",
+                    "nav_lon",
+                    "TLONG",
+                    "geolon_t",
+                ]:
                     lon_name_sftlf = coord
 
-            sftlf, lonsc = add_cyclic_point(ds_sftlf.squeeze().sftlf, ds_sftlf[str(lon_name_orog)])
+            sftlf, lonsc = add_cyclic_point(
+                ds_sftlf.squeeze().sftlf, ds_sftlf[str(lon_name_orog)]
+            )
 
             orog = ds_orog.squeeze().orog
 
             im_deptho = ax[model_count, 0].pcolormesh(
                 ds_deptho[str(lon_name_deptho)],
                 ds_deptho[str(lat_name_deptho)],
-                ds_deptho.squeeze().where(ds_deptho.squeeze().deptho > 0.0).fillna(9999).deptho * -1.0,
+                ds_deptho.squeeze()
+                .where(ds_deptho.squeeze().deptho > 0.0)
+                .fillna(9999)
+                .deptho
+                * -1.0,
                 transform=ccrs.PlateCarree(),
                 cmap=cmap_bathy,
                 norm=norm_bathy,
@@ -755,12 +922,24 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 linewidths=0.1,
             )
 
-            ax[model_count, 0].set_title(model_dict[model]["abbrv"] + " bathymetry", fontsize=12)
-            ax[model_count, 1].set_title(model_dict[model]["abbrv"] + " orography", fontsize=12)
-            ax[model_count, 2].set_title(model_dict[model]["abbrv"] + " land-sea mask", fontsize=12)
+            ax[model_count, 0].set_title(
+                model_dict[model]["abbrv"] + " bathymetry", fontsize=12
+            )
+            ax[model_count, 1].set_title(
+                model_dict[model]["abbrv"] + " orography", fontsize=12
+            )
+            ax[model_count, 2].set_title(
+                model_dict[model]["abbrv"] + " land-sea mask", fontsize=12
+            )
 
             def clip(value, lower, upper):
-                return lower if value < lower else upper if value > upper else value
+                return (
+                    lower
+                    if value < lower
+                    else upper
+                    if value > upper
+                    else value
+                )
 
             for count in range(3):
                 ax[model_count, count].set_extent(
@@ -782,12 +961,21 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 )
 
                 ax[model_count, count].plot(
-                    plon, plat, "ro", markersize=12, markeredgecolor="black", transform=ccrs.PlateCarree()
+                    plon,
+                    plat,
+                    "ro",
+                    markersize=12,
+                    markeredgecolor="black",
+                    transform=ccrs.PlateCarree(),
                 )
 
             # ax[model_count,0].gridlines(draw_labels = True)
             gl1 = ax[model_count, 0].gridlines(
-                draw_labels=labels_check, linewidth=1.0, color="darkgray", alpha=0.5, linestyle="--"
+                draw_labels=labels_check,
+                linewidth=1.0,
+                color="darkgray",
+                alpha=0.5,
+                linestyle="--",
             )
             gl1.top_labels = False
             gl1.right_labels = False
@@ -795,7 +983,11 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
             gl1.ylines = grid_check
             # ax[model_count,1].gridlines(draw_labels = True)
             gl2 = ax[model_count, 1].gridlines(
-                draw_labels=labels_check, linewidth=1.0, color="darkgray", alpha=0.5, linestyle="--"
+                draw_labels=labels_check,
+                linewidth=1.0,
+                color="darkgray",
+                alpha=0.5,
+                linestyle="--",
             )
             gl2.top_labels = False
             gl2.right_labels = False
@@ -803,7 +995,11 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
             gl2.ylines = grid_check
 
             gl3 = ax[model_count, 2].gridlines(
-                draw_labels=labels_check, linewidth=1.0, color="darkgray", alpha=0.5, linestyle="--"
+                draw_labels=labels_check,
+                linewidth=1.0,
+                color="darkgray",
+                alpha=0.5,
+                linestyle="--",
             )
             gl3.top_labels = False
             gl3.xlines = grid_check
@@ -814,22 +1010,31 @@ def plot_model_geographies(df, projection, proxy_label, outline_colour, grid_che
                 gl2.bottom_labels = False
                 gl3.bottom_labels = False
 
-    progress_bar.progress(((model_count + 2) / (len(model_dict.keys()) + 1)), text="Creating Figure ... ")
+    progress_bar.progress(
+        ((model_count + 2) / (len(model_dict.keys()) + 1)),
+        text="Creating Figure ... ",
+    )
 
     # add common colorbars
 
     cbar_ax1 = fig.add_axes([0.155, 0.035, 0.2, 0.01])
-    cbar1 = fig.colorbar(im_deptho, cax=cbar_ax1, extend="neither", orientation="horizontal")
+    cbar1 = fig.colorbar(
+        im_deptho, cax=cbar_ax1, extend="neither", orientation="horizontal"
+    )
     cbar1.ax.tick_params(labelsize=10)
     cbar1.set_label("bathymetry [m]", size=14)
 
     cbar_ax2 = fig.add_axes([0.413, 0.035, 0.2, 0.01])
-    cbar2 = fig.colorbar(im_orog, cax=cbar_ax2, extend="neither", orientation="horizontal")
+    cbar2 = fig.colorbar(
+        im_orog, cax=cbar_ax2, extend="neither", orientation="horizontal"
+    )
     cbar2.ax.tick_params(labelsize=10)
     cbar2.set_label("orography [m]", size=14)
 
     cbar_ax3 = fig.add_axes([0.671, 0.035, 0.2, 0.01])
-    cbar3 = fig.colorbar(im_sftlf, cax=cbar_ax3, extend="neither", orientation="horizontal")
+    cbar3 = fig.colorbar(
+        im_sftlf, cax=cbar_ax3, extend="neither", orientation="horizontal"
+    )
     cbar3.ax.tick_params(labelsize=10)
     cbar3.set_label("land fraction [m]", size=14)
 
