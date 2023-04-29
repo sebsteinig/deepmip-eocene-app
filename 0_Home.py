@@ -25,7 +25,9 @@ st.markdown(
     (you might have to click the 'less than symbol' on the top left to expand it).
     2. Select the present-day location of your site and the variable you are 
     interested in.
-    3. Click on .
+    3. Optionally, you can add a proxy estimate for quick comparison with 
+    the model data. 
+    4. Click 'Get Data' and wait for the results to update.
 
     ### Want to learn more?
     - DeepMIP experimental design paper: 
