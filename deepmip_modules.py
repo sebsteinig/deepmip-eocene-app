@@ -781,7 +781,7 @@ def plot_model_geographies(
         return new_cmap
 
     cmap_bathy = plt.cm.get_cmap(cmocean.cm.deep_r)
-    norm_bathy = colors.BoundaryNorm(np.arange(-6000, 0, 500), cmap_bathy.N)
+    norm_bathy = colors.BoundaryNorm(np.arange(-6000, 500, 500), cmap_bathy.N)
     cmap_bathy.set_under("DarkGray")
 
     cmap_orog = truncate_colormap(plt.cm.get_cmap("terrain"), 0.15, 1.0)
