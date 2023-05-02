@@ -178,7 +178,7 @@ def add_logo():
             background-image: url("data:image/png;base64,%s");
             background-repeat: no-repeat;
             padding-top: 115px;
-            background-position: 60px 30px;
+            background-position: 70px 30px;
             background-size: 150px 150px;
         }
         [data-testid="stSidebarNav"]::before {
@@ -225,3 +225,14 @@ def init_sidebar():
         "Get more info: [![Repo](https://badgen.net/badge/icon/deepmip.org?icon=chrome&label)](https://www.deepmip.org)",
         unsafe_allow_html=True,
     )
+
+    # fix sidebar width
+    # css = """
+    # <style>
+    #     [data-testid="stSidebar"]{
+    #         min-width: 300px;
+    #         max-width: 300px;
+    #     }
+    # </style>
+    # """
+    # st.markdown(css, unsafe_allow_html=True)

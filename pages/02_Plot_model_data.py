@@ -15,11 +15,11 @@ from deepmip_modules import (
 )
 
 st.set_page_config(
-    page_title="Analyse model data",
+    page_title="Plot model data",
     layout="wide",
 )
 
-st.title("Analyse model point data")
+st.title("Plot model point data")
 
 init_sidebar()
 

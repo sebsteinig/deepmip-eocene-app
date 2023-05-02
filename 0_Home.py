@@ -2,6 +2,7 @@ import streamlit as st
 
 from app_modules import init_sidebar
 from deepmip_modules import model_table
+from bibliography import init_bibliography
 
 st.set_page_config(
     page_title="Home",
@@ -22,18 +23,23 @@ st.markdown(
     local proxy data.
 
     ###  How to Get Started
-    1. 👈 Use the sidebar on the left to select the analysis of your choice 
-    (you might have to click the 'less than symbol' on the top left to expand it).
-    2. Select the present-day location of your site and the variable you are 
-    interested in.
-    3. Optionally, you can add a proxy estimate for quick comparison with 
-    the model data. 
-    4. Click 'Get Data' and wait for the results to update.
+    Select any of the following pages to start your analysis:
 
-    """
+    - <a href='Extract_model_data' target='_self'>Extract model data</a> for any location, ready to be imported into your spreadsheet.
+    - <a href='Plot_model_data' target='_self'>Plot model data</a> (monthly, seasonal, annual) and it's relation to CO$_2$ and global mean temperature.
+    - <a href='Paleogeography' target='_self'>Create a paleogeographic map </a> for your site and see how it is represented in different models.
+
+    """,
+    unsafe_allow_html=True,
 )
 
 st.subheader("DeepMIP Models")
+st.markdown(
+    """
+    An overview of all participating models and their available simulations is given below.
+
+    """
+)
 st.dataframe(model_table(), use_container_width=False)
 
 
@@ -48,13 +54,10 @@ st.markdown(
     [in prep.](https://doi.org/10.5194/cp-17-203-2021)
     - Official [DeepMIP website](https://www.deepmip.org)
 
-    ### DeepMIP publications
-    - 
+    ### Publications
+    The DeepMIP model data from this database have been used in the following publications: 
 
     """
 )
 
-st.markdown(
-    "<a href='Extract_model_data' target='_self'>subpage</a>",
-    unsafe_allow_html=True,
-)
+init_bibliography()

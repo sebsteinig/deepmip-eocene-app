@@ -6,7 +6,11 @@ import matplotlib as plt
 from deepmip_dicts import variable_dict
 
 from app_modules import init_widgets, init_sidebar
-from deepmip_modules import get_paleo_locations, get_model_point_data, location_data_boxplot
+from deepmip_modules import (
+    get_paleo_locations,
+    get_model_point_data,
+    location_data_boxplot,
+)
 
 st.set_page_config(
     page_title="Extract model data",
@@ -25,7 +29,7 @@ st.markdown(
         models and simulations. Results are listed in the interactive table below, which can also 
         be downloaded in different data formats. Basic ensemble statistics of the extracted data 
         are shwon at the bottom. You can also create interactive charts of your extracted data on 
-        the <a href='Analyse_model_data' target='_self'>analysis page</a>.
+        the <a href='Plot_model_data' target='_self'>analysis page</a>.
     """,
     unsafe_allow_html=True,
 )
@@ -35,9 +39,25 @@ for k, v in st.session_state.items():
     if k != "FormSubmitter:my_form-Get Data":
         st.session_state[k] = v
 
-modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label = init_widgets()
+(
+    modern_lat,
+    modern_lon,
+    user_variable,
+    proxy_check,
+    proxy_mean,
+    proxy_std,
+    proxy_label,
+) = init_widgets()
 
-for v in [modern_lat, modern_lon, user_variable, proxy_check, proxy_mean, proxy_std, proxy_label]:
+for v in [
+    modern_lat,
+    modern_lon,
+    user_variable,
+    proxy_check,
+    proxy_mean,
+    proxy_std,
+    proxy_label,
+]:
     st.session_state.v = v
 
 ## step 1: get paleo position consistent with DeepMIP model geographies
@@ -139,7 +159,9 @@ st.markdown(
 # proxy_check, proxy_mean, proxy_std, proxy_label = init_proxy_input()
 
 
-fig = location_data_boxplot(df_model, proxy_check, proxy_mean, proxy_std, proxy_label)
+fig = location_data_boxplot(
+    df_model, proxy_check, proxy_mean, proxy_std, proxy_label
+)
 
 
 # Create an in-memory buffer
@@ -162,10 +184,28 @@ st.pyplot(fig)
 col4, col5, col6 = st.columns(3)
 
 with col4:
-    st.download_button(label="Download JPG", data=img3, file_name=fn3, mime="image/jpg", use_container_width=True)
+    st.download_button(
+        label="Download JPG",
+        data=img3,
+        file_name=fn3,
+        mime="image/jpg",
+        use_container_width=True,
+    )
 
 with col5:
-    st.download_button(label="Download PNG", data=img, file_name=fn, mime="image/png", use_container_width=True)
+    st.download_button(
+        label="Download PNG",
+        data=img,
+        file_name=fn,
+        mime="image/png",
+        use_container_width=True,
+    )
 
 with col6:
-    st.download_button(label="Download PDF", data=img2, file_name=fn2, mime="image/pdf", use_container_width=True)
+    st.download_button(
+        label="Download PDF",
+        data=img2,
+        file_name=fn2,
+        mime="image/pdf",
+        use_container_width=True,
+    )
