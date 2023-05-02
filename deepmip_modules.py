@@ -45,6 +45,7 @@ def model_table():
     return df
 
 
+@st.cache_data
 def get_paleo_locations(modern_lat, modern_lon):
     # models use two different paleogeographic reconstructions:
     # 1. most model use the Herold et al. (2014) reconstruction, hereafter "H14"
@@ -132,6 +133,7 @@ def get_paleo_locations(modern_lat, modern_lon):
 
 
 # def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable):
+@st.cache_data
 def get_model_point_data(df, variable):
     # allocate empty list to store results for all models
     data_list = []
@@ -303,6 +305,7 @@ def get_model_point_data(df, variable):
     return df.round(1)
 
 
+@st.cache_data
 def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
     df_plot = df[(df.model != "ensemble_mean")]
 

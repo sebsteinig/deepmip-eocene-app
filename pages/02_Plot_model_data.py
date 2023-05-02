@@ -21,6 +21,17 @@ st.set_page_config(
 
 st.title("Plot model point data")
 
+st.markdown(
+    """
+        **Interactive overview of the extracted model data.**
+        The app calculates the respective early Eocene (~55 Ma) paleolocation consistent with the 
+        model geographies and then extracts the data from the closest grid point for all available 
+        models and simulations. You can download the extracted data in different data formats 
+        at the <a href='Extract_model_data' target='_self'>extraction page</a>.
+    """,
+    unsafe_allow_html=True,
+)
+
 init_sidebar()
 
 for k, v in st.session_state.items():

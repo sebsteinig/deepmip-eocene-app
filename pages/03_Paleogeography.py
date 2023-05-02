@@ -95,7 +95,7 @@ buffer = io.BytesIO()
 
 fn = "deepmip_paleogeography_herold.png"
 img = io.BytesIO()
-fig.savefig(img, format="png")
+fig.savefig(img, format="png", dpi=200)
 
 fn2 = "deepmip_paleogeography_herold.pdf"
 img2 = io.BytesIO()
@@ -103,7 +103,7 @@ fig.savefig(img2, format="pdf")
 
 fn3 = "deepmip_paleogeography_herold.jpg"
 img3 = io.BytesIO()
-fig.savefig(img3, format="jpg")
+fig.savefig(img3, format="jpg", dpi=200)
 
 st.pyplot(fig)
 

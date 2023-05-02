@@ -60,7 +60,8 @@ for v in [
 ]:
     st.session_state.v = v
 
-## step 1: get paleo position consistent with DeepMIP model geographies
+## step 1: get paleo position consistent with DeepMIP model geographies\
+
 df_locations = get_paleo_locations(modern_lat, modern_lon)
 
 ## step 2: get model data for paleo position(s) and chosen variable
