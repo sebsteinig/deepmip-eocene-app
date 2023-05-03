@@ -59,8 +59,18 @@ for v in [
 ]:
     st.session_state.v = v
 
-## step 1: get paleo position consistent with DeepMIP model geography
+if user_variable == "sea surface temperature":
+    st.warning(
+        """
+        ⚠️ Warning: Land points for sea surface temperatures (SSTs) are filled
+        by a nearest-neighbour lookup to facilitate the intermodel
+        comparison in coastal regions. Please make sure that you selected
+        a marine/coastal location by checking the model land-sea masks
+        on the **Paleogeography** page.
+        """
+    )
 
+## step 1: get paleo position consistent with DeepMIP model geography
 df_locations = get_paleo_locations(modern_lat, modern_lon)
 
 ## step 2: get model data for paleo position(s) and chosen variable
@@ -106,6 +116,7 @@ var_y = st.selectbox(
     key="y_axis",
 )
 
+st.subheader(var_y + " vs. experiment")
 bokeh_composition1 = box_whisker_plot(
     df_model,
     var_y,
@@ -118,11 +129,13 @@ bokeh_composition1 = box_whisker_plot(
 st.bokeh_chart(hv.render(bokeh_composition1, backend="bokeh"))
 
 
+st.subheader(var_y + " vs. CO$_2$")
 bokeh_composition2 = box_whisker_plot(
     df_model, var_y, "CO2", proxy_check, proxy_mean, proxy_std, proxy_label
 )
 st.bokeh_chart(hv.render(bokeh_composition2, backend="bokeh"))
 
+st.subheader(var_y + " vs. GMST")
 bokeh_composition3 = box_whisker_plot(
     df_model, var_y, "GMST", proxy_check, proxy_mean, proxy_std, proxy_label
 )

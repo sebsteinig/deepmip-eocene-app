@@ -60,8 +60,18 @@ for v in [
 ]:
     st.session_state.v = v
 
-## step 1: get paleo position consistent with DeepMIP model geographies\
+if user_variable == "sea surface temperature":
+    st.warning(
+        """
+        ⚠️ Warning: Land points for sea surface temperatures (SSTs) are filled
+        by a nearest-neighbour lookup to facilitate the intermodel
+        comparison in coastal regions. Please make sure that you selected
+        a marine/coastal location by checking the model land-sea masks
+        on the **Paleogeography** page.
+        """
+    )
 
+## step 1: get paleo position consistent with DeepMIP model geographies\
 df_locations = get_paleo_locations(modern_lat, modern_lon)
 
 ## step 2: get model data for paleo position(s) and chosen variable

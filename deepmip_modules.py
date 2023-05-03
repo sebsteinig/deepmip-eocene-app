@@ -185,6 +185,8 @@ def get_model_point_data(df, variable):
 
             # load data if file for model/experiment combination exists
             if Path(model_file).exists():
+                print(model_file)
+
                 ds_model = xr.open_dataset(model_file, decode_times=False)
 
                 # get coordinate names
@@ -254,38 +256,55 @@ def get_model_point_data(df, variable):
                         gmst = gmst_list[count]
 
                 # store results for individual metrics in a dictionary
-                data_list.append(
-                    dict(
-                        model_short=model_dict[model]["abbrv"],
-                        model=model,
-                        experiment=exp_dict[exp]["medium_name"],
-                        CO2=float(exp_dict[exp]["CO2"]),
-                        GMST=gmst,
-                        lat=np.round(lookup_lat, 2),
-                        lon=np.round(lookup_lon, 2),
-                        var=variable,
-                        unit=unit,
-                        annual_mean=np.mean(site_data),
-                        monthly_min=np.min(site_data),
-                        monthly_max=np.max(site_data),
-                        DJF=np.mean(site_data[[11, 0, 1]]),
-                        MAM=np.mean(site_data[[2, 3, 4]]),
-                        JJA=np.mean(site_data[[5, 6, 7]]),
-                        SON=np.mean(site_data[[8, 9, 10]]),
-                        Jan=site_data[0],
-                        Feb=site_data[1],
-                        Mar=site_data[2],
-                        Apr=site_data[3],
-                        May=site_data[4],
-                        Jun=site_data[5],
-                        Jul=site_data[6],
-                        Aug=site_data[7],
-                        Sep=site_data[8],
-                        Oct=site_data[9],
-                        Nov=site_data[10],
-                        Dec=site_data[11],
+
+                if len(site_data) == 12:
+                    data_list.append(
+                        dict(
+                            model_short=model_dict[model]["abbrv"],
+                            model=model,
+                            experiment=exp_dict[exp]["medium_name"],
+                            CO2=float(exp_dict[exp]["CO2"]),
+                            GMST=gmst,
+                            lat=np.round(lookup_lat, 2),
+                            lon=np.round(lookup_lon, 2),
+                            var=variable,
+                            unit=unit,
+                            annual_mean=np.mean(site_data),
+                            monthly_min=np.min(site_data),
+                            monthly_max=np.max(site_data),
+                            DJF=np.mean(site_data[[11, 0, 1]]),
+                            MAM=np.mean(site_data[[2, 3, 4]]),
+                            JJA=np.mean(site_data[[5, 6, 7]]),
+                            SON=np.mean(site_data[[8, 9, 10]]),
+                            Jan=site_data[0],
+                            Feb=site_data[1],
+                            Mar=site_data[2],
+                            Apr=site_data[3],
+                            May=site_data[4],
+                            Jun=site_data[5],
+                            Jul=site_data[6],
+                            Aug=site_data[7],
+                            Sep=site_data[8],
+                            Oct=site_data[9],
+                            Nov=site_data[10],
+                            Dec=site_data[11],
+                        )
                     )
-                )
+                elif len(site_data) == 1:
+                    data_list.append(
+                        dict(
+                            model_short=model_dict[model]["abbrv"],
+                            model=model,
+                            experiment=exp_dict[exp]["medium_name"],
+                            CO2=float(exp_dict[exp]["CO2"]),
+                            GMST=gmst,
+                            lat=np.round(lookup_lat, 2),
+                            lon=np.round(lookup_lon, 2),
+                            var=variable,
+                            unit=unit,
+                            annual_mean=site_data[0],
+                        )
+                    )
 
     # convert dictionary to Pandas dataframe for easier handling and plotting
     df = pd.DataFrame(data_list).round(1)
@@ -480,7 +499,8 @@ def box_whisker_plot(
         log_x = False
         df_redcued = df_plot.loc[df_plot["experiment"] != "piControl"]
 
-    x_label = "tes"
+    unit = df_plot.iloc[0]["unit"]
+    ylabel = var_y + " [" + unit + "]"
     # generate list of medium-length experiment anmes for plot ordering
     list_medium_names = []
     for key, value in exp_dict.items():
@@ -494,14 +514,28 @@ def box_whisker_plot(
 
         if var_x == "experiment":
             text_x = "DeepMIP_1x"
+            xlabel = "DeepMIP experiment"
         elif var_x == "CO2":
             text_x = 500
+            xlabel = "atmospheric CO2 [ppmv]"
         elif var_x == "GMST":
             text_x = 20
+            xlabel = "GMST [°C]"
 
         htext = hv.Text(text_x, proxy_mean + 1.2 * proxy_std, proxy_label).opts(
             opts.Text(color="lightcoral")
         )
+
+    variable = df_plot.iloc[0]["var"]
+    titleString = (
+        "DeepMIP (~55 Ma) "
+        + variable_dict[variable]["longname"]
+        + " (LAT = "
+        + str(np.round(plat, 1))
+        + " / LON = "
+        + str(np.round(plon, 1))
+        + ")"
+    )
 
     scatter = (
         hv.Scatter(
@@ -515,9 +549,10 @@ def box_whisker_plot(
         .opts(
             opts.Scatter(
                 logx=log_x,
-                xlabel=var_x,
-                ylabel=var_y,
+                xlabel=xlabel,
+                ylabel=ylabel,
                 jitter=0.2,
+                title=titleString,
                 # width=705,
                 height=500,
                 responsive=True,
@@ -526,7 +561,13 @@ def box_whisker_plot(
                 size=12,
                 tools=["hover", "wheel_zoom"],
                 line_color="black",
-                fontsize={"legend": 10.8},
+                fontsize={
+                    "legend": 10.8,
+                    "title": 14,
+                    "labels": 14,
+                    "xticks": 11,
+                    "yticks": 11,
+                },
             )
         )
     )
