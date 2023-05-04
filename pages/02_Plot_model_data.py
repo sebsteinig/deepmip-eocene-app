@@ -3,6 +3,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import holoviews as hv
+import io
 
 from deepmip_dicts import variable_dict
 
@@ -126,8 +127,92 @@ bokeh_composition1 = box_whisker_plot(
     proxy_std,
     proxy_label,
 )
-st.bokeh_chart(hv.render(bokeh_composition1, backend="bokeh"))
 
+from bokeh.io import export_svgs
+
+p = hv.render(bokeh_composition1, backend="bokeh")
+st.bokeh_chart(p)
+
+p.output_backend = "svg"
+export_svgs(p, filename="heatmap.svg")
+
+# p.output_backend = "png"
+# export_svgs(p, filename="heatmap.png")
+
+hv.save(bokeh_composition1, "penguin_plot.png", fmt="png")
+
+with open("heatmap.svg", "rb") as file:
+    btn = st.download_button(
+        label="Download image",
+        data=file,
+        file_name="heatmap.svg",
+        mime="image/svg",
+    )
+# hv.save(p, "penguin_plot.png", fmt="png")
+# @st.cache
+# def export_svg(obj, filename):
+#     plot_state = hv.renderer("bokeh").get_plot(obj).state
+#     plot_state.output_backend = "svg"
+#     export_svgs(plot_state, filename=filename)
+
+
+# # Create an in-memory buffer
+# # buffer = io.BytesIO()
+
+# # fn = "deepmip_boxplot.png"
+# # img = io.BytesIO()
+# # fig.savefig(img, format="png")
+# # hv.save(bokeh_composition1, "penguin_plot.png", fmt="png")
+
+# fn = "overlay.svg"
+# img = io.BytesIO()
+# image = export_svg(bokeh_composition1, img)
+
+# st.download_button(
+#     label="Download SVG",
+#     data=image,
+#     file_name=fn,
+#     mime="image/svg",
+#     use_container_width=True,
+# )
+# fn2 = "deepmip_boxplot.pdf"
+# img2 = io.BytesIO()
+# fig.savefig(img2, format="pdf")
+
+# fn3 = "deepmip_boxplot.jpg"
+# img3 = io.BytesIO()
+# fig.savefig(img3, format="jpg")
+# st.pyplot(fig)
+
+
+# col4, col5, col6 = st.columns(3)
+
+# with col4:
+#     st.download_button(
+#         label="Download JPG",
+#         data=img3,
+#         file_name=fn3,
+#         mime="image/jpg",
+#         use_container_width=True,
+#     )
+
+# with col5:
+#     st.download_button(
+#         label="Download PNG",
+#         data=img,
+#         file_name=fn,
+#         mime="image/png",
+#         use_container_width=True,
+#     )
+
+# with col6:
+#     st.download_button(
+#         label="Download PDF",
+#         data=img2,
+#         file_name=fn2,
+#         mime="image/pdf",
+#         use_container_width=True,
+#     )
 
 st.subheader(var_y + " vs. CO$_2$")
 bokeh_composition2 = box_whisker_plot(

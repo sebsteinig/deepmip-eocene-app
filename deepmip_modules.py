@@ -527,17 +527,22 @@ def box_whisker_plot(
 
         if var_x == "experiment":
             text_x = "DeepMIP_1x"
-            xlabel = "DeepMIP experiment"
         elif var_x == "CO2":
             text_x = 500
-            xlabel = "atmospheric CO2 [ppmv]"
         elif var_x == "GMST":
             text_x = 20
-            xlabel = "GMST [°C]"
 
         htext = hv.Text(text_x, proxy_mean + 1.2 * proxy_std, proxy_label).opts(
             opts.Text(color="lightcoral")
         )
+
+    # generate plot labels
+    if var_x == "experiment":
+        xlabel = "DeepMIP experiment"
+    elif var_x == "CO2":
+        xlabel = "atmospheric CO2 [ppmv]"
+    elif var_x == "GMST":
+        xlabel = "GMST [°C]"
 
     variable = df_plot.iloc[0]["var"]
     titleString = (
