@@ -101,7 +101,7 @@ def init_widgets():
                 proxy_check = st.checkbox(label=" ", key="proxy_check")
             else:
                 proxy_check = st.checkbox(
-                    label=" ", key="proxy_check", value=True
+                    label=" ", key="proxy_check", value=False
                 )
         with col5:
             if "proxy_mean" in st.session_state:
@@ -114,7 +114,7 @@ def init_widgets():
             else:
                 proxy_mean = st.number_input(
                     label="proxy mean",
-                    value=24.0,
+                    value=0.0,
                     step=1.0,
                     format="%.1f",
                     key="proxy_mean",
@@ -131,7 +131,7 @@ def init_widgets():
             else:
                 proxy_std = st.number_input(
                     label="proxy uncertainty",
-                    value=5.0,
+                    value=0.0,
                     step=1.0,
                     format="%.1f",
                     key="proxy_std",
@@ -143,7 +143,7 @@ def init_widgets():
                 )
             else:
                 proxy_label = st.text_input(
-                    label="proxy label", value="Bristol", key="proxy_label"
+                    label="proxy label", value="...", key="proxy_label"
                 )
 
         submit_button = st.form_submit_button(
