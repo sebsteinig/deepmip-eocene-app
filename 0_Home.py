@@ -11,15 +11,15 @@ st.set_page_config(
 
 init_sidebar()
 
-st.write("# Welcome to the DeepMIP model database! 👋")
+st.write("# Welcome to the DeepMIP-Eocene model database! 👋")
 
 st.markdown(
     """
-    The **D**eep **T**ime **M**odel **I**ntercomparison **P**roject (DeepMIP)
+    The **D**eep **T**ime **M**odel **I**ntercomparison **P**roject (DeepMIP)-Eocene
     is a collaboration of eight climate modelling groups from around the world, 
     each carrying out standardised simulations of the early Eocene climate optimum 
     (EECO, ∼ 50 million years ago). All generated data is freely available to
-    anyone. There are two main ways to access the data:
+    everyone. There are two main ways to access the data:
     1. This website provides an interface to extract point data from all available 
     simulations for quick and easy and comparison with local proxy data.
     2. The full database (size: ...) can be downloaded from the CEDA Archive (link)
