@@ -24,17 +24,10 @@ def model_table():
             "Short Name",
             "CMIP generation",
             "Paleogeography",
-            "Reference",
         ]
     )
 
     for model in model_dict.keys():
-        if model == "CESM1.2_CAM5":
-            reference = "Zhu et al., (2019) [doi.org/10.1126/sciadv.aax1874]"
-        elif model == "IPSLCM5A2":
-            reference = "Zhang et al., (2020) [doi.org/10.5194/cp-16-1263-2020]"
-        else:
-            reference = "Lunt et al., (2021) [doi.org/10.5194/cp-17-203-2021]"
         df.loc[len(df)] = [
             model,
             model_dict[model]["abbrv"],
@@ -42,7 +35,6 @@ def model_table():
             "Herold et al. (2014)"
             if model_dict[model]["rotation"] == "H14"
             else "Baatsen et al. (2016)",
-            reference,
         ]
 
     for exp in exp_dict.keys():
