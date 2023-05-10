@@ -5,7 +5,7 @@ import matplotlib as plt
 
 from deepmip_dicts import variable_dict
 
-from app_modules import init_widgets, init_sidebar
+from app_modules import init_widgets_choice, init_sidebar
 from deepmip_modules import (
     get_paleo_locations,
     get_model_point_data,
@@ -34,7 +34,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
 for k, v in st.session_state.items():
     if k != "FormSubmitter:my_form-Get Data":
         st.session_state[k] = v
@@ -47,17 +46,9 @@ for k, v in st.session_state.items():
     proxy_mean,
     proxy_std,
     proxy_label,
-) = init_widgets()
+) = init_widgets_choice()
 
-for v in [
-    modern_lat,
-    modern_lon,
-    user_variable,
-    proxy_check,
-    proxy_mean,
-    proxy_std,
-    proxy_label,
-]:
+for v in [modern_lat, modern_lon, user_variable]:
     st.session_state.v = v
 
 if user_variable == "sea surface temperature":
@@ -154,69 +145,69 @@ with col3:
     )
 
 
-st.subheader("Overview statistics of extracted data")
+# st.subheader("Overview statistics of extracted data")
 
-st.markdown(
-    """
-        [Box plots](https://en.wikipedia.org/wiki/Box_plot) showing a broad overview of the 
-        distribution of the extracted model data. The box shows the first quartile, the median 
-        and the third quartile, while the bars (whiskers) indicate the maximum
-        and minimum of the distribution, excluding outliers.
-    """,
-    unsafe_allow_html=True,
-)
-
-
-# proxy_check, proxy_mean, proxy_std, proxy_label = init_proxy_input()
+# st.markdown(
+#     """
+#         [Box plots](https://en.wikipedia.org/wiki/Box_plot) showing a broad overview of the
+#         distribution of the extracted model data. The box shows the first quartile, the median
+#         and the third quartile, while the bars (whiskers) indicate the maximum
+#         and minimum of the distribution, excluding outliers.
+#     """,
+#     unsafe_allow_html=True,
+# )
 
 
-fig = location_data_boxplot(
-    df_model, proxy_check, proxy_mean, proxy_std, proxy_label
-)
+# # proxy_check, proxy_mean, proxy_std, proxy_label = init_proxy_input()
 
 
-# Create an in-memory buffer
-buffer = io.BytesIO()
-
-fn = "deepmip_boxplot.png"
-img = io.BytesIO()
-fig.savefig(img, format="png")
-
-fn2 = "deepmip_boxplot.pdf"
-img2 = io.BytesIO()
-fig.savefig(img2, format="pdf")
-
-fn3 = "deepmip_boxplot.jpg"
-img3 = io.BytesIO()
-fig.savefig(img3, format="jpg")
-st.pyplot(fig)
+# fig = location_data_boxplot(
+#     df_model, proxy_check, proxy_mean, proxy_std, proxy_label
+# )
 
 
-col4, col5, col6 = st.columns(3)
+# # Create an in-memory buffer
+# buffer = io.BytesIO()
 
-with col4:
-    st.download_button(
-        label="Download JPG",
-        data=img3,
-        file_name=fn3,
-        mime="image/jpg",
-        use_container_width=True,
-    )
+# fn = "deepmip_boxplot.png"
+# img = io.BytesIO()
+# fig.savefig(img, format="png")
 
-with col5:
-    st.download_button(
-        label="Download PNG",
-        data=img,
-        file_name=fn,
-        mime="image/png",
-        use_container_width=True,
-    )
+# fn2 = "deepmip_boxplot.pdf"
+# img2 = io.BytesIO()
+# fig.savefig(img2, format="pdf")
 
-with col6:
-    st.download_button(
-        label="Download PDF",
-        data=img2,
-        file_name=fn2,
-        mime="image/pdf",
-        use_container_width=True,
-    )
+# fn3 = "deepmip_boxplot.jpg"
+# img3 = io.BytesIO()
+# fig.savefig(img3, format="jpg")
+# st.pyplot(fig)
+
+
+# col4, col5, col6 = st.columns(3)
+
+# with col4:
+#     st.download_button(
+#         label="Download JPG",
+#         data=img3,
+#         file_name=fn3,
+#         mime="image/jpg",
+#         use_container_width=True,
+#     )
+
+# with col5:
+#     st.download_button(
+#         label="Download PNG",
+#         data=img,
+#         file_name=fn,
+#         mime="image/png",
+#         use_container_width=True,
+#     )
+
+# with col6:
+#     st.download_button(
+#         label="Download PDF",
+#         data=img2,
+#         file_name=fn2,
+#         mime="image/pdf",
+#         use_container_width=True,
+#     )

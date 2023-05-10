@@ -261,7 +261,6 @@ def get_model_point_data(df, variable):
                         gmst = gmst_list[count]
 
                 # store results for individual metrics in a dictionary
-
                 if len(site_data) == 12:
                     data_list.append(
                         dict(
