@@ -5,12 +5,13 @@ import matplotlib as plt
 
 from deepmip_dicts import variable_dict
 
-from app_modules import init_widgets_choice, init_sidebar
-from deepmip_modules import (
-    get_paleo_locations,
-    get_model_point_data,
-    location_data_boxplot,
+from app_modules import (
+    init_widgets_single_site,
+    init_widgets_multi_site,
+    init_sidebar,
+    sites_to_list,
 )
+from deepmip_modules import get_paleo_locations, get_model_point_data
 
 st.set_page_config(
     page_title="Extract model data",
@@ -27,26 +28,29 @@ st.markdown(
         The app calculates the respective early Eocene (~55 Ma) paleolocation consistent with the 
         model geographies and then extracts the data from the closest grid point for all available 
         models and simulations. Results are listed in the interactive table below, which can also 
-        be downloaded in different data formats. Basic ensemble statistics of the extracted data 
-        are shwon at the bottom. You can also create interactive charts of your extracted data on 
-        the <a href='Plot_model_data' target='_self'>analysis page</a>.
+        be downloaded in different data formats. You can also create interactive charts of your 
+        extracted data on the <a href='Plot_model_data' target='_self'>analysis page</a>.
     """,
     unsafe_allow_html=True,
 )
 
 for k, v in st.session_state.items():
-    if k != "FormSubmitter:my_form-Get Data":
+    if k != "FormSubmitter:my_form-GET MODEL DATA":
         st.session_state[k] = v
 
-(
-    modern_lat,
-    modern_lon,
-    user_variable,
-    proxy_check,
-    proxy_mean,
-    proxy_std,
-    proxy_label,
-) = init_widgets_choice()
+st.subheader("User input")
+
+analysis_type = st.radio(
+    "Number of sites to extract data for:",
+    ["Single site", "Multiple sites"],
+    horizontal=True,
+)
+
+if analysis_type == "Single site":
+    modern_lat, modern_lon, user_variable = init_widgets_single_site()
+elif analysis_type == "Multiple sites":
+    modern_lat, modern_lon, user_variable = init_widgets_multi_site()
+    modern_lats, modern_lon = sites_to_list(modern_lat, modern_lon)
 
 for v in [modern_lat, modern_lon, user_variable]:
     st.session_state.v = v
@@ -62,24 +66,27 @@ if user_variable == "sea surface temperature":
         """
     )
 
-## step 1: get paleo position consistent with DeepMIP model geographies\
-df_locations = get_paleo_locations(modern_lat, modern_lon)
+if analysis_type == "Single site":
+    # convert single site to list for consistency with multi-site analysis
+    modern_lats = [modern_lat]
+    modern_lons = [modern_lon]
+    names = ["User site"]
+else:
+    modern_lats = [51.5, 39.2]
+    modern_lons = [-2.6, 2.6]
+    names = ["site 1", "site 2"]
 
-## step 2: get model data for paleo position(s) and chosen variable
+## step 1: get paleo position(s) consistent with DeepMIP model geographies
+df_paleo_locations = get_paleo_locations(modern_lats, modern_lons, names)
 
-# convert user variable to DeepMIP variable name
+print(df_paleo_locations)
+# step 2: convert user variable to DeepMIP variable name
 for key, value in variable_dict.items():
     if value["longname"] == user_variable:
         deepmip_var = key
 
-# df_model = get_model_point_data(
-#             float(df_locations['modern lat']),
-#             float(df_locations['modern lon']),
-#             float(df_locations['Eocene (55Ma) lat H14']),
-#             float(df_locations['Eocene (55Ma) lon H14']),
-#             deepmip_var)
-
-df_model = get_model_point_data(df_locations, deepmip_var)
+## step 3: get model data for paleo position(s) and chosen variable
+df_model = get_model_point_data(df_paleo_locations, deepmip_var)
 
 # add donwload buttons for CSV and XLSX
 # from https://stackoverflow.com/a/75334543
@@ -143,71 +150,3 @@ with col3:
         mime="text/csv",
         use_container_width=True,
     )
-
-
-# st.subheader("Overview statistics of extracted data")
-
-# st.markdown(
-#     """
-#         [Box plots](https://en.wikipedia.org/wiki/Box_plot) showing a broad overview of the
-#         distribution of the extracted model data. The box shows the first quartile, the median
-#         and the third quartile, while the bars (whiskers) indicate the maximum
-#         and minimum of the distribution, excluding outliers.
-#     """,
-#     unsafe_allow_html=True,
-# )
-
-
-# # proxy_check, proxy_mean, proxy_std, proxy_label = init_proxy_input()
-
-
-# fig = location_data_boxplot(
-#     df_model, proxy_check, proxy_mean, proxy_std, proxy_label
-# )
-
-
-# # Create an in-memory buffer
-# buffer = io.BytesIO()
-
-# fn = "deepmip_boxplot.png"
-# img = io.BytesIO()
-# fig.savefig(img, format="png")
-
-# fn2 = "deepmip_boxplot.pdf"
-# img2 = io.BytesIO()
-# fig.savefig(img2, format="pdf")
-
-# fn3 = "deepmip_boxplot.jpg"
-# img3 = io.BytesIO()
-# fig.savefig(img3, format="jpg")
-# st.pyplot(fig)
-
-
-# col4, col5, col6 = st.columns(3)
-
-# with col4:
-#     st.download_button(
-#         label="Download JPG",
-#         data=img3,
-#         file_name=fn3,
-#         mime="image/jpg",
-#         use_container_width=True,
-#     )
-
-# with col5:
-#     st.download_button(
-#         label="Download PNG",
-#         data=img,
-#         file_name=fn,
-#         mime="image/png",
-#         use_container_width=True,
-#     )
-
-# with col6:
-#     st.download_button(
-#         label="Download PDF",
-#         data=img2,
-#         file_name=fn2,
-#         mime="image/pdf",
-#         use_container_width=True,
-#     )

@@ -3,8 +3,6 @@ import base64
 
 
 def init_widgets_single_site():
-    st.subheader("User input")
-
     # check whether user input is already in session state
     # if yes, use the previous selection from the session state
     # if not, use default values
@@ -13,9 +11,8 @@ def init_widgets_single_site():
     with st.form(key="my_form"):
         st.info(
             """
-                Select the present-day location of your site, the variable 
-                you are interested in and an optional proxy reference for 
-                the plots.
+                Select the present-day location of your site and the variable 
+                you are interested in.
                 """
         )
 
@@ -76,9 +73,7 @@ def init_widgets_single_site():
                 "precipitation",
             ]
             if "user_variable" in st.session_state:
-                var_index = variable_list.index(
-                    st.session_state["user_variable"]
-                )
+                var_index = variable_list.index(st.session_state["user_variable"])
             else:
                 var_index = 0
 
@@ -94,7 +89,7 @@ def init_widgets_single_site():
             )
 
         submit_button = st.form_submit_button(
-            label="Get Data", use_container_width=True, type="primary"
+            label="GET MODEL DATA", use_container_width=True, type="primary"
         )
 
     return (modern_lat, modern_lon, user_variable)
@@ -174,9 +169,7 @@ def init_widgets_multi_site():
                 "precipitation",
             ]
             if "user_variable" in st.session_state:
-                var_index = variable_list.index(
-                    st.session_state["user_variable"]
-                )
+                var_index = variable_list.index(st.session_state["user_variable"])
             else:
                 var_index = 0
 
@@ -191,366 +184,17 @@ def init_widgets_multi_site():
                 key="user_variable",
             )
 
-        col4, col5, col6, col7 = st.columns(4)
-
-        with col4:
-            st.write("compare to proxy?")
-            if "proxy_check" in st.session_state:
-                proxy_check = st.checkbox(label=" ", key="proxy_check")
-            else:
-                proxy_check = st.checkbox(
-                    label=" ", key="proxy_check", value=False
-                )
-        with col5:
-            if "proxy_mean" in st.session_state:
-                proxy_mean = st.number_input(
-                    label="proxy mean",
-                    step=1.0,
-                    format="%.1f",
-                    key="proxy_mean",
-                )
-            else:
-                proxy_mean = st.number_input(
-                    label="proxy mean",
-                    value=0.0,
-                    step=1.0,
-                    format="%.1f",
-                    key="proxy_mean",
-                )
-
-        with col6:
-            if "proxy_std" in st.session_state:
-                proxy_std = st.number_input(
-                    label="proxy uncertainty",
-                    step=1.0,
-                    format="%.1f",
-                    key="proxy_std",
-                )
-            else:
-                proxy_std = st.number_input(
-                    label="proxy uncertainty",
-                    value=0.0,
-                    step=1.0,
-                    format="%.1f",
-                    key="proxy_std",
-                )
-        with col7:
-            if "proxy_label" in st.session_state:
-                proxy_label = st.text_input(
-                    label="proxy label", key="proxy_label"
-                )
-            else:
-                proxy_label = st.text_input(
-                    label="proxy label", value="...", key="proxy_label"
-                )
-
         submit_button = st.form_submit_button(
-            label="Get Data", use_container_width=True, type="primary"
+            label="GET MODEL DATA", use_container_width=True, type="primary"
         )
 
-    return (
-        modern_lat,
-        modern_lon,
-        user_variable,
-        proxy_check,
-        proxy_mean,
-        proxy_std,
-        proxy_label,
-    )
+    return (modern_lat, modern_lon, user_variable)
 
 
-def init_widgets_choice():
-    st.subheader("User input")
-
-    # check whether user input is already in session state
-    # if yes, use the previous selection from the session state
-    # if not, use default values
-
-    # initialise input widgets in sidebar
-    with st.form(key="my_form"):
-        st.info(
-            """
-                Select the present-day location of your site, the variable 
-                you are interested in and an optional proxy reference for 
-                the plots.
-                """
-        )
-
-        analysis_type = st.radio(
-            "Type of analysis",
-            ["Single site", "Multiple sites"],
-            horizontal=True,
-        )
-
-        if analysis_type == "Single site":
-            col1, col2, col3 = st.columns(3)
-
-            with col1:
-                # check whether input has been defined before
-                if "modern_lat" in st.session_state:
-                    # if yes, use previous value
-                    modern_lat = st.number_input(
-                        label="modern latitude of site",
-                        min_value=-90.0,
-                        max_value=90.0,
-                        step=1.0,
-                        format="%.1f",
-                        key="modern_lat",
-                    )
-                else:
-                    # if not, use default value
-                    modern_lat = st.number_input(
-                        label="modern latitude of site",
-                        min_value=-90.0,
-                        max_value=90.0,
-                        value=51.5,
-                        step=1.0,
-                        format="%.1f",
-                        key="modern_lat",
-                    )
-
-            with col2:
-                # check whether input has been defined before
-                if "modern_lon" in st.session_state:
-                    # if yes, use previous value
-                    modern_lon = st.number_input(
-                        label="modern longitude of site",
-                        min_value=-180.0,
-                        max_value=180.0,
-                        step=1.0,
-                        format="%.1f",
-                        key="modern_lon",
-                    )
-                else:
-                    # if not, use default value
-                    modern_lon = st.number_input(
-                        label="modern longitude of site",
-                        min_value=-180.0,
-                        max_value=180.0,
-                        value=-2.6,
-                        step=1.0,
-                        format="%.1f",
-                        key="modern_lon",
-                    )
-
-            with col3:
-                variable_list = [
-                    "near-surface air temperature",
-                    "sea surface temperature",
-                    "precipitation",
-                ]
-                if "user_variable" in st.session_state:
-                    var_index = variable_list.index(
-                        st.session_state["user_variable"]
-                    )
-                else:
-                    var_index = 0
-
-                user_variable = st.selectbox(
-                    label="variable",
-                    options=[
-                        "near-surface air temperature",
-                        "sea surface temperature",
-                        "precipitation",
-                    ],
-                    index=var_index,
-                    key="user_variable",
-                )
-
-            col4, col5, col6, col7 = st.columns(4)
-
-            with col4:
-                st.write("compare to proxy?")
-                if "proxy_check" in st.session_state:
-                    proxy_check = st.checkbox(label=" ", key="proxy_check")
-                else:
-                    proxy_check = st.checkbox(
-                        label=" ", key="proxy_check", value=False
-                    )
-            with col5:
-                if "proxy_mean" in st.session_state:
-                    proxy_mean = st.number_input(
-                        label="proxy mean",
-                        step=1.0,
-                        format="%.1f",
-                        key="proxy_mean",
-                    )
-                else:
-                    proxy_mean = st.number_input(
-                        label="proxy mean",
-                        value=0.0,
-                        step=1.0,
-                        format="%.1f",
-                        key="proxy_mean",
-                    )
-
-            with col6:
-                if "proxy_std" in st.session_state:
-                    proxy_std = st.number_input(
-                        label="proxy uncertainty",
-                        step=1.0,
-                        format="%.1f",
-                        key="proxy_std",
-                    )
-                else:
-                    proxy_std = st.number_input(
-                        label="proxy uncertainty",
-                        value=0.0,
-                        step=1.0,
-                        format="%.1f",
-                        key="proxy_std",
-                    )
-            with col7:
-                if "proxy_label" in st.session_state:
-                    proxy_label = st.text_input(
-                        label="proxy label", key="proxy_label"
-                    )
-                else:
-                    proxy_label = st.text_input(
-                        label="proxy label", value="...", key="proxy_label"
-                    )
-
-        else:
-            col1, col2, col3 = st.columns(3)
-
-            with col1:
-                # check whether input has been defined before
-                if "modern_lat" in st.session_state:
-                    # if yes, use previous value
-                    modern_lat = st.number_input(
-                        label="modern latitude of site",
-                        min_value=-90.0,
-                        max_value=90.0,
-                        step=1.0,
-                        format="%.1f",
-                        key="modern_lat",
-                    )
-                else:
-                    # if not, use default value
-                    modern_lat = st.number_input(
-                        label="modern latitude of site",
-                        min_value=-90.0,
-                        max_value=90.0,
-                        value=51.5,
-                        step=1.0,
-                        format="%.1f",
-                        key="modern_lat",
-                    )
-
-            with col2:
-                # check whether input has been defined before
-                if "modern_lon" in st.session_state:
-                    # if yes, use previous value
-                    modern_lon = st.number_input(
-                        label="modern longitude of site",
-                        min_value=-180.0,
-                        max_value=180.0,
-                        step=1.0,
-                        format="%.1f",
-                        key="modern_lon",
-                    )
-                else:
-                    # if not, use default value
-                    modern_lon = st.number_input(
-                        label="modern longitude of site",
-                        min_value=-180.0,
-                        max_value=180.0,
-                        value=-2.6,
-                        step=1.0,
-                        format="%.1f",
-                        key="modern_lon",
-                    )
-
-            with col3:
-                variable_list = [
-                    "near-surface air temperature",
-                    "sea surface temperature",
-                    "precipitation",
-                ]
-                if "user_variable" in st.session_state:
-                    var_index = variable_list.index(
-                        st.session_state["user_variable"]
-                    )
-                else:
-                    var_index = 0
-
-                user_variable = st.selectbox(
-                    label="variable",
-                    options=[
-                        "near-surface air temperature",
-                        "sea surface temperature",
-                        "precipitation",
-                    ],
-                    index=var_index,
-                    key="user_variable",
-                )
-
-            col4, col5, col6, col7 = st.columns(4)
-
-            with col4:
-                st.write("compare to afdfaes?")
-                if "proxy_check" in st.session_state:
-                    proxy_check = st.checkbox(label=" ", key="proxy_check")
-                else:
-                    proxy_check = st.checkbox(
-                        label=" ", key="proxy_check", value=False
-                    )
-            with col5:
-                if "proxy_mean" in st.session_state:
-                    proxy_mean = st.number_input(
-                        label="proxy mean",
-                        step=1.0,
-                        format="%.1f",
-                        key="proxy_mean",
-                    )
-                else:
-                    proxy_mean = st.number_input(
-                        label="proxy mean",
-                        value=0.0,
-                        step=1.0,
-                        format="%.1f",
-                        key="proxy_mean",
-                    )
-
-            with col6:
-                if "proxy_std" in st.session_state:
-                    proxy_std = st.number_input(
-                        label="proxy uncertainty",
-                        step=1.0,
-                        format="%.1f",
-                        key="proxy_std",
-                    )
-                else:
-                    proxy_std = st.number_input(
-                        label="proxy uncertainty",
-                        value=0.0,
-                        step=1.0,
-                        format="%.1f",
-                        key="proxy_std",
-                    )
-            with col7:
-                if "proxy_label" in st.session_state:
-                    proxy_label = st.text_input(
-                        label="proxy label", key="proxy_label"
-                    )
-                else:
-                    proxy_label = st.text_input(
-                        label="proxy label", value="...", key="proxy_label"
-                    )
-
-        submit_button = st.form_submit_button(
-            label="Get Data", use_container_width=True, type="primary"
-        )
-
-        return (
-            modern_lat,
-            modern_lon,
-            user_variable,
-            proxy_check,
-            proxy_mean,
-            proxy_std,
-            proxy_label,
-        )
+# convert locations of single or multiple sites from user input to lists to easily \\
+# loop analysis over all chosen sites
+def sites_to_list(modern_lats, modern_lons):
+    return modern_lats, modern_lons
 
 
 def get_base64(bin_file):

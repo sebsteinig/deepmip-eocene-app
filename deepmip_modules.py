@@ -51,7 +51,7 @@ def model_table():
 
 
 @st.cache_data
-def get_paleo_locations(modern_lat, modern_lon):
+def get_paleo_locations(modern_lats, modern_lons, names):
     # models use two different paleogeographic reconstructions:
     # 1. most model use the Herold et al. (2014) reconstruction, hereafter "H14"
     # 2. NorESM1_F uses the Baatsen et al. (2016) reconstruction, hereafter "B16"
@@ -60,81 +60,88 @@ def get_paleo_locations(modern_lat, modern_lon):
     rotation_file_H14 = xr.open_dataset("data/LatLon_PD_55Ma_Herold2014.nc")
     rotation_file_B16 = xr.open_dataset("data/LatLon_PD_55Ma_Baatsen2016.nc")
 
-    # 1. coarse approximation: look up paleolocation for modern coordinates
-    # in rotation file
-    paleo_lat_H14 = rotation_file_H14.LAT.sel(
-        latitude=modern_lat, longitude=modern_lon, method="nearest"
-    ).values
-    paleo_lon_H14 = rotation_file_H14.LON.sel(
-        latitude=modern_lat, longitude=modern_lon, method="nearest"
-    ).values
+    # initialize empty list to store results
+    d = []
 
-    paleo_lat_B16 = rotation_file_B16.LAT.sel(
-        latitude=modern_lat, longitude=modern_lon, method="nearest"
-    ).values
-    paleo_lon_B16 = rotation_file_B16.LON.sel(
-        latitude=modern_lat, longitude=modern_lon, method="nearest"
-    ).values
+    # loop over all sites
+    for count, modern_lat in enumerate(modern_lats):
+        modern_lon = modern_lons[count]
 
-    # check if paleo location is found
-    if np.isfinite(paleo_lat_H14) and np.isfinite(paleo_lat_B16):
-        # 2. fine approximation: add delta between modern selected and
-        # rotation grid coordinates back to paleolocation
-        delta_lat_H14 = (
-            modern_lat
-            - rotation_file_H14.latitude.sel(
-                latitude=modern_lat, method="nearest"
-            ).values
-        )
-        delta_lon_H14 = (
-            modern_lon
-            - rotation_file_H14.longitude.sel(
-                longitude=modern_lon, method="nearest"
-            ).values
-        )
-        paleo_lat_H14 += delta_lat_H14
-        paleo_lon_H14 += delta_lon_H14
+        # 1. coarse approximation: look up paleolocation for modern coordinates
+        # in rotation file
+        paleo_lat_H14 = rotation_file_H14.LAT.sel(
+            latitude=modern_lat, longitude=modern_lon, method="nearest"
+        ).values
+        paleo_lon_H14 = rotation_file_H14.LON.sel(
+            latitude=modern_lat, longitude=modern_lon, method="nearest"
+        ).values
 
-        delta_lat_B16 = (
-            modern_lat
-            - rotation_file_H14.latitude.sel(
-                latitude=modern_lat, method="nearest"
-            ).values
-        )
-        delta_lon_B16 = (
-            modern_lon
-            - rotation_file_H14.longitude.sel(
-                longitude=modern_lon, method="nearest"
-            ).values
-        )
-        paleo_lat_B16 += delta_lat_B16
-        paleo_lon_B16 += delta_lon_B16
+        paleo_lat_B16 = rotation_file_B16.LAT.sel(
+            latitude=modern_lat, longitude=modern_lon, method="nearest"
+        ).values
+        paleo_lon_B16 = rotation_file_B16.LON.sel(
+            latitude=modern_lat, longitude=modern_lon, method="nearest"
+        ).values
 
-        # build dictionary iteratively to allow for multiple sites
-        # and convert to dataframe
-        d = []
-        d.append(
-            {
-                "modern lat": modern_lat,
-                "modern lon": modern_lon,
-                "Eocene (55Ma) lat H14": paleo_lat_H14,
-                "Eocene (55Ma) lon H14": paleo_lon_H14,
-                "Eocene (55Ma) lat B16": paleo_lat_B16,
-                "Eocene (55Ma) lon B16": paleo_lon_B16,
-            }
-        )
-
-        df = pd.DataFrame(d)
-        # return DataFrame
-        return df
-    else:
-        st.exception(
-            ValueError(
-                "No paleo location found for modern coordinates. Please try "
-                "again with a different location."
+        # check if paleo location is found
+        if np.isfinite(paleo_lat_H14) and np.isfinite(paleo_lat_B16):
+            # 2. fine approximation: add delta between modern selected and
+            # rotation grid coordinates back to paleolocation
+            delta_lat_H14 = (
+                modern_lat
+                - rotation_file_H14.latitude.sel(
+                    latitude=modern_lat, method="nearest"
+                ).values
             )
-        )
-        st.stop()
+            delta_lon_H14 = (
+                modern_lon
+                - rotation_file_H14.longitude.sel(
+                    longitude=modern_lon, method="nearest"
+                ).values
+            )
+            paleo_lat_H14 += delta_lat_H14
+            paleo_lon_H14 += delta_lon_H14
+
+            delta_lat_B16 = (
+                modern_lat
+                - rotation_file_H14.latitude.sel(
+                    latitude=modern_lat, method="nearest"
+                ).values
+            )
+            delta_lon_B16 = (
+                modern_lon
+                - rotation_file_H14.longitude.sel(
+                    longitude=modern_lon, method="nearest"
+                ).values
+            )
+            paleo_lat_B16 += delta_lat_B16
+            paleo_lon_B16 += delta_lon_B16
+
+            # build iteratively to allow for multiple sites
+            d.append(
+                {
+                    "modern lat": modern_lat,
+                    "modern lon": modern_lon,
+                    "Eocene (55Ma) lat H14": paleo_lat_H14,
+                    "Eocene (55Ma) lon H14": paleo_lon_H14,
+                    "Eocene (55Ma) lat B16": paleo_lat_B16,
+                    "Eocene (55Ma) lon B16": paleo_lon_B16,
+                    "name": names[count],
+                }
+            )
+        else:
+            st.exception(
+                ValueError(
+                    "No paleo location found for modern coordinates. Please try "
+                    "again with a different location."
+                )
+            )
+            st.stop()
+
+    # convert to dataframe
+    df = pd.DataFrame(d)
+    # return DataFrame
+    return df
 
 
 # def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable):
@@ -190,8 +197,6 @@ def get_model_point_data(df, variable):
 
             # load data if file for model/experiment combination exists
             if Path(model_file).exists():
-                print(model_file)
-
                 ds_model = xr.open_dataset(model_file, decode_times=False)
 
                 # get coordinate names
@@ -201,114 +206,118 @@ def get_model_point_data(df, variable):
                     elif coord in ["lon", "longitude"]:
                         lon_name = coord
 
-                if exp == "piControl":
-                    lookup_lat = float(df["modern lat"])
-                    lookup_lon = float(df["modern lon"])
-                else:
-                    lookup_lat = float(
-                        df["Eocene (55Ma) lat " + model_dict[model]["rotation"]]
-                    )
-                    lookup_lon = float(
-                        df["Eocene (55Ma) lon " + model_dict[model]["rotation"]]
-                    )
+                # loop over all locations
+                for index, row in df.iterrows():
+                    if exp == "piControl":
+                        lookup_lat = float(row["modern lat"])
+                        lookup_lon = float(row["modern lon"])
+                    else:
+                        lookup_lat = float(
+                            row["Eocene (55Ma) lat " + model_dict[model]["rotation"]]
+                        )
+                        lookup_lon = float(
+                            row["Eocene (55Ma) lon " + model_dict[model]["rotation"]]
+                        )
 
-                # check for minimum model longitude
-                min_model_lon = np.amin(ds_model.coords[lon_name].values)
-                if min_model_lon >= 0.0 and lookup_lon < 0.0:
-                    # convert lookup_lon from [-180:180] to [0:360]
-                    lookup_lon_model = lookup_lon + 360.0
-                else:
-                    lookup_lon_model = lookup_lon
+                    # check for minimum model longitude
+                    min_model_lon = np.amin(ds_model.coords[lon_name].values)
+                    if min_model_lon >= 0.0 and lookup_lon < 0.0:
+                        # convert lookup_lon from [-180:180] to [0:360]
+                        lookup_lon_model = lookup_lon + 360.0
+                    else:
+                        lookup_lon_model = lookup_lon
 
-                var_data = getattr(ds_model, variable)
-                if variable == "tas":
-                    # convert from Kelvin to Celsius
-                    site_data = (
-                        var_data.sel(
+                    var_data = getattr(ds_model, variable)
+                    if variable == "tas":
+                        # convert from Kelvin to Celsius
+                        site_data = (
+                            var_data.sel(
+                                **{lat_name: lookup_lat},
+                                **{lon_name: lookup_lon_model},
+                                method="nearest",
+                            ).values
+                            - 273.15
+                        )
+                        unit = "°C"
+                    elif variable == "pr":
+                        # convert from kg m-2 s-1 to mm/day
+                        site_data = (
+                            var_data.sel(
+                                **{lat_name: lookup_lat},
+                                **{lon_name: lookup_lon_model},
+                                method="nearest",
+                            ).values
+                            * 86400.0
+                        )
+                        unit = "mm/day"
+                    else:
+                        site_data = var_data.sel(
                             **{lat_name: lookup_lat},
                             **{lon_name: lookup_lon_model},
                             method="nearest",
                         ).values
-                        - 273.15
-                    )
-                    unit = "°C"
-                elif variable == "pr":
-                    # convert from kg m-2 s-1 to mm/day
-                    site_data = (
-                        var_data.sel(
-                            **{lat_name: lookup_lat},
-                            **{lon_name: lookup_lon_model},
-                            method="nearest",
-                        ).values
-                        * 86400.0
-                    )
-                    unit = "mm/day"
-                else:
-                    site_data = var_data.sel(
-                        **{lat_name: lookup_lat},
-                        **{lon_name: lookup_lon_model},
-                        method="nearest",
-                    ).values
-                    unit = variable_dict[variable]["unit"]
+                        unit = variable_dict[variable]["unit"]
 
-                # get GMST
-                exp_list = model_dict[model]["exps"]
-                gmst_list = model_dict[model]["gmst"]
+                    # get GMST
+                    exp_list = model_dict[model]["exps"]
+                    gmst_list = model_dict[model]["gmst"]
 
-                # check vailable model experiments against full list
-                for count, model_exp in enumerate(exp_list):
-                    if model_exp == exp:
-                        gmst = gmst_list[count]
+                    # check vailable model experiments against full list
+                    for count, model_exp in enumerate(exp_list):
+                        if model_exp == exp:
+                            gmst = gmst_list[count]
 
-                # store results for individual metrics in a dictionary
-                if len(site_data) == 12:
-                    data_list.append(
-                        dict(
-                            model_short=model_dict[model]["abbrv"],
-                            model=model,
-                            experiment=exp_dict[exp]["medium_name"],
-                            CO2=float(exp_dict[exp]["CO2"]),
-                            GMST=gmst,
-                            lat=np.round(lookup_lat, 2),
-                            lon=np.round(lookup_lon, 2),
-                            var=variable,
-                            unit=unit,
-                            annual_mean=np.mean(site_data),
-                            monthly_min=np.min(site_data),
-                            monthly_max=np.max(site_data),
-                            DJF=np.mean(site_data[[11, 0, 1]]),
-                            MAM=np.mean(site_data[[2, 3, 4]]),
-                            JJA=np.mean(site_data[[5, 6, 7]]),
-                            SON=np.mean(site_data[[8, 9, 10]]),
-                            Jan=site_data[0],
-                            Feb=site_data[1],
-                            Mar=site_data[2],
-                            Apr=site_data[3],
-                            May=site_data[4],
-                            Jun=site_data[5],
-                            Jul=site_data[6],
-                            Aug=site_data[7],
-                            Sep=site_data[8],
-                            Oct=site_data[9],
-                            Nov=site_data[10],
-                            Dec=site_data[11],
+                    # store results for individual metrics in a dictionary
+                    if len(site_data) == 12:
+                        data_list.append(
+                            dict(
+                                model_short=model_dict[model]["abbrv"],
+                                model=model,
+                                experiment=exp_dict[exp]["medium_name"],
+                                CO2=float(exp_dict[exp]["CO2"]),
+                                GMST=gmst,
+                                site_name=row["name"],
+                                lat=np.round(lookup_lat, 2),
+                                lon=np.round(lookup_lon, 2),
+                                var=variable,
+                                unit=unit,
+                                annual_mean=np.mean(site_data),
+                                monthly_min=np.min(site_data),
+                                monthly_max=np.max(site_data),
+                                DJF=np.mean(site_data[[11, 0, 1]]),
+                                MAM=np.mean(site_data[[2, 3, 4]]),
+                                JJA=np.mean(site_data[[5, 6, 7]]),
+                                SON=np.mean(site_data[[8, 9, 10]]),
+                                Jan=site_data[0],
+                                Feb=site_data[1],
+                                Mar=site_data[2],
+                                Apr=site_data[3],
+                                May=site_data[4],
+                                Jun=site_data[5],
+                                Jul=site_data[6],
+                                Aug=site_data[7],
+                                Sep=site_data[8],
+                                Oct=site_data[9],
+                                Nov=site_data[10],
+                                Dec=site_data[11],
+                            )
                         )
-                    )
-                elif len(site_data) == 1:
-                    data_list.append(
-                        dict(
-                            model_short=model_dict[model]["abbrv"],
-                            model=model,
-                            experiment=exp_dict[exp]["medium_name"],
-                            CO2=float(exp_dict[exp]["CO2"]),
-                            GMST=gmst,
-                            lat=np.round(lookup_lat, 2),
-                            lon=np.round(lookup_lon, 2),
-                            var=variable,
-                            unit=unit,
-                            annual_mean=site_data[0],
+                    elif len(site_data) == 1:
+                        data_list.append(
+                            dict(
+                                model_short=model_dict[model]["abbrv"],
+                                model=model,
+                                experiment=exp_dict[exp]["medium_name"],
+                                CO2=float(exp_dict[exp]["CO2"]),
+                                GMST=gmst,
+                                site_name=row["name"],
+                                lat=np.round(lookup_lat, 2),
+                                lon=np.round(lookup_lon, 2),
+                                var=variable,
+                                unit=unit,
+                                annual_mean=site_data[0],
+                            )
                         )
-                    )
 
     # convert dictionary to Pandas dataframe for easier handling and plotting
     df = pd.DataFrame(data_list).round(1)
@@ -460,9 +469,7 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
         + ")"
     )
 
-    yLabel = (
-        variable_dict[variable]["longname"] + " [" + df.iloc[0]["unit"] + "]"
-    )
+    yLabel = variable_dict[variable]["longname"] + " [" + df.iloc[0]["unit"] + "]"
 
     handles, labels = ax3.get_legend_handles_labels()
     ax3.legend(handles[0:3], labels[0:3], fontsize="16")
@@ -483,9 +490,7 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
     return fig
 
 
-def box_whisker_plot(
-    df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy_label
-):
+def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy_label):
     df_plot = df[(df.model != "ensemble_mean")]
 
     # get paleolocation
@@ -753,9 +758,7 @@ def plot_global_paleogeography(
                 float(df["Eocene (55Ma) lat H14"]) - 7,
                 proxy_label,
                 horizontalalignment=labelAlignment,
-                bbox=dict(
-                    facecolor="white", edgecolor="black", boxstyle="round"
-                ),
+                bbox=dict(facecolor="white", edgecolor="black", boxstyle="round"),
                 fontsize=10,
                 transform=ccrs.PlateCarree(),
             )
@@ -765,9 +768,7 @@ def plot_global_paleogeography(
                 float(df["Eocene (55Ma) lat H14"]) - 15,
                 proxy_label,
                 horizontalalignment=labelAlignment,
-                bbox=dict(
-                    facecolor="white", edgecolor="black", boxstyle="round"
-                ),
+                bbox=dict(facecolor="white", edgecolor="black", boxstyle="round"),
                 fontsize=10,
                 transform=ccrs.PlateCarree(),
             )
@@ -777,9 +778,7 @@ def plot_global_paleogeography(
                 float(df["Eocene (55Ma) lat H14"]) - 18,
                 proxy_label,
                 horizontalalignment=labelAlignment,
-                bbox=dict(
-                    facecolor="white", edgecolor="black", boxstyle="round"
-                ),
+                bbox=dict(facecolor="white", edgecolor="black", boxstyle="round"),
                 fontsize=10,
                 transform=ccrs.PlateCarree(),
             )
@@ -823,9 +822,7 @@ def plot_model_geographies(
         if n == -1:
             n = cmap.N
         new_cmap = mcolors.LinearSegmentedColormap.from_list(
-            "trunc({name},{a:.2f},{b:.2f})".format(
-                name=cmap.name, a=minval, b=maxval
-            ),
+            "trunc({name},{a:.2f},{b:.2f})".format(name=cmap.name, a=minval, b=maxval),
             cmap(np.linspace(minval, maxval, n)),
         )
         return new_cmap
@@ -1014,13 +1011,7 @@ def plot_model_geographies(
             )
 
             def clip(value, lower, upper):
-                return (
-                    lower
-                    if value < lower
-                    else upper
-                    if value > upper
-                    else value
-                )
+                return lower if value < lower else upper if value > upper else value
 
             for count in range(3):
                 ax[model_count, count].set_extent(
