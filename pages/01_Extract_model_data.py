@@ -11,7 +11,7 @@ from app_modules import (
     init_sidebar,
     sites_to_list,
 )
-from deepmip_modules import get_paleo_locations, get_model_point_data
+from deepmip_modules import get_paleo_locations, get_model_point_data, get_csv_data
 
 st.set_page_config(
     page_title="Extract model data",
@@ -46,14 +46,33 @@ analysis_type = st.radio(
     horizontal=True,
 )
 
+
 if analysis_type == "Single site":
     modern_lat, modern_lon, user_variable = init_widgets_single_site()
-elif analysis_type == "Multiple sites":
-    modern_lat, modern_lon, user_variable = init_widgets_multi_site()
-    modern_lats, modern_lon = sites_to_list(modern_lat, modern_lon)
 
-for v in [modern_lat, modern_lon, user_variable]:
-    st.session_state.v = v
+    for v in [modern_lat, modern_lon, user_variable]:
+        st.session_state.v = v
+
+elif analysis_type == "Multiple sites":
+    template_list = ["Inglis et al. (2021)", "Reichgelt et al. (2021)", "none"]
+    if "csv_template" in st.session_state:
+        var_index = template_list.index(st.session_state["csv_template"])
+    else:
+        var_index = 0
+
+    print(var_index)
+    csv_template = st.selectbox(
+        label="CSV examples",
+        options=["Inglis et al. (2021)", "Reichgelt et al. (2021)", "none"],
+        index=var_index,
+        key="csv_template",
+    )
+    csv_data = get_csv_data(csv_template)
+    csv_input, user_variable = init_widgets_multi_site(csv_data)
+    modern_lats, modern_lons, names = sites_to_list(csv_input)
+
+    for v in [csv_input, csv_data, csv_template, user_variable]:
+        st.session_state.v = v
 
 if user_variable == "sea surface temperature":
     st.warning(
@@ -71,10 +90,10 @@ if analysis_type == "Single site":
     modern_lats = [modern_lat]
     modern_lons = [modern_lon]
     names = ["User site"]
-else:
-    modern_lats = [51.5, 39.2]
-    modern_lons = [-2.6, 2.6]
-    names = ["site 1", "site 2"]
+# else:
+#     modern_lats = [51.5, 39.2]
+#     modern_lons = [-2.6, 2.6]
+#     names = ["site 1", "site 2"]
 
 ## step 1: get paleo position(s) consistent with DeepMIP model geographies
 df_paleo_locations = get_paleo_locations(modern_lats, modern_lons, names)

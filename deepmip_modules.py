@@ -50,6 +50,15 @@ def model_table():
     return df
 
 
+def get_csv_data(csv_template):
+    if csv_template == "Reichgelt et al. (2021)":
+        # csv_data = pd.read_csv("data/Reichgelt_et_al_2021.csv").to_string()
+        csv_data = "reichgelt,10,10"
+    else:
+        csv_data = "not reichgelt,10,10"
+    return csv_data
+
+
 @st.cache_data
 def get_paleo_locations(modern_lats, modern_lons, names):
     # models use two different paleogeographic reconstructions:
