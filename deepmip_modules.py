@@ -320,21 +320,25 @@ def get_model_point_data(df, variable):
                         )
 
     # convert dictionary to Pandas dataframe for easier handling and plotting
-    df = pd.DataFrame(data_list).round(1)
+    df_out = pd.DataFrame(data_list).round(1)
 
     # calculate ensemble mean for each site and experiment
     for exp in exp_dict.keys():
-        df.loc[len(df)] = df.loc[
-            (df["experiment"] == exp_dict[exp]["medium_name"])
-        ].mean(numeric_only=True)
-        # set ensemble mean metadata
-        df.loc[len(df) - 1, "model"] = "ensemble_mean"
-        df.loc[len(df) - 1, "model_short"] = "mean"
-        df.loc[len(df) - 1, "experiment"] = exp_dict[exp]["medium_name"]
-        df.loc[len(df) - 1, "var"] = variable
-        df.loc[len(df) - 1, "unit"] = unit
+        for index, row in df.iterrows():
+            print(index)
+            df_out.loc[len(df_out)] = df_out.loc[
+                (df_out["experiment"] == exp_dict[exp]["medium_name"])
+                & (df_out["site_name"] == row["name"])
+            ].mean(numeric_only=True)
+            # set ensemble mean metadata
+            df_out.loc[len(df_out) - 1, "model"] = "ensemble_mean"
+            df_out.loc[len(df_out) - 1, "model_short"] = "mean"
+            df_out.loc[len(df_out) - 1, "experiment"] = exp_dict[exp]["medium_name"]
+            df_out.loc[len(df_out) - 1, "var"] = variable
+            df_out.loc[len(df_out) - 1, "unit"] = unit
+            df_out.loc[len(df_out) - 1, "site_name"] = row["name"]
 
-    return df.round(1)
+    return df_out.round(1)
 
 
 @st.cache_data
