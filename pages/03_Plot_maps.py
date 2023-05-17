@@ -12,7 +12,7 @@ from deepmip_modules import (
 )
 
 st.set_page_config(
-    page_title="Paleogeography",
+    page_title="Plot Maps",
     layout="wide",
 )
 

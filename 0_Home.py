@@ -21,16 +21,16 @@ st.markdown(
     (EECO, ∼ 50 million years ago). All generated data is freely available to
     everyone. There are two main ways to access the data:
     1. This website provides an interface to extract point data from all available 
-    simulations for quick and easy and comparison with local proxy data.
-    2. The full database (size: TBC) can be downloaded from the CEDA Archive (link)
-    to follow.
+    simulations for quick and easy comparison with local proxy data.
+    2. The full database (size: TBC) can be downloaded from the CEDA Archive (link
+    to follow).
 
     ###  How to Get Started
     Select any of the following pages to start your analysis:
 
     - <a href='Extract_model_data' target='_self'>Extract model data</a> for any location, ready to be imported into your spreadsheet.
     - <a href='Plot_model_data' target='_self'>Plot model data</a> (monthly, seasonal, annual) and it's relation to CO$_2$ and global mean temperature.
-    - <a href='Paleogeography' target='_self'>Create paleogeographic maps </a> for your site and see how it is represented in different models.
+    - <a href='Plot_maps' target='_self'>Plot paleogeographic maps </a> for your site and see how it is represented in different models.
 
     """,
     unsafe_allow_html=True,

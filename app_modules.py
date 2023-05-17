@@ -106,19 +106,34 @@ def init_widgets_multi_site():
     # if yes, use the previous selection from the session state
     # if not, use default values
 
-    template_list = ["DeepMIP land+ocean", "custom data"]
+    # st.markdown("")
+    template_list = ["custom data",
+                     "DeepMIP ocean (all)", 
+                     "DeepMIP ocean (latest Paleocene)", 
+                     "DeepMIP ocean (Paleocene–Eocene Thermal Maximum)", 
+                     "DeepMIP ocean (early Eocene Climatic Optimum)", 
+                     "DeepMIP land (all)", 
+                     "DeepMIP land (latest Paleocene)", 
+                     "DeepMIP land (Paleocene–Eocene Thermal Maximum)", 
+                     "DeepMIP land (early Eocene Climatic Optimum)", 
+                     "DeepMIP land+ocean (all)", 
+                     "DeepMIP land+ocean (latest Paleocene)", 
+                     "DeepMIP land+ocean (Paleocene–Eocene Thermal Maximum)", 
+                     "DeepMIP land+ocean (early Eocene Climatic Optimum)", 
+                     ]
     if "csv_choice" in st.session_state:
         var_index = template_list.index(st.session_state["csv_choice"])
     else:
-        var_index = 0
+        var_index = 4
 
     csv_choice = st.selectbox(
-        label="CSV examples",
+        label="Select from a list of example CSV files from the DeepMIP proxy compilation or enter your own data:",
         options=template_list,
         index=var_index,
         key="csv_choice",
         on_change=reset_csv_data,
     )
+    
     csv_data = get_csv_data(csv_choice, False)
 
     # initialise user input widgets
