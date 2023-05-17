@@ -1,7 +1,8 @@
 import streamlit as st
 import base64
 
-from deepmip_modules import get_csv_data 
+from deepmip_modules import get_csv_data
+
 
 def init_widgets_single_site():
     # check whether user input is already in session state
@@ -93,30 +94,35 @@ def init_widgets_single_site():
             label="GET MODEL DATA", use_container_width=True, type="primary"
         )
 
-    return (modern_lat, modern_lon, user_variable,
+    return (
+        modern_lat,
+        modern_lon,
+        user_variable,
     )
+
 
 def reset_csv_data():
     # delete previous input from session state
     if "csv_input" in st.session_state:
         del st.session_state["csv_input"]
 
-def init_widgets_multi_site():
 
-    template_list = ["custom data",
-                     "DeepMIP ocean (all)", 
-                     "DeepMIP ocean (latest Paleocene)", 
-                     "DeepMIP ocean (Paleocene–Eocene Thermal Maximum)", 
-                     "DeepMIP ocean (early Eocene Climatic Optimum)", 
-                     "DeepMIP land (all)", 
-                     "DeepMIP land (latest Paleocene)", 
-                     "DeepMIP land (Paleocene–Eocene Thermal Maximum)", 
-                     "DeepMIP land (early Eocene Climatic Optimum)", 
-                     "DeepMIP land+ocean (all)", 
-                     "DeepMIP land+ocean (latest Paleocene)", 
-                     "DeepMIP land+ocean (Paleocene–Eocene Thermal Maximum)", 
-                     "DeepMIP land+ocean (early Eocene Climatic Optimum)", 
-                     ]
+def init_widgets_multi_site():
+    template_list = [
+        "custom data",
+        "DeepMIP ocean (all)",
+        "DeepMIP ocean (latest Paleocene)",
+        "DeepMIP ocean (Paleocene–Eocene Thermal Maximum)",
+        "DeepMIP ocean (early Eocene Climatic Optimum)",
+        "DeepMIP land (all)",
+        "DeepMIP land (latest Paleocene)",
+        "DeepMIP land (Paleocene–Eocene Thermal Maximum)",
+        "DeepMIP land (early Eocene Climatic Optimum)",
+        "DeepMIP land+ocean (all)",
+        "DeepMIP land+ocean (latest Paleocene)",
+        "DeepMIP land+ocean (Paleocene–Eocene Thermal Maximum)",
+        "DeepMIP land+ocean (early Eocene Climatic Optimum)",
+    ]
     if "csv_choice" in st.session_state:
         var_index = template_list.index(st.session_state["csv_choice"])
     else:
@@ -129,17 +135,16 @@ def init_widgets_multi_site():
         key="csv_choice",
         on_change=reset_csv_data,
     )
-    
+
     csv_data = get_csv_data(csv_choice, False)
 
     # initialise user input widgets
     with st.form(key="my_form"):
-
         csv_input = st.text_area(
             label="CSV input of site locations (one per line)",
             value=csv_data,
             placeholder="name, modern latitude, modern longitude",
-            height=200, 
+            height=200,
             key="csv_input",
         )
 
@@ -169,6 +174,7 @@ def init_widgets_multi_site():
         )
 
     return (csv_choice, csv_input, user_variable)
+
 
 def init_widgets_single_site_plot():
     # check whether user input is already in session state
@@ -263,9 +269,7 @@ def init_widgets_single_site_plot():
             if "proxy_check" in st.session_state:
                 proxy_check = st.checkbox(label=" ", key="proxy_check")
             else:
-                proxy_check = st.checkbox(
-                    label=" ", key="proxy_check", value=False
-                )
+                proxy_check = st.checkbox(label=" ", key="proxy_check", value=False)
         with col5:
             if "proxy_mean" in st.session_state:
                 proxy_mean = st.number_input(
@@ -313,27 +317,29 @@ def init_widgets_single_site_plot():
         proxy_std,
     )
 
+
 def reset_csv_data():
     # delete previous input from session state
     if "csv_input" in st.session_state:
         del st.session_state["csv_input"]
 
-def init_widgets_multi_site_plot():
 
-    template_list = ["custom data",
-                     "DeepMIP ocean (all)", 
-                     "DeepMIP ocean (latest Paleocene)", 
-                     "DeepMIP ocean (Paleocene–Eocene Thermal Maximum)", 
-                     "DeepMIP ocean (early Eocene Climatic Optimum)", 
-                     "DeepMIP land (all)", 
-                     "DeepMIP land (latest Paleocene)", 
-                     "DeepMIP land (Paleocene–Eocene Thermal Maximum)", 
-                     "DeepMIP land (early Eocene Climatic Optimum)", 
-                     "DeepMIP land+ocean (all)", 
-                     "DeepMIP land+ocean (latest Paleocene)", 
-                     "DeepMIP land+ocean (Paleocene–Eocene Thermal Maximum)", 
-                     "DeepMIP land+ocean (early Eocene Climatic Optimum)", 
-                     ]
+def init_widgets_multi_site_plot():
+    template_list = [
+        "custom data",
+        "DeepMIP ocean (all)",
+        "DeepMIP ocean (latest Paleocene)",
+        "DeepMIP ocean (Paleocene–Eocene Thermal Maximum)",
+        "DeepMIP ocean (early Eocene Climatic Optimum)",
+        "DeepMIP land (all)",
+        "DeepMIP land (latest Paleocene)",
+        "DeepMIP land (Paleocene–Eocene Thermal Maximum)",
+        "DeepMIP land (early Eocene Climatic Optimum)",
+        "DeepMIP land+ocean (all)",
+        "DeepMIP land+ocean (latest Paleocene)",
+        "DeepMIP land+ocean (Paleocene–Eocene Thermal Maximum)",
+        "DeepMIP land+ocean (early Eocene Climatic Optimum)",
+    ]
     if "csv_choice" in st.session_state:
         var_index = template_list.index(st.session_state["csv_choice"])
     else:
@@ -346,17 +352,16 @@ def init_widgets_multi_site_plot():
         key="csv_choice",
         on_change=reset_csv_data,
     )
-    
+
     csv_data = get_csv_data(csv_choice, True)
 
     # initialise user input widgets
     with st.form(key="my_form"):
-
         csv_input = st.text_area(
             label="CSV input of site locations (one per line)",
             value=csv_data,
             placeholder="name, modern latitude, modern longitude, proxy mean (OPTIONAL), proxy uncertainty (OPTIONAL)",
-            height=200, 
+            height=200,
             key="csv_input",
         )
 
@@ -387,6 +392,7 @@ def init_widgets_multi_site_plot():
 
     return (csv_choice, csv_input, user_variable)
 
+
 # convert locations of single or multiple sites from user input to lists to easily \\
 # loop analysis over all chosen sites
 def sites_to_list(csv_input):
@@ -400,14 +406,12 @@ def sites_to_list(csv_input):
         if line != "":
             if len(line.split(",")) == 3:
                 name, lat, lon = line.split(",")
-                mean = ""
-                std = ""
+                mean = -999.9
+                std = -999.9
             elif len(line.split(",")) == 5:
                 name, lat, lon, mean, std = line.split(",")
             else:
-                st.error(
-                    "Error in line: " + line
-                )                
+                st.error("Error in line: " + line)
                 st.error(
                     "CSV input must be in the format: name, modern latitude, modern longitude, proxy mean (OPTIONAL), proxy uncertainty (OPTIONAL)"
                 )

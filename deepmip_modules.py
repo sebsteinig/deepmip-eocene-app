@@ -49,6 +49,7 @@ def model_table():
 
     return df
 
+
 # def get_csv_data(csv_template, proxy_flag):
 #     proxy_db = pd.read_csv("data/Hollis 2019 DeepMIP compilation.csv", encoding= 'unicode_escape')
 #     if csv_template == "DeepMIP land+ocean":
@@ -77,50 +78,55 @@ def model_table():
 #         csv_data = ""
 #     return csv_data
 
+
 def get_csv_data(csv_template, proxy_flag):
     if csv_template == "custom data":
         csv_data = ""
     else:
-        proxy_db = pd.read_csv("data/Hollis 2019 DeepMIP compilation.csv", encoding= 'unicode_escape')
+        proxy_db = pd.read_csv(
+            "data/Hollis 2019 DeepMIP compilation.csv", encoding="unicode_escape"
+        )
         # get locations with proxy data estimates
         if proxy_flag:
-            proxy_db_reduced = proxy_db[['site', 'lat', 'lon', '50', 'sd']]
-            proxy_db_reduced['site'] = proxy_db[['site', 'timeslice', 'proxy']].agg('-'.join, axis=1)
+            proxy_db_reduced = proxy_db[["site", "lat", "lon", "50", "sd"]]
+            proxy_db_reduced["site"] = proxy_db[["site", "timeslice", "proxy"]].agg(
+                "-".join, axis=1
+            )
         # get locations without proxy data estimates
         else:
-            proxy_db_reduced = proxy_db[['site', 'lat', 'lon']]
+            proxy_db_reduced = proxy_db[["site", "lat", "lon"]]
 
         if csv_template == "DeepMIP ocean (latest Paleocene)":
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.timeslice == 'lp' ]
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.temperature == 'sst' ]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "lp"]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "sst"]
         elif csv_template == "DeepMIP ocean (Paleocene–Eocene Thermal Maximum)":
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.timeslice == 'petm' ]
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.temperature == 'sst' ]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "petm"]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "sst"]
         elif csv_template == "DeepMIP ocean (early Eocene Climatic Optimum)":
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.timeslice == 'eeco' ]
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.temperature == 'sst' ]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "eeco"]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "sst"]
         elif csv_template == "DeepMIP land (latest Paleocene)":
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.timeslice == 'lp' ]
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.temperature == 'lat' ]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "lp"]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "lat"]
         elif csv_template == "DeepMIP land (Paleocene–Eocene Thermal Maximum)":
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.timeslice == 'petm' ]
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.temperature == 'lat' ]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "petm"]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "lat"]
         elif csv_template == "DeepMIP land (early Eocene Climatic Optimum)":
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.timeslice == 'eeco' ]
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.temperature == 'lat' ]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "eeco"]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "lat"]
         elif csv_template == "DeepMIP land+ocean (latest Paleocene)":
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.timeslice == 'lp' ]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "lp"]
         elif csv_template == "DeepMIP land+ocean (Paleocene–Eocene Thermal Maximum)":
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.timeslice == 'petm' ]
+            proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "petm"]
         elif csv_template == "DeepMIP land+ocean (early Eocene Climatic Optimum)":
-            proxy_db_reduced = proxy_db_reduced[ proxy_db.timeslice == 'eeco' ]
-    
-        proxy_db_reduced = proxy_db_reduced.drop_duplicates(subset='site', keep="first")  
+            proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "eeco"]
 
+        proxy_db_reduced = proxy_db_reduced.drop_duplicates(subset="site", keep="first")
 
         csv_data = proxy_db_reduced.to_csv(index=False, header=False)
 
     return csv_data
+
 
 @st.cache_data
 def get_paleo_locations(modern_lats, modern_lons, names):
@@ -138,7 +144,6 @@ def get_paleo_locations(modern_lats, modern_lons, names):
 
     # loop over all sites
     for count, modern_lat in enumerate(modern_lats):
-
         modern_lon = modern_lons[count]
 
         # 1. coarse approximation: look up paleolocation for modern coordinates
@@ -226,7 +231,6 @@ def get_paleo_locations(modern_lats, modern_lons, names):
             + "/"
             + str(len(modern_lats))
             + " sites skipped)."
-
         )
     # convert to dataframe
     df = pd.DataFrame(d)
@@ -243,9 +247,8 @@ def get_model_point_data(df, variable):
     progress_bar = st.progress(0)
 
     # loop over all models and experiments
-    for exp_count,exp in enumerate(exp_dict.keys()):
+    for exp_count, exp in enumerate(exp_dict.keys()):
         for model in model_dict.keys():
-
             progress_bar.progress(
                 ((exp_count + 1) / (len(exp_dict.keys()))),
                 text="Extracting data data for experiment " + exp,
@@ -306,7 +309,6 @@ def get_model_point_data(df, variable):
 
                 # loop over all locations
                 for index, row in df.iterrows():
-
                     if exp == "piControl":
                         lookup_lat = float(row["modern lat"])
                         lookup_lon = float(row["modern lon"])
@@ -594,7 +596,9 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
     return fig
 
 
-def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy_label):
+def scatter_line_plot(
+    df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy_label
+):
     df_plot = df[(df.model != "ensemble_mean")]
 
     # get paleolocation
@@ -645,15 +649,7 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
         xlabel = "GMST [°C]"
 
     variable = df_plot.iloc[0]["var"]
-    titleString = (
-        "DeepMIP (~55 Ma) "
-        + variable_dict[variable]["longname"]
-        + " (LAT = "
-        + str(np.round(plat, 1))
-        + " / LON = "
-        + str(np.round(plon, 1))
-        + ")"
-    )
+    titleString = "DeepMIP (~55 Ma) " + variable_dict[variable]["longname"]
 
     scatter = (
         hv.Scatter(
@@ -717,6 +713,10 @@ def box_whisker_plot(df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy
             .overlay()
             .opts(opts.Scatter(size=12))
         )
+
+        # text  = (
+        #     hv.Text(
+        # )
 
         if proxy_check:
             composition = hspan * htext * line * scatter

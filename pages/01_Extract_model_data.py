@@ -51,7 +51,7 @@ analysis_type = st.radio(
     analysis_options,
     horizontal=True,
     index=var_index,
-    key="analysis_type"
+    key="analysis_type",
 )
 
 # create user inputs for single site
@@ -63,11 +63,10 @@ if analysis_type == "Single site":
 
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
-
     csv_choice, csv_input, user_variable = init_widgets_multi_site()
     modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input)
 
-    for v in [csv_input, csv_choice, user_variable]:
+    for v in [csv_input, csv_choice, user_variable, analysis_type]:
         st.session_state.v = v
 
 if user_variable == "sea surface temperature":

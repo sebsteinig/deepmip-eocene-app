@@ -3,7 +3,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import holoviews as hv
-import io
+import datetime
 
 from deepmip_dicts import variable_dict
 
@@ -16,7 +16,7 @@ from app_modules import (
 from deepmip_modules import (
     get_paleo_locations,
     get_model_point_data,
-    box_whisker_plot,
+    scatter_line_plot,
 )
 
 st.set_page_config(
@@ -51,9 +51,11 @@ if "analysis_type" in st.session_state:
 else:
     var_index = 0
 
+
 def reset_site_name():
     if "site_name" in st.session_state:
         del st.session_state["site_name"]
+
 
 analysis_type = st.radio(
     "Number of sites to extract data for:",
@@ -61,18 +63,18 @@ analysis_type = st.radio(
     horizontal=True,
     index=var_index,
     key="analysis_type",
-    on_change=reset_site_name
+    on_change=reset_site_name,
 )
 
 # create user inputs for single site
 if analysis_type == "Single site":
     (
-    modern_lat,
-    modern_lon,
-    user_variable,
-    proxy_check,
-    proxy_mean,
-    proxy_std,
+        modern_lat,
+        modern_lon,
+        user_variable,
+        proxy_check,
+        proxy_mean,
+        proxy_std,
     ) = init_widgets_single_site_plot()
 
     for v in [modern_lat, modern_lon, user_variable, analysis_type]:
@@ -80,7 +82,6 @@ if analysis_type == "Single site":
 
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
-
     csv_choice, csv_input, user_variable = init_widgets_multi_site_plot()
     modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input)
 
@@ -154,7 +155,7 @@ with col2:
 
 if analysis_type == "Multiple sites":
     site_index = list(df_paleo_locations.name).index(site_name)
-    if proxy_means[site_index] != "" and float(proxy_stds[site_index]) >= 0.:
+    if proxy_means[site_index] != -999.9 and float(proxy_stds[site_index]) >= 0.0:
         proxy_check = True
     else:
         proxy_check = False
@@ -163,8 +164,8 @@ if analysis_type == "Multiple sites":
     proxy_label = float(proxy_stds[site_index])
 
 st.subheader(var_y + " vs. CO$_2$")
-bokeh_composition1 = box_whisker_plot(
-    df_model[ df_model.site_name == site_name ],
+bokeh_composition1 = scatter_line_plot(
+    df_model[df_model.site_name == site_name],
     var_y,
     "CO2",
     proxy_check,
@@ -175,39 +176,59 @@ bokeh_composition1 = box_whisker_plot(
 
 
 from bokeh.io import export_svgs
+from bokeh.models import Title
+import numpy as np
+
+# get paleolocation
+plat = df_model.loc[df_model["experiment"] != "piControl"].iloc[0]["lat"]
+plon = df_model.loc[df_model["experiment"] != "piControl"].iloc[0]["lon"]
+
+
+ct = datetime.datetime.now()
+ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
+filename = f"DeepMIP_{var_y}_vs_CO2_{site_name}_{ct}"
 
 p1 = hv.render(bokeh_composition1, backend="bokeh")
+p1.add_layout(
+    Title(
+        text=f"site: {site_name} (lat = {str(np.round(plat, 1))} / lon = {str(np.round(plon, 1))})",
+        text_font_size="12pt",
+        text_font_style="italic",
+    ),
+    "above",
+)
+
 st.bokeh_chart(p1)
 p1.output_backend = "svg"
-export_svgs(p1, filename="heatmap.svg")
-hv.save(bokeh_composition1, "penguin_plot.png", fmt="png")
+export_svgs(p1, filename=filename + ".svg")
+hv.save(bokeh_composition1, filename + ".png", fmt="png")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    with open("penguin_plot.png", "rb") as file:
+    with open(filename + ".png", "rb") as file:
         btn = st.download_button(
             label="Download PNG",
             data=file,
-            file_name="penguin_plot.png",
+            file_name=filename + ".png",
             mime="image/",
             use_container_width=True,
         )
 
 with col2:
-    with open("heatmap.svg", "rb") as file:
+    with open(filename + ".svg", "rb") as file:
         btn = st.download_button(
             label="Download SVG",
             data=file,
-            file_name="heatmap.svg",
+            file_name=filename + ".svg",
             mime="image/svg",
             use_container_width=True,
         )
 
 st.subheader(var_y + " vs. GMST")
 
-bokeh_composition2 = box_whisker_plot(
-    df_model[ df_model.site_name == site_name ],
+bokeh_composition2 = scatter_line_plot(
+    df_model[df_model.site_name == site_name],
     var_y,
     "GMST",
     proxy_check,
@@ -215,30 +236,33 @@ bokeh_composition2 = box_whisker_plot(
     proxy_std,
     "proxy estimate",
 )
+
+filename2 = f"DeepMIP_{var_y}_vs_GMST_{site_name}_{ct}"
+
 p2 = hv.render(bokeh_composition2, backend="bokeh")
 st.bokeh_chart(p2)
 p2.output_backend = "svg"
-export_svgs(p2, filename="heatmap2.svg")
-hv.save(bokeh_composition2, "penguin_plot2.png", fmt="png")
+export_svgs(p2, filename=filename2 + ".svg")
+hv.save(bokeh_composition2, filename2 + ".png", fmt="png")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    with open("penguin_plot2.png", "rb") as file:
+    with open(filename2 + ".png", "rb") as file:
         btn = st.download_button(
             label="Download PNG",
             data=file,
-            file_name="penguin_plot2.png",
+            file_name=filename2 + ".png",
             mime="image/",
             use_container_width=True,
         )
 
 with col2:
-    with open("heatmap2.svg", "rb") as file:
+    with open(filename2 + ".svg", "rb") as file:
         btn = st.download_button(
             label="Download SVG",
             data=file,
-            file_name="heatmap2.svg",
+            file_name=filename2 + ".svg",
             mime="image/svg",
             use_container_width=True,
         )
