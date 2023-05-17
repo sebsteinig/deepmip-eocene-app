@@ -40,27 +40,32 @@ for k, v in st.session_state.items():
 
 st.subheader("User input")
 
+analysis_options = ["Single site", "Multiple sites"]
+if "analysis_type" in st.session_state:
+    var_index = analysis_options.index(st.session_state["analysis_type"])
+else:
+    var_index = 0
+
 analysis_type = st.radio(
     "Number of sites to extract data for:",
-    ["Single site", "Multiple sites"],
+    analysis_options,
     horizontal=True,
+    index=var_index,
+    key="analysis_type"
 )
 
 # create user inputs for single site
 if analysis_type == "Single site":
     modern_lat, modern_lon, user_variable = init_widgets_single_site()
 
-    for v in [modern_lat, modern_lon, user_variable]:
+    for v in [modern_lat, modern_lon, user_variable, analysis_type]:
         st.session_state.v = v
 
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
 
     csv_choice, csv_input, user_variable = init_widgets_multi_site()
-    modern_lats, modern_lons, names = sites_to_list(csv_input)
-
-    # for v in [csv_input, csv_data, csv_template, user_variable]:
-    #     st.session_state.v = v
+    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input)
 
     for v in [csv_input, csv_choice, user_variable]:
         st.session_state.v = v
@@ -80,11 +85,8 @@ if analysis_type == "Single site":
     # convert single site to list for consistency with multi-site analysis
     modern_lats = [modern_lat]
     modern_lons = [modern_lon]
-    names = ["User site"]
-# else:
-#     modern_lats = [51.5, 39.2]
-#     modern_lons = [-2.6, 2.6]
-#     names = ["site 1", "site 2"]
+    names = ["untitled"]
+
 
 ## step 1: get paleo position(s) consistent with DeepMIP model geographies
 df_paleo_locations = get_paleo_locations(modern_lats, modern_lons, names)

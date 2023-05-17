@@ -84,7 +84,7 @@ def get_csv_data(csv_template, proxy_flag):
         proxy_db = pd.read_csv("data/Hollis 2019 DeepMIP compilation.csv", encoding= 'unicode_escape')
         # get locations with proxy data estimates
         if proxy_flag:
-            proxy_db_reduced = proxy_db[['site', 'lat', 'lon', 'deepmip lower error', '50', 'deepmip upper error', 'proxy']]
+            proxy_db_reduced = proxy_db[['site', 'lat', 'lon', '50', 'sd']]
             proxy_db_reduced['site'] = proxy_db[['site', 'timeslice', 'proxy']].agg('-'.join, axis=1)
         # get locations without proxy data estimates
         else:

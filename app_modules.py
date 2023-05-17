@@ -93,8 +93,8 @@ def init_widgets_single_site():
             label="GET MODEL DATA", use_container_width=True, type="primary"
         )
 
-    return (modern_lat, modern_lon, user_variable)
-
+    return (modern_lat, modern_lon, user_variable,
+    )
 
 def reset_csv_data():
     # delete previous input from session state
@@ -102,11 +102,7 @@ def reset_csv_data():
         del st.session_state["csv_input"]
 
 def init_widgets_multi_site():
-    # check whether user input is already in session state
-    # if yes, use the previous selection from the session state
-    # if not, use default values
 
-    # st.markdown("")
     template_list = ["custom data",
                      "DeepMIP ocean (all)", 
                      "DeepMIP ocean (latest Paleocene)", 
@@ -174,6 +170,222 @@ def init_widgets_multi_site():
 
     return (csv_choice, csv_input, user_variable)
 
+def init_widgets_single_site_plot():
+    # check whether user input is already in session state
+    # if yes, use the previous selection from the session state
+    # if not, use default values
+
+    # initialise user input widgets
+    with st.form(key="my_form"):
+        st.info(
+            """
+                Select the present-day location of your site, the variable 
+                you are interested in and an optional proxy reference for the plot.
+                """
+        )
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            # check whether input has been defined before
+            if "modern_lat" in st.session_state:
+                # if yes, use previous value
+                modern_lat = st.number_input(
+                    label="modern latitude of site",
+                    min_value=-90.0,
+                    max_value=90.0,
+                    step=1.0,
+                    format="%.1f",
+                    key="modern_lat",
+                )
+            else:
+                # if not, use default value
+                modern_lat = st.number_input(
+                    label="modern latitude of site",
+                    min_value=-90.0,
+                    max_value=90.0,
+                    value=51.5,
+                    step=1.0,
+                    format="%.1f",
+                    key="modern_lat",
+                )
+
+        with col2:
+            # check whether input has been defined before
+            if "modern_lon" in st.session_state:
+                # if yes, use previous value
+                modern_lon = st.number_input(
+                    label="modern longitude of site",
+                    min_value=-180.0,
+                    max_value=180.0,
+                    step=1.0,
+                    format="%.1f",
+                    key="modern_lon",
+                )
+            else:
+                # if not, use default value
+                modern_lon = st.number_input(
+                    label="modern longitude of site",
+                    min_value=-180.0,
+                    max_value=180.0,
+                    value=-2.6,
+                    step=1.0,
+                    format="%.1f",
+                    key="modern_lon",
+                )
+
+        with col3:
+            variable_list = [
+                "near-surface air temperature",
+                "sea surface temperature",
+                "precipitation",
+            ]
+            if "user_variable" in st.session_state:
+                var_index = variable_list.index(st.session_state["user_variable"])
+            else:
+                var_index = 0
+
+            user_variable = st.selectbox(
+                label="variable",
+                options=[
+                    "near-surface air temperature",
+                    "sea surface temperature",
+                    "precipitation",
+                ],
+                index=var_index,
+                key="user_variable",
+            )
+
+        col4, col5, col6 = st.columns(3)
+
+        with col4:
+            st.write("compare to proxy?")
+            if "proxy_check" in st.session_state:
+                proxy_check = st.checkbox(label=" ", key="proxy_check")
+            else:
+                proxy_check = st.checkbox(
+                    label=" ", key="proxy_check", value=False
+                )
+        with col5:
+            if "proxy_mean" in st.session_state:
+                proxy_mean = st.number_input(
+                    label="proxy mean",
+                    step=1.0,
+                    format="%.1f",
+                    key="proxy_mean",
+                )
+            else:
+                proxy_mean = st.number_input(
+                    label="proxy mean",
+                    value=20.0,
+                    step=1.0,
+                    format="%.1f",
+                    key="proxy_mean",
+                )
+
+        with col6:
+            if "proxy_std" in st.session_state:
+                proxy_std = st.number_input(
+                    label="proxy uncertainty",
+                    step=1.0,
+                    format="%.1f",
+                    key="proxy_std",
+                )
+            else:
+                proxy_std = st.number_input(
+                    label="proxy uncertainty",
+                    value=4.0,
+                    step=1.0,
+                    format="%.1f",
+                    key="proxy_std",
+                )
+
+        submit_button = st.form_submit_button(
+            label="UPDATE FIGURE", use_container_width=True, type="primary"
+        )
+
+    return (
+        modern_lat,
+        modern_lon,
+        user_variable,
+        proxy_check,
+        proxy_mean,
+        proxy_std,
+    )
+
+def reset_csv_data():
+    # delete previous input from session state
+    if "csv_input" in st.session_state:
+        del st.session_state["csv_input"]
+
+def init_widgets_multi_site_plot():
+
+    template_list = ["custom data",
+                     "DeepMIP ocean (all)", 
+                     "DeepMIP ocean (latest Paleocene)", 
+                     "DeepMIP ocean (Paleocene–Eocene Thermal Maximum)", 
+                     "DeepMIP ocean (early Eocene Climatic Optimum)", 
+                     "DeepMIP land (all)", 
+                     "DeepMIP land (latest Paleocene)", 
+                     "DeepMIP land (Paleocene–Eocene Thermal Maximum)", 
+                     "DeepMIP land (early Eocene Climatic Optimum)", 
+                     "DeepMIP land+ocean (all)", 
+                     "DeepMIP land+ocean (latest Paleocene)", 
+                     "DeepMIP land+ocean (Paleocene–Eocene Thermal Maximum)", 
+                     "DeepMIP land+ocean (early Eocene Climatic Optimum)", 
+                     ]
+    if "csv_choice" in st.session_state:
+        var_index = template_list.index(st.session_state["csv_choice"])
+    else:
+        var_index = 4
+
+    csv_choice = st.selectbox(
+        label="Select from a list of example CSV files from the DeepMIP proxy compilation or enter your own data:",
+        options=template_list,
+        index=var_index,
+        key="csv_choice",
+        on_change=reset_csv_data,
+    )
+    
+    csv_data = get_csv_data(csv_choice, True)
+
+    # initialise user input widgets
+    with st.form(key="my_form"):
+
+        csv_input = st.text_area(
+            label="CSV input of site locations (one per line)",
+            value=csv_data,
+            placeholder="name, modern latitude, modern longitude, proxy mean (OPTIONAL), proxy uncertainty (OPTIONAL)",
+            height=200, 
+            key="csv_input",
+        )
+
+        variable_list = [
+            "near-surface air temperature",
+            "sea surface temperature",
+            "precipitation",
+        ]
+        if "user_variable" in st.session_state:
+            var_index = variable_list.index(st.session_state["user_variable"])
+        else:
+            var_index = 0
+
+        user_variable = st.selectbox(
+            label="variable",
+            options=[
+                "near-surface air temperature",
+                "sea surface temperature",
+                "precipitation",
+            ],
+            index=var_index,
+            key="user_variable",
+        )
+
+        submit_button = st.form_submit_button(
+            label="UPDATE FIGURE", use_container_width=True, type="primary"
+        )
+
+    return (csv_choice, csv_input, user_variable)
 
 # convert locations of single or multiple sites from user input to lists to easily \\
 # loop analysis over all chosen sites
@@ -181,15 +393,32 @@ def sites_to_list(csv_input):
     modern_lats = []
     modern_lons = []
     names = []
+    proxy_means = []
+    proxy_stds = []
     lines = csv_input.split("\n")  # A list of lines
     for line in lines:
         if line != "":
-            name, lat, lon = line.split(",")
+            if len(line.split(",")) == 3:
+                name, lat, lon = line.split(",")
+                mean = ""
+                std = ""
+            elif len(line.split(",")) == 5:
+                name, lat, lon, mean, std = line.split(",")
+            else:
+                st.error(
+                    "Error in line: " + line
+                )                
+                st.error(
+                    "CSV input must be in the format: name, modern latitude, modern longitude, proxy mean (OPTIONAL), proxy uncertainty (OPTIONAL)"
+                )
+                st.stop()
             modern_lats.append(float(lat))
             modern_lons.append(float(lon))
             names.append(name)
+            proxy_means.append(float(mean))
+            proxy_stds.append(float(std))
 
-    return modern_lats, modern_lons, names
+    return modern_lats, modern_lons, names, proxy_means, proxy_stds
 
 
 def get_base64(bin_file):
