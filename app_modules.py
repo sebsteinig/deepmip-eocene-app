@@ -1,13 +1,14 @@
 import streamlit as st
 import base64
 
+from deepmip_modules import get_csv_data 
 
 def init_widgets_single_site():
     # check whether user input is already in session state
     # if yes, use the previous selection from the session state
     # if not, use default values
 
-    # initialise input widgets in sidebar
+    # initialise user input widgets
     with st.form(key="my_form"):
         st.info(
             """
@@ -95,36 +96,42 @@ def init_widgets_single_site():
     return (modern_lat, modern_lon, user_variable)
 
 
-def init_widgets_multi_site(csv_data):
+def reset_csv_data():
+    # delete previous input from session state
+    if "csv_input" in st.session_state:
+        del st.session_state["csv_input"]
+
+def init_widgets_multi_site():
     # check whether user input is already in session state
     # if yes, use the previous selection from the session state
     # if not, use default values
 
-    # initialise input widgets in sidebar
+    template_list = ["DeepMIP land+ocean", "custom data"]
+    if "csv_choice" in st.session_state:
+        var_index = template_list.index(st.session_state["csv_choice"])
+    else:
+        var_index = 0
+
+    csv_choice = st.selectbox(
+        label="CSV examples",
+        options=template_list,
+        index=var_index,
+        key="csv_choice",
+        on_change=reset_csv_data,
+    )
+    csv_data = get_csv_data(csv_choice, False)
+
+    # initialise user input widgets
     with st.form(key="my_form"):
-        # check whether input has been defined before
-        # if "csv_input" in st.session_state:
-        #     # if yes, use previous value
-        #     csv_input = st.text_area(
-        #         label="CSV input of site locations (one per line)",
-        #         placeholder="name, modern latitude, modern longitude",
-        #         key="csv_input",
-        #     )
-        # else:
-        #     # if not, use default value
-        #     csv_input = st.text_area(
-        #         label="CSV input of site locations (one per line)",
-        #         value=str(csv_data),
-        #         placeholder="name, modern latitude, modern longitude",
-        #         key="csv_input",
-        #     )
-        print(csv_data)
+
         csv_input = st.text_area(
             label="CSV input of site locations (one per line)",
-            value=str(csv_data),
+            value=csv_data,
             placeholder="name, modern latitude, modern longitude",
+            height=200, 
             key="csv_input",
         )
+
         variable_list = [
             "near-surface air temperature",
             "sea surface temperature",
@@ -150,7 +157,7 @@ def init_widgets_multi_site(csv_data):
             label="GET MODEL DATA", use_container_width=True, type="primary"
         )
 
-    return (csv_input, user_variable)
+    return (csv_choice, csv_input, user_variable)
 
 
 # convert locations of single or multiple sites from user input to lists to easily \\

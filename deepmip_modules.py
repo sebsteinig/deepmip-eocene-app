@@ -49,15 +49,20 @@ def model_table():
 
     return df
 
+def get_csv_data(csv_template, proxy_flag):
+    if csv_template == "DeepMIP land+ocean":
+        proxy_db = pd.read_csv("data/Hollis 2019 DeepMIP compilation.csv", encoding= 'unicode_escape')
+        if proxy_flag:
+            proxy_db_reduced = proxy_db[['site', 'lat', 'lon', 'deepmip lower error', '50', 'deepmip upper error', 'proxy']]
+            proxy_db_reduced['site'] = proxy_db[['site', 'timeslice', 'proxy']].agg('-'.join, axis=1)
+        else:
+            proxy_db_reduced = proxy_db[['site', 'lat', 'lon']]
+            proxy_db_reduced = proxy_db_reduced.drop_duplicates(subset='site', keep="first")
 
-def get_csv_data(csv_template):
-    if csv_template == "Reichgelt et al. (2021)":
-        # csv_data = pd.read_csv("data/Reichgelt_et_al_2021.csv").to_string()
-        csv_data = "reichgelt,10,10"
+        csv_data = proxy_db_reduced.to_csv(index=False, header=False)
     else:
-        csv_data = "not reichgelt,10,10"
+        csv_data = ""
     return csv_data
-
 
 @st.cache_data
 def get_paleo_locations(modern_lats, modern_lons, names):
@@ -71,6 +76,7 @@ def get_paleo_locations(modern_lats, modern_lons, names):
 
     # initialize empty list to store results
     d = []
+    skipped_sites = []
 
     # loop over all sites
     for count, modern_lat in enumerate(modern_lats):
@@ -139,14 +145,30 @@ def get_paleo_locations(modern_lats, modern_lons, names):
                 }
             )
         else:
-            st.exception(
-                ValueError(
-                    "No paleo location found for modern coordinates. Please try "
-                    "again with a different location."
+            # if no paleo location is found, raise an exception in single-site mode
+            if len(modern_lats) == 1:
+                st.exception(
+                    ValueError(
+                        "No paleo location found for modern coordinates. Please try "
+                        "again with a different location."
+                    )
                 )
-            )
-            st.stop()
+                st.stop()
+            else:
+                skipped_sites.append(names[count])
+                continue
 
+    if len(modern_lats) > 1:
+        st.warning(
+            "No paleo location found for modern coordinates of the following sites: "
+            + ", ".join(skipped_sites)
+            + " ("
+            + str(len(skipped_sites))
+            + "/"
+            + str(len(modern_lats))
+            + " sites skipped)."
+
+        )
     # convert to dataframe
     df = pd.DataFrame(d)
     # return DataFrame
@@ -334,7 +356,6 @@ def get_model_point_data(df, variable):
     # calculate ensemble mean for each site and experiment
     for exp in exp_dict.keys():
         for index, row in df.iterrows():
-            print(index)
             df_out.loc[len(df_out)] = df_out.loc[
                 (df_out["experiment"] == exp_dict[exp]["medium_name"])
                 & (df_out["site_name"] == row["name"])
