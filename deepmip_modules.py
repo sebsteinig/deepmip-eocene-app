@@ -596,7 +596,6 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
 
     return fig
 
-
 def scatter_line_plot(
     df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy_label
 ):

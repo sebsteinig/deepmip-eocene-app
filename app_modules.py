@@ -18,7 +18,7 @@ def init_widgets_single_site():
                 """
         )
 
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
 
         with col1:
             # check whether input has been defined before
@@ -90,6 +90,22 @@ def init_widgets_single_site():
                 key="user_variable",
             )
 
+        with col4:
+            # check whether input has been defined before
+            if "user_site_name" in st.session_state:
+                # if yes, use previous value
+                user_site_name = st.text_input(
+                    label="OPTIONAL: name of site",
+                    key="user_site_name",
+                )
+            else:
+                # if not, use default value
+                user_site_name = st.text_input(
+                    label="OPTIONAL: name of site",
+                    value="untitled",
+                    key="user_site_name",
+                )
+
         submit_button = st.form_submit_button(
             label="GET MODEL DATA", use_container_width=True, type="primary"
         )
@@ -98,6 +114,7 @@ def init_widgets_single_site():
         modern_lat,
         modern_lon,
         user_variable,
+        user_site_name
     )
 
 
@@ -190,7 +207,7 @@ def init_widgets_single_site_plot():
                 """
         )
 
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
 
         with col1:
             # check whether input has been defined before
@@ -262,15 +279,31 @@ def init_widgets_single_site_plot():
                 key="user_variable",
             )
 
-        col4, col5, col6 = st.columns(3)
-
         with col4:
+            # check whether input has been defined before
+            if "user_site_name" in st.session_state:
+                # if yes, use previous value
+                user_site_name = st.text_input(
+                    label="OPTIONAL: name of site",
+                    key="user_site_name",
+                )
+            else:
+                # if not, use default value
+                user_site_name = st.text_input(
+                    label="OPTIONAL: name of site",
+                    value="untitled",
+                    key="user_site_name",
+                )
+
+        col5, col6, col7 = st.columns(3)
+
+        with col5:
             st.write("compare to proxy?")
             if "proxy_check" in st.session_state:
                 proxy_check = st.checkbox(label=" ", key="proxy_check")
             else:
                 proxy_check = st.checkbox(label=" ", key="proxy_check", value=False)
-        with col5:
+        with col6:
             if "proxy_mean" in st.session_state:
                 proxy_mean = st.number_input(
                     label="proxy mean",
@@ -287,7 +320,7 @@ def init_widgets_single_site_plot():
                     key="proxy_mean",
                 )
 
-        with col6:
+        with col7:
             if "proxy_std" in st.session_state:
                 proxy_std = st.number_input(
                     label="proxy uncertainty",
@@ -312,6 +345,7 @@ def init_widgets_single_site_plot():
         modern_lat,
         modern_lon,
         user_variable,
+        user_site_name,
         proxy_check,
         proxy_mean,
         proxy_std,

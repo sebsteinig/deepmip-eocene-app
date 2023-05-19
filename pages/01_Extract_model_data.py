@@ -29,7 +29,7 @@ st.markdown(
         model geographies and then extracts the data from the closest grid point for all available 
         models and simulations. Results are listed in the interactive table below, which can also 
         be downloaded in different data formats. You can also create interactive charts of your 
-        extracted data on the <a href='Plot_site_data' target='_self'>analysis page</a>.
+        extracted data on the <a href='Plot_site_comparison' target='_self'>analysis page</a>.
     """,
     unsafe_allow_html=True,
 )
@@ -56,9 +56,9 @@ analysis_type = st.radio(
 
 # create user inputs for single site
 if analysis_type == "Single site":
-    modern_lat, modern_lon, user_variable = init_widgets_single_site()
+    modern_lat, modern_lon, user_variable, user_site_name = init_widgets_single_site()
 
-    for v in [modern_lat, modern_lon, user_variable, analysis_type]:
+    for v in [modern_lat, modern_lon, user_variable, user_site_name, analysis_type]:
         st.session_state.v = v
 
 # create user inputs for multiple sites (i.e. CSV input)
@@ -84,8 +84,7 @@ if analysis_type == "Single site":
     # convert single site to list for consistency with multi-site analysis
     modern_lats = [modern_lat]
     modern_lons = [modern_lon]
-    names = ["untitled"]
-
+    names = [user_site_name]
 
 ## step 1: get paleo position(s) consistent with DeepMIP model geographies
 df_paleo_locations = get_paleo_locations(modern_lats, modern_lons, names)

@@ -29,7 +29,7 @@ st.markdown(
     Select any of the following pages to start your analysis:
 
     - <a href='Extract_model_data' target='_self'>Extract model data</a> for any location, ready to be imported into your spreadsheet.
-    - <a href='Plot_site_data' target='_self'>Plot model data</a> (monthly, seasonal, annual) and it's relation to CO$_2$ and global mean temperature.
+    - <a href='Plot_site_comparison' target='_self'>Plot model data</a> (monthly, seasonal, annual) and it's relation to CO$_2$ and global mean temperature.
     - <a href='Plot_maps' target='_self'>Plot paleogeographic maps </a> for your site and see how it is represented in different models.
 
     """,

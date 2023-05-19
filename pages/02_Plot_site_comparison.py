@@ -72,12 +72,13 @@ if analysis_type == "Single site":
         modern_lat,
         modern_lon,
         user_variable,
+        user_site_name,
         proxy_check,
         proxy_mean,
         proxy_std,
     ) = init_widgets_single_site_plot()
 
-    for v in [modern_lat, modern_lon, user_variable, analysis_type]:
+    for v in [modern_lat, modern_lon, user_variable, user_site_name, analysis_type]:
         st.session_state.v = v
 
 # create user inputs for multiple sites (i.e. CSV input)
@@ -103,7 +104,7 @@ if analysis_type == "Single site":
     # convert single site to list for consistency with multi-site analysis
     modern_lats = [modern_lat]
     modern_lons = [modern_lon]
-    names = ["untitled"]
+    names = [user_site_name]
 
 ## step 1: get paleo position(s) consistent with DeepMIP model geographies
 df_paleo_locations = get_paleo_locations(modern_lats, modern_lons, names)
@@ -119,6 +120,10 @@ df_model = get_model_point_data(df_paleo_locations, deepmip_var)
 col1, col2 = st.columns(2)
 
 with col1:
+    if analysis_type == "Single site":
+        if "site_name" in st.session_state:
+            del st.session_state["site_name"]
+
     site_name = st.selectbox(
         label="site to plot",
         options=df_paleo_locations.name,
@@ -166,7 +171,7 @@ if analysis_type == "Multiple sites":
 progress_bar = st.progress(0)
 progress_bar.progress(1/4, "Creating figure 1/2")
 
-st.subheader(var_y + " vs. CO$_2$")
+st.subheader(var_y.replace("_", " ") + " vs. CO$_2$")
 bokeh_composition1 = scatter_line_plot(
     df_model[df_model.site_name == site_name],
     var_y,
@@ -189,7 +194,7 @@ plon = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_na
 print(plat)
 ct = datetime.datetime.now()
 ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
-filename = f"DeepMIP_{var_y}_vs_CO2_{site_name}_{ct}"
+filename = f"figures/DeepMIP_{var_y}_vs_CO2_{site_name}_{ct}"
 
 p1 = hv.render(bokeh_composition1, backend="bokeh")
 p1.add_layout(
@@ -206,10 +211,17 @@ st.bokeh_chart(p1)
 progress_bar.progress(2/4, "Creating download buttons for figure 1/2")
 
 p1.output_backend = "svg"
+
 export_svgs(p1, filename=filename + ".svg")
-hv.save(bokeh_composition1, filename + ".png", fmt="png")
+
+
+def save_png(fig, filename):
+    hv.save(fig, filename + ".png", fmt="png")
+ 
+# hv.save(bokeh_composition1, filename + ".png", fmt="png")
 
 col1, col2 = st.columns(2)
+
 
 with col1:
     with open(filename + ".png", "rb") as file:
@@ -231,7 +243,7 @@ with col2:
             use_container_width=True,
         )
 
-st.subheader(var_y + " vs. GMST")
+st.subheader(var_y.replace("_", " ") + " vs. GMST")
 progress_bar.progress(3/4, "Creating figure 2/2")
 
 bokeh_composition2 = scatter_line_plot(
@@ -244,7 +256,7 @@ bokeh_composition2 = scatter_line_plot(
     "proxy estimate",
 )
 
-filename2 = f"DeepMIP_{var_y}_vs_GMST_{site_name}_{ct}"
+filename2 = f"figures/DeepMIP_{var_y}_vs_GMST_{site_name}_{ct}"
 
 p2 = hv.render(bokeh_composition2, backend="bokeh")
 st.bokeh_chart(p2)
