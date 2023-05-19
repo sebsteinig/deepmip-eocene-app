@@ -29,7 +29,7 @@ st.markdown(
         model geographies and then extracts the data from the closest grid point for all available 
         models and simulations. Results are listed in the interactive table below, which can also 
         be downloaded in different data formats. You can also create interactive charts of your 
-        extracted data on the <a href='Plot_model_data' target='_self'>analysis page</a>.
+        extracted data on the <a href='Plot_site_data' target='_self'>analysis page</a>.
     """,
     unsafe_allow_html=True,
 )

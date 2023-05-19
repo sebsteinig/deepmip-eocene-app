@@ -381,6 +381,7 @@ def get_model_point_data(df, variable):
                                 lat=np.round(lookup_lat, 2),
                                 lon=np.round(lookup_lon, 2),
                                 var=variable,
+                                long_name=variable_dict[variable]["longname"],
                                 unit=unit,
                                 annual_mean=np.mean(site_data),
                                 monthly_min=np.min(site_data),
@@ -618,17 +619,27 @@ def scatter_line_plot(
 
     unit = df_plot.iloc[0]["unit"]
     ylabel = var_y + " [" + unit + "]"
+    # yLabel = variable_dict[variable]["longname"] + " [" + df.iloc[0]["unit"] + "]"
+    ylabel = df.iloc[0]["long_name"] + " [" + unit + "]"
+
     # generate list of medium-length experiment anmes for plot ordering
     list_medium_names = []
     for key, value in exp_dict.items():
         list_medium_names.append(value["medium_name"])
 
-    # add proxy reference annotation
+    # add proxy reference annotations
     if proxy_check:
-        hspan = hv.HSpan(proxy_mean - proxy_std, proxy_mean + proxy_std).opts(
-            opts.HSpan(color="lightcoral", alpha=0.4)
+        hline = hv.HLine(proxy_mean ).opts(
+            opts.HLine(color="coral", alpha=1.0)
         )
-
+        if proxy_std >= 0.0:
+            hspan = hv.HSpan(proxy_mean - proxy_std, proxy_mean + proxy_std).opts(
+                opts.HSpan(color="lightcoral", alpha=0.4)
+            )
+            label_offset = 0.7 * proxy_std
+        else:
+            label_offset = 0.1 * proxy_mean
+        
         if var_x == "experiment":
             text_x = "DeepMIP_1x"
         elif var_x == "CO2":
@@ -636,26 +647,27 @@ def scatter_line_plot(
         elif var_x == "GMST":
             text_x = 20
 
-        htext = hv.Text(text_x, proxy_mean + 1.2 * proxy_std, proxy_label).opts(
-            opts.Text(color="lightcoral")
+        htext = hv.Text(text_x, proxy_mean + label_offset, proxy_label).opts(
+            opts.Text(color="lightcoral",align="start")
         )
+
 
     # generate plot labels
     if var_x == "experiment":
         xlabel = "DeepMIP experiment"
     elif var_x == "CO2":
-        xlabel = "atmospheric CO2 [ppmv]"
+        xlabel = "atmospheric CO₂ [ppmv]"
     elif var_x == "GMST":
         xlabel = "GMST [°C]"
 
     variable = df_plot.iloc[0]["var"]
-    titleString = "DeepMIP (~55 Ma) " + variable_dict[variable]["longname"]
+    titleString = "DeepMIP (~55 Ma) " + variable_dict[variable]["longname"]+ " (" + var_y.replace("_", " ") + ")" 
 
     scatter = (
         hv.Scatter(
             df_redcued,
             kdims=[var_x],
-            vdims=[var_y, "model_short"],
+            vdims=[var_y, "model_short", "experiment"],
         )
         .redim.values(**{"experiment": list_medium_names})
         .groupby("model_short")
@@ -667,7 +679,6 @@ def scatter_line_plot(
                 ylabel=ylabel,
                 jitter=0.2,
                 title=titleString,
-                # width=705,
                 height=500,
                 responsive=True,
                 show_legend=True,
@@ -701,7 +712,10 @@ def scatter_line_plot(
         )
 
         if proxy_check:
-            composition = hspan * box * scatter * htext
+            if proxy_std >= 0.0:
+                composition = hspan * hline * box * scatter * htext
+            else:
+                composition = hline * box * scatter * htext
         else:
             composition = box * scatter
 
@@ -719,7 +733,10 @@ def scatter_line_plot(
         # )
 
         if proxy_check:
-            composition = hspan * htext * line * scatter
+            if proxy_std >= 0.0:
+                composition = hspan * hline * line * scatter * htext
+            else:
+                composition = hline * line * scatter * htext
         else:
             composition = scatter * line
 

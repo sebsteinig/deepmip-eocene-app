@@ -322,7 +322,8 @@ def reset_csv_data():
     # delete previous input from session state
     if "csv_input" in st.session_state:
         del st.session_state["csv_input"]
-
+    if "site_name" in st.session_state:
+        del st.session_state["site_name"]
 
 def init_widgets_multi_site_plot():
     template_list = [
@@ -407,6 +408,9 @@ def sites_to_list(csv_input):
             if len(line.split(",")) == 3:
                 name, lat, lon = line.split(",")
                 mean = -999.9
+                std = -999.9
+            elif len(line.split(",")) == 4:
+                name, lat, lon, mean = line.split(",")
                 std = -999.9
             elif len(line.split(",")) == 5:
                 name, lat, lon, mean, std = line.split(",")

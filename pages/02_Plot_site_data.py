@@ -155,13 +155,16 @@ with col2:
 
 if analysis_type == "Multiple sites":
     site_index = list(df_paleo_locations.name).index(site_name)
-    if proxy_means[site_index] != -999.9 and float(proxy_stds[site_index]) >= 0.0:
+    if proxy_means[site_index] != -999.9:
         proxy_check = True
     else:
         proxy_check = False
     proxy_mean = float(proxy_means[site_index])
     proxy_std = float(proxy_stds[site_index])
     proxy_label = float(proxy_stds[site_index])
+
+progress_bar = st.progress(0)
+progress_bar.progress(1/4, "Creating figure 1/2")
 
 st.subheader(var_y + " vs. CO$_2$")
 bokeh_composition1 = scatter_line_plot(
@@ -180,10 +183,10 @@ from bokeh.models import Title
 import numpy as np
 
 # get paleolocation
-plat = df_model.loc[df_model["experiment"] != "piControl"].iloc[0]["lat"]
-plon = df_model.loc[df_model["experiment"] != "piControl"].iloc[0]["lon"]
+plat = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lat"]
+plon = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lon"]
 
-
+print(plat)
 ct = datetime.datetime.now()
 ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
 filename = f"DeepMIP_{var_y}_vs_CO2_{site_name}_{ct}"
@@ -191,7 +194,7 @@ filename = f"DeepMIP_{var_y}_vs_CO2_{site_name}_{ct}"
 p1 = hv.render(bokeh_composition1, backend="bokeh")
 p1.add_layout(
     Title(
-        text=f"site: {site_name} (lat = {str(np.round(plat, 1))} / lon = {str(np.round(plon, 1))})",
+        text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
         text_font_size="12pt",
         text_font_style="italic",
     ),
@@ -199,6 +202,9 @@ p1.add_layout(
 )
 
 st.bokeh_chart(p1)
+
+progress_bar.progress(2/4, "Creating download buttons for figure 1/2")
+
 p1.output_backend = "svg"
 export_svgs(p1, filename=filename + ".svg")
 hv.save(bokeh_composition1, filename + ".png", fmt="png")
@@ -226,6 +232,7 @@ with col2:
         )
 
 st.subheader(var_y + " vs. GMST")
+progress_bar.progress(3/4, "Creating figure 2/2")
 
 bokeh_composition2 = scatter_line_plot(
     df_model[df_model.site_name == site_name],
@@ -241,6 +248,9 @@ filename2 = f"DeepMIP_{var_y}_vs_GMST_{site_name}_{ct}"
 
 p2 = hv.render(bokeh_composition2, backend="bokeh")
 st.bokeh_chart(p2)
+
+progress_bar.progress(4/4, "Creating download buttons for figure 2/2")
+
 p2.output_backend = "svg"
 export_svgs(p2, filename=filename2 + ".svg")
 hv.save(bokeh_composition2, filename2 + ".png", fmt="png")
@@ -266,3 +276,5 @@ with col2:
             mime="image/svg",
             use_container_width=True,
         )
+
+progress_bar.empty()
