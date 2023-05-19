@@ -12,6 +12,7 @@ from app_modules import (
     init_widgets_multi_site_plot,
     init_sidebar,
     sites_to_list,
+    customDownloadButton
 )
 from deepmip_modules import (
     get_paleo_locations,
@@ -168,10 +169,8 @@ if analysis_type == "Multiple sites":
     proxy_std = float(proxy_stds[site_index])
     proxy_label = float(proxy_stds[site_index])
 
-progress_bar = st.progress(0)
-progress_bar.progress(1/4, "Creating figure 1/2")
+st.subheader("Figure 1: " + var_y.replace("_", " ") + " vs. CO$_2$")
 
-st.subheader(var_y.replace("_", " ") + " vs. CO$_2$")
 bokeh_composition1 = scatter_line_plot(
     df_model[df_model.site_name == site_name],
     var_y,
@@ -183,7 +182,6 @@ bokeh_composition1 = scatter_line_plot(
 )
 
 
-from bokeh.io import export_svgs
 from bokeh.models import Title
 import numpy as np
 
@@ -208,43 +206,7 @@ p1.add_layout(
 
 st.bokeh_chart(p1)
 
-progress_bar.progress(2/4, "Creating download buttons for figure 1/2")
-
-p1.output_backend = "svg"
-
-export_svgs(p1, filename=filename + ".svg")
-
-
-def save_png(fig, filename):
-    hv.save(fig, filename + ".png", fmt="png")
- 
-# hv.save(bokeh_composition1, filename + ".png", fmt="png")
-
-col1, col2 = st.columns(2)
-
-
-with col1:
-    with open(filename + ".png", "rb") as file:
-        btn = st.download_button(
-            label="Download PNG",
-            data=file,
-            file_name=filename + ".png",
-            mime="image/",
-            use_container_width=True,
-        )
-
-with col2:
-    with open(filename + ".svg", "rb") as file:
-        btn = st.download_button(
-            label="Download SVG",
-            data=file,
-            file_name=filename + ".svg",
-            mime="image/svg",
-            use_container_width=True,
-        )
-
-st.subheader(var_y.replace("_", " ") + " vs. GMST")
-progress_bar.progress(3/4, "Creating figure 2/2")
+st.subheader("Figure 2: " + var_y.replace("_", " ") + " vs. GMST")
 
 bokeh_composition2 = scatter_line_plot(
     df_model[df_model.site_name == site_name],
@@ -261,32 +223,8 @@ filename2 = f"figures/DeepMIP_{var_y}_vs_GMST_{site_name}_{ct}"
 p2 = hv.render(bokeh_composition2, backend="bokeh")
 st.bokeh_chart(p2)
 
-progress_bar.progress(4/4, "Creating download buttons for figure 2/2")
+customDownloadButton(p1, p2, filename, filename2)
 
-p2.output_backend = "svg"
-export_svgs(p2, filename=filename2 + ".svg")
-hv.save(bokeh_composition2, filename2 + ".png", fmt="png")
+# customDownloadButton(p2, filename2)
 
-col1, col2 = st.columns(2)
 
-with col1:
-    with open(filename2 + ".png", "rb") as file:
-        btn = st.download_button(
-            label="Download PNG",
-            data=file,
-            file_name=filename2 + ".png",
-            mime="image/",
-            use_container_width=True,
-        )
-
-with col2:
-    with open(filename2 + ".svg", "rb") as file:
-        btn = st.download_button(
-            label="Download SVG",
-            data=file,
-            file_name=filename2 + ".svg",
-            mime="image/svg",
-            use_container_width=True,
-        )
-
-progress_bar.empty()

@@ -1,5 +1,7 @@
 import streamlit as st
 import base64
+from bokeh.io import export_svgs, export_png
+import holoviews as hv
 
 from deepmip_modules import get_csv_data
 
@@ -538,3 +540,60 @@ def init_sidebar():
     # </style>
     # """
     # st.markdown(css, unsafe_allow_html=True)
+
+def customDownloadButton(render1, render2, filename1, filename2):
+    if st.button('Download Figures', type = 'primary', use_container_width = True):
+        progress_bar = st.progress(0)
+
+        progress_bar.progress(1/2, "Exporting PNGs")
+        export_png(render1, filename=filename1 + ".png")
+        export_png(render2, filename=filename2 + ".png")
+
+        progress_bar.progress(2/2, "Exporting SVGs")
+        render1.output_backend = "svg"
+        render2.output_backend = "svg"
+        export_svgs(render1, filename=filename1 + ".svg")
+        export_svgs(render2, filename=filename2 + ".svg")
+
+        progress_bar.empty()
+
+        col1, col2 = st.columns(2)
+        with col1:
+            with open(filename1 + ".png", "rb") as file:
+                st.download_button(
+                    label="Download Figure 1 as PNG",
+                    data=file,
+                    file_name=filename1 + ".png",
+                    mime="image/",
+                    use_container_width=True,
+                )
+        with col2:
+            with open(filename1 + ".svg", "rb") as file:
+                st.download_button(
+                    label="Download Figure 1 as SVG",
+                    data=file,
+                    file_name=filename1 + ".svg",
+                    mime="image/svg",
+                    use_container_width=True,
+                )
+
+
+        col3, col4 = st.columns(2)
+        with col3:
+            with open(filename2 + ".png", "rb") as file:
+                st.download_button(
+                    label="Download Figure 2 as PNG",
+                    data=file,
+                    file_name=filename2 + ".png",
+                    mime="image/",
+                    use_container_width=True,
+                )
+        with col4:
+            with open(filename2 + ".svg", "rb") as file:
+                st.download_button(
+                    label="Download Figure 2 as SVG",
+                    data=file,
+                    file_name=filename2 + ".svg",
+                    mime="image/svg",
+                    use_container_width=True,
+                )
