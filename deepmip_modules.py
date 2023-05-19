@@ -567,7 +567,7 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
             )
 
     titleString = (
-        "DeepMIP (~55 Ma) "
+        "DeepMIP "
         + variable_dict[variable]["longname"]
         + " (LAT = "
         + str(np.round(plat, 1))
@@ -600,11 +600,6 @@ def scatter_line_plot(
     df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy_label
 ):
     df_plot = df[(df.model != "ensemble_mean")]
-
-    # get paleolocation
-    df_Eocene = df_plot.loc[df_plot["experiment"] != "piControl"]
-    plat = df_Eocene.iloc[0]["lat"]
-    plon = df_Eocene.iloc[0]["lon"]
 
     if var_x == "experiment":
         df_redcued = df_plot
@@ -660,7 +655,7 @@ def scatter_line_plot(
         xlabel = "GMST [°C]"
 
     variable = df_plot.iloc[0]["var"]
-    titleString = "DeepMIP (~55 Ma) " + variable_dict[variable]["longname"]+ " (" + var_y.replace("_", " ") + ")" 
+    titleString = "DeepMIP " + variable_dict[variable]["longname"]+ " (" + var_y.replace("_", " ") + ")" 
 
     scatter = (
         hv.Scatter(
@@ -740,6 +735,80 @@ def scatter_line_plot(
             composition = scatter * line
 
     return composition
+
+def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
+
+    print(df)
+    print(df.transpose())
+
+    # df["monthly"] = df["Jan"] + df["Feb"]
+    # df_ensemble = df[(df.model != "ensemble_mean")]
+
+    months =  ["model_short","Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    # df_monthly = df_exp[months].transpose().rename(columns={35:'model'})
+
+
+    # # generate list of medium-length experiment anmes for plot ordering
+    # short_names = []
+    # for key, value in model_dict.items():
+    #     short_names.append(value["abbrv"])
+
+
+    lines = []
+
+    # loop over all models and experiments
+    for exp_count, exp in enumerate(exp_dict.keys()):
+        df_exp = df[(df.experiment == exp_dict[exp]["medium_name"])]
+        df_monthly = df_exp[months].transpose()
+        df_monthly.columns = df_monthly.iloc[0]
+        df_monthly = df_monthly[1:]
+        df_monthly["months"] = months[1:13]
+
+        print(exp)
+        print(df_monthly)
+
+        for model_count, model in enumerate(model_dict.keys()):
+
+            if exp in model_dict[model]["exps"]:
+                line = (hv.Curve(df_monthly, "months", model_dict[model]["abbrv"])
+                        .opts(
+                            line_color= exp_dict[exp]["color"],
+                            alpha=1.0,
+                            line_width=0.2,)
+                        )
+                lines.append(line)
+        
+            line = (hv.Curve(df_monthly, "months", "mean")
+                    .opts(
+                        line_color= exp_dict[exp]["color"],
+                        alpha=1.0,
+                        line_width=2.0,)
+                    )
+            lines.append(line)
+
+    lineoverlay = (hv.Overlay(lines)
+                    .opts(
+                        opts.Curve(
+                            # logx=log_x,
+                            # xlabel=xlabel,
+                            # ylabel=ylabel,
+                            # title=titleString,
+                            height=500,
+                            responsive=True,
+                            show_legend=True,
+                            tools=["hover", "wheel_zoom"],
+                            fontsize={
+                                "legend": 10.8,
+                                "title": 14,
+                                "labels": 14,
+                                "xticks": 11,
+                                "yticks": 11,
+                            },
+                        )
+                    )
+                )
+    
+    return lineoverlay
 
 
 def plot_global_paleogeography(

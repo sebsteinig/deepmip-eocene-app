@@ -1,8 +1,9 @@
 import streamlit as st
+import xarray as xr
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
 import holoviews as hv
-import datetime
-from bokeh.models import Title
-import numpy as np
+import streamlit.components.v1 as components
 
 from deepmip_dicts import variable_dict
 
@@ -17,7 +18,6 @@ from deepmip_modules import (
     get_paleo_locations,
     get_model_point_data,
     scatter_line_plot,
-    annual_cycle_plot
 )
 
 st.set_page_config(
@@ -118,61 +118,22 @@ for key, value in variable_dict.items():
 ## step 3: get model data for paleo position(s) and chosen variable
 df_model = get_model_point_data(df_paleo_locations, deepmip_var)
 
-if analysis_type == "Single site":
-    if "site_name" in st.session_state:
-        del st.session_state["site_name"]
-
-site_name = st.selectbox(
-    label="site to plot",
-    options=df_paleo_locations.name,
-    key="site_name",
-)
-for v in [site_name]:
-    st.session_state.v = v
-
-if analysis_type == "Multiple sites":
-    site_index = list(df_paleo_locations.name).index(site_name)
-    if proxy_means[site_index] != -999.9:
-        proxy_check = True
-    else:
-        proxy_check = False
-    proxy_mean = float(proxy_means[site_index])
-    proxy_std = float(proxy_stds[site_index])
-    proxy_label = float(proxy_stds[site_index])
-
-# get paleolocation
-plat = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lat"]
-plon = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lon"]
-
-ct = datetime.datetime.now()
-ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
-
-# Figure 1
-st.subheader("Figure 1: annual cycle overview")
-
-comp_cycle = annual_cycle_plot(
-    df_model[df_model.site_name == site_name], proxy_check, proxy_mean, proxy_std, "proxy estimate",
-)
-
-p1 = hv.render(comp_cycle, backend="bokeh")
-p1.add_layout(
-    Title(
-        text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
-        text_font_size="12pt",
-        text_font_style="italic",
-    ),
-    "above",
-)
-
-st.bokeh_chart(p1)
-
-# Figure 2
-st.subheader("Figure 2: individual scatter plots")
-
-
 col1, col2 = st.columns(2)
 
 with col1:
+    if analysis_type == "Single site":
+        if "site_name" in st.session_state:
+            del st.session_state["site_name"]
+
+    site_name = st.selectbox(
+        label="site to plot",
+        options=df_paleo_locations.name,
+        key="site_name",
+    )
+    for v in [site_name]:
+        st.session_state.v = v
+
+with col2:
     var_y = st.selectbox(
         label="y-axis variable",
         options=[
@@ -198,40 +159,113 @@ with col1:
         key="y_axis",
     )
 
-with col2:
-    var_x = st.selectbox(
-        label="x-axis variable",
-        options=[
-            "GMST",
-            "CO2",
-            "experiment"
-        ],
-        key="x_axis",
-    )
+options = [
+            "annual_mean",
+            "monthly_min",
+            "monthly_max",
+            "DJF",
+            "MAM",
+            "JJA",
+            "SON",
+            "Jan",
+            "Feb",
+            "Mar",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ]
 
-comp_scatter = scatter_line_plot(
+if analysis_type == "Multiple sites":
+    site_index = list(df_paleo_locations.name).index(site_name)
+    if proxy_means[site_index] != -999.9:
+        proxy_check = True
+    else:
+        proxy_check = False
+    proxy_mean = float(proxy_means[site_index])
+    proxy_std = float(proxy_stds[site_index])
+    proxy_label = float(proxy_stds[site_index])
+
+st.subheader("Figure 1: " + var_y.replace("_", " ") + " vs. CO$_2$")
+
+bokeh_composition1 = scatter_line_plot(
     df_model[df_model.site_name == site_name],
     var_y,
-    var_x,
+    "CO2",
     proxy_check,
     proxy_mean,
     proxy_std,
     "proxy estimate",
 )
 
-p2 = hv.render(comp_scatter, backend="bokeh")
-p2.add_layout(
-    Title(
-        text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
-        text_font_size="12pt",
-        text_font_style="italic",
-    ),
-    "above",
-)
+def get_plots():
+    plots = {}
+    for opt in options:
+        plots[(opt)] =  scatter_line_plot(
+            df_model[df_model.site_name == site_name],
+            opt,
+            "CO2",
+            proxy_check,
+            proxy_mean,
+            proxy_std,
+            "proxy estimate",
+        )
+    return plots
 
-st.bokeh_chart(p2)
+@st.cache_data
+def get_html():
+    plots = get_plots()
+    hmap = hv.HoloMap(plots, kdims=["metric"]).opts(framewise=True) 
+    renderer=hv.renderer('bokeh')
+    html=renderer.static_html(hmap)
+    return html
 
-filename = f"figures/DeepMIP_{var_y}_vs_CO2_{site_name}_{ct}"
+html = get_html()
+components.html(html, height=600)
+# from bokeh.models imposrt Title
+# import numpy as np
+
+# # get paleolocation
+# plat = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lat"]
+# plon = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lon"]
+
+# print(plat)
+# ct = datetime.datetime.now()
+# ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
+# filename = f"figures/DeepMIP_{var_y}_vs_CO2_{site_name}_{ct}"
+
+# p1 = hv.render(bokeh_composition1, backend="bokeh")
+# p1.add_layout(
+#     Title(
+#         text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
+#         text_font_size="12pt",
+#         text_font_style="italic",
+#     ),
+#     "above",
+# )
+
+# st.bokeh_chart(p1)
+
+# st.subheader("Figure 2: " + var_y.replace("_", " ") + " vs. GMST")
+
+# bokeh_composition2 = scatter_line_plot(
+#     df_model[df_model.site_name == site_name],
+#     var_y,
+#     "GMST",
+#     proxy_check,
+#     proxy_mean,
+#     proxy_std,
+#     "proxy estimate",
+# )
+
+# filename2 = f"figures/DeepMIP_{var_y}_vs_GMST_{site_name}_{ct}"
+
+# p2 = hv.render(bokeh_composition2, backend="bokeh")
+# st.bokeh_chart(p2)
 
 # customDownloadButton(p1, p2, filename, filename2)
 
