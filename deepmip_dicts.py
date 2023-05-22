@@ -10,7 +10,7 @@ exp_dict["piControl"] = {
     "medium_name": "piControl",
     "short_name": "PI",
     "CO2": "280",
-    "color": "black"
+    "color": "#BAB0AC"
 }
 
 exp_dict["deepmip_sens_1xCO2"] = {
@@ -18,7 +18,7 @@ exp_dict["deepmip_sens_1xCO2"] = {
     "medium_name": "DeepMIP_1x",
     "short_name": "1xCO2",
     "CO2": "280",
-    "color": "blue"
+    "color": "black"
 }
 
 exp_dict["deepmip_sens_1.5xCO2"] = {
@@ -26,7 +26,7 @@ exp_dict["deepmip_sens_1.5xCO2"] = {
     "medium_name": "DeepMIP_1.5x",
     "short_name": "1.5xCO2",
     "CO2": "420",
-    "color": "cyan"
+    "color": "#BAB0AC"
 }
 
 exp_dict["deepmip_sens_2xCO2"] = {
@@ -34,7 +34,7 @@ exp_dict["deepmip_sens_2xCO2"] = {
     "medium_name": "DeepMIP_2x",
     "short_name": "2xCO2",
     "CO2": "560",
-    "color": "green"
+    "color": "#4E79A7"
 }
 
 exp_dict["deepmip_stand_3xCO2"] = {
@@ -42,7 +42,7 @@ exp_dict["deepmip_stand_3xCO2"] = {
     "medium_name": "DeepMIP_3x",
     "short_name": "3xCO2",
     "CO2": "840",
-    "color": "yellow"
+    "color": "#59A14F"
 }
 
 exp_dict["deepmip_sens_4xCO2"] = {
@@ -50,7 +50,7 @@ exp_dict["deepmip_sens_4xCO2"] = {
     "medium_name": "DeepMIP_4x",
     "short_name": "4xCO2",
     "CO2": "1120",
-    "color": "orange"
+    "color": "#F28E2B"
 }
 
 exp_dict["deepmip_stand_6xCO2"] = {
@@ -58,7 +58,7 @@ exp_dict["deepmip_stand_6xCO2"] = {
     "medium_name": "DeepMIP_6x",
     "short_name": "6xCO2",
     "CO2": "1680",
-    "color": "red"
+    "color": "#E15759"
 }
 
 exp_dict["deepmip_sens_9xCO2"] = {
@@ -66,7 +66,7 @@ exp_dict["deepmip_sens_9xCO2"] = {
     "medium_name": "DeepMIP_9x",
     "short_name": "9xCO2",
     "CO2": "2520",
-    "color": "purple"
+    "color": "#B07AA1"
 }
 
 #################################################################################

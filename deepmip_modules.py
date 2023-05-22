@@ -758,6 +758,8 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
 
     # loop over all models and experiments
     for exp_count, exp in enumerate(exp_dict.keys()):
+        if (exp == "piControl"):
+            continue
         df_exp = df[(df.experiment == exp_dict[exp]["medium_name"])]
         df_monthly = df_exp[months].transpose()
         df_monthly.columns = df_monthly.iloc[0]
@@ -774,7 +776,8 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
                         .opts(
                             line_color= exp_dict[exp]["color"],
                             alpha=1.0,
-                            line_width=0.2,)
+                            line_width=0.2,
+                            interpolation="linear")
                         )
                 lines.append(line)
         
