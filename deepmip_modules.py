@@ -352,11 +352,14 @@ def get_model_point_data(df, variable):
                         )
                         unit = "mm/day"
                     else:
-                        site_data = var_data.sel(
+                        site_data = (
+                            var_data.sel(
                             **{lat_name: lookup_lat},
-                            **{lon_name: lookup_lon_model},
-                            method="nearest",
+                                **{lon_name: lookup_lon_model},
+                                method="nearest",
                         ).values
+                        * 1.0
+                        )
                         unit = variable_dict[variable]["unit"]
 
                     # get GMST
@@ -369,6 +372,8 @@ def get_model_point_data(df, variable):
                             gmst = gmst_list[count]
 
                     # store results for individual metrics in a dictionary
+
+                    # monthly data available
                     if len(site_data) == 12:
                         data_list.append(
                             dict(
@@ -390,20 +395,21 @@ def get_model_point_data(df, variable):
                                 MAM=np.mean(site_data[[2, 3, 4]]),
                                 JJA=np.mean(site_data[[5, 6, 7]]),
                                 SON=np.mean(site_data[[8, 9, 10]]),
-                                Jan=site_data[0],
-                                Feb=site_data[1],
-                                Mar=site_data[2],
-                                Apr=site_data[3],
-                                May=site_data[4],
-                                Jun=site_data[5],
-                                Jul=site_data[6],
-                                Aug=site_data[7],
-                                Sep=site_data[8],
-                                Oct=site_data[9],
-                                Nov=site_data[10],
-                                Dec=site_data[11],
+                                Jan=float(site_data[0]),
+                                Feb=float(site_data[1]),
+                                Mar=float(site_data[2]),
+                                Apr=float(site_data[3]),
+                                May=float(site_data[4]),
+                                Jun=float(site_data[5]),
+                                Jul=float(site_data[6]),
+                                Aug=float(site_data[7]),
+                                Sep=float(site_data[8]),
+                                Oct=float(site_data[9]),
+                                Nov=float(site_data[10]),
+                                Dec=float(site_data[11]),
                             )
                         )
+                    # only annual data available
                     elif len(site_data) == 1:
                         data_list.append(
                             dict(
@@ -418,7 +424,7 @@ def get_model_point_data(df, variable):
                                 var=variable,
                                 long_name=variable_dict[variable]["longname"],
                                 unit=unit,
-                                annual_mean=site_data[0],
+                                annual_mean=float(site_data[0]),
                             )
                         )
 

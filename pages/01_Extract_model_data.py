@@ -101,7 +101,6 @@ df_model = get_model_point_data(df_paleo_locations, deepmip_var)
 # from https://stackoverflow.com/a/75334543
 buffer = io.BytesIO()
 
-
 @st.cache_data
 def convert_to_csv(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
@@ -121,6 +120,9 @@ st.subheader("Extracted model data")
 st.write(df_model)
 
 col1, col2, col3 = st.columns(3)
+
+# replace missing values with fill value of -999.9 for data export
+# df_model = df_model.fillna(-999.9)
 
 with col1:
     csv = convert_to_csv(df_model)

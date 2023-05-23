@@ -340,7 +340,7 @@ def init_widgets_single_site_plot():
                 )
 
         submit_button = st.form_submit_button(
-            label="UPDATE FIGURE", use_container_width=True, type="primary"
+            label="UPDATE FIGURES", use_container_width=True, type="primary"
         )
 
     return (
