@@ -14,22 +14,25 @@ from app_modules import (
 from deepmip_modules import get_paleo_locations, get_model_point_data
 
 st.set_page_config(
-    page_title="Extract model data",
+    page_title="Get model data",
     layout="wide",
 )
 
 init_sidebar()
 
-st.title("Extract model point data")
+st.title("Get model point data")
 
 st.markdown(
     """
-        **Get all available model data for a variable of your choice anywhere on the globe.**
-        The app calculates the respective early Eocene (~55 Ma) paleolocation consistent with the 
-        model geographies and then extracts the data from the closest grid point for all available 
-        models and simulations. Results are listed in the interactive table below, which can also 
-        be downloaded in different data formats. You can also create interactive charts of your 
-        extracted data on the <a href='Plot_site_comparison' target='_self'>analysis page</a>.
+**Get all available model data for a variable of your choice anywhere on the globe.**
+The app calculates the respective early Eocene (~55 Ma) paleolocation consistent with the 
+model geographies and then extracts the data from the closest grid point for all available 
+models and simulations. Results are listed in the interactive table below, which can also 
+be downloaded in different data formats. You can also create interactive charts of your 
+extracted data on the <a href='Plot_site_comparison' target='_self'>analysis page</a>.
+
+The full database with the global netCDF output (size: TBC) can be downloaded from the CEDA Archive (link
+to follow).
     """,
     unsafe_allow_html=True,
 )
@@ -144,7 +147,7 @@ with col2:
         writer.save()
 
         download2 = st.download_button(
-            label="Download data as Excel",
+            label="Download data for Excel",
             data=buffer,
             file_name="deepmip_model_point_data.xlsx",
             mime="application/vnd.ms-excel",

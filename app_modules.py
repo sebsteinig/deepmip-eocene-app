@@ -567,7 +567,6 @@ def customDownloadButton(render1, render2, filename1, filename2):
                     mime="image/",
                     use_container_width=True,
                 )
-        with col2:
             with open(filename1 + ".svg", "rb") as file:
                 st.download_button(
                     label="Download Figure 1 as SVG",
@@ -579,7 +578,7 @@ def customDownloadButton(render1, render2, filename1, filename2):
 
 
         col3, col4 = st.columns(2)
-        with col3:
+        with col2:
             with open(filename2 + ".png", "rb") as file:
                 st.download_button(
                     label="Download Figure 2 as PNG",
@@ -588,7 +587,6 @@ def customDownloadButton(render1, render2, filename1, filename2):
                     mime="image/",
                     use_container_width=True,
                 )
-        with col4:
             with open(filename2 + ".svg", "rb") as file:
                 st.download_button(
                     label="Download Figure 2 as SVG",

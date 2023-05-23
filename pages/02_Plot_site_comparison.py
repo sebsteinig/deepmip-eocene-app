@@ -21,11 +21,11 @@ from deepmip_modules import (
 )
 
 st.set_page_config(
-    page_title="Plot model data",
+    page_title="Plot site comparison",
     layout="wide",
 )
 
-st.title("Plot model point data")
+st.title("Plot site comparison")
 
 st.markdown(
     """
@@ -237,10 +237,9 @@ with col_fig2:
 
     st.bokeh_chart(p2)
 
-    filename = f"figures/DeepMIP_{var_y}_vs_CO2_{site_name}_{ct}"
+filename1 = f"figures/DeepMIP_annual_cycle_{site_name}_{ct}"
+filename2 = f"figures/DeepMIP_scatter_plot_{site_name}_{ct}"
 
-# customDownloadButton(p1, p2, filename, filename2)
-
-# customDownloadButton(p2, filename2)
+customDownloadButton(p1, p2, filename1, filename2)
 
 
