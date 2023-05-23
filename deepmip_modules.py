@@ -416,6 +416,7 @@ def get_model_point_data(df, variable):
                                 lat=np.round(lookup_lat, 2),
                                 lon=np.round(lookup_lon, 2),
                                 var=variable,
+                                long_name=variable_dict[variable]["longname"],
                                 unit=unit,
                                 annual_mean=site_data[0],
                             )
@@ -436,6 +437,7 @@ def get_model_point_data(df, variable):
             df_out.loc[len(df_out) - 1, "model_short"] = "mean"
             df_out.loc[len(df_out) - 1, "experiment"] = exp_dict[exp]["medium_name"]
             df_out.loc[len(df_out) - 1, "var"] = variable
+            df_out.loc[len(df_out) - 1, "long_name"] = variable_dict[variable]["longname"]
             df_out.loc[len(df_out) - 1, "unit"] = unit
             df_out.loc[len(df_out) - 1, "site_name"] = row["name"]
 
@@ -681,7 +683,7 @@ def scatter_line_plot(
                 tools=["hover", "wheel_zoom"],
                 line_color="black",
                 fontsize={
-                    "legend": 10.8,
+                    "legend": 9,
                     "title": 14,
                     "labels": 14,
                     "xticks": 11,
@@ -738,9 +740,6 @@ def scatter_line_plot(
 
 def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
 
-    print(df)
-    print(df.transpose())
-
     # df["monthly"] = df["Jan"] + df["Feb"]
     # df_ensemble = df[(df.model != "ensemble_mean")]
 
@@ -755,63 +754,155 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
 
 
     lines = []
+    spreads = []
 
     # loop over all models and experiments
     for exp_count, exp in enumerate(exp_dict.keys()):
         if (exp == "piControl"):
             continue
         df_exp = df[(df.experiment == exp_dict[exp]["medium_name"])]
+        # df_monthly = df_exp[months].transpose().rename(columns={'mean':'ensemble mean'}, inplace=True)
         df_monthly = df_exp[months].transpose()
         df_monthly.columns = df_monthly.iloc[0]
-        df_monthly = df_monthly[1:]
-        df_monthly["months"] = months[1:13]
+        df_monthly = df_monthly[1:].rename(columns={'mean':'ensemble mean'})
+        df_monthly["month"] = months[1:13]
+        df_monthly["experiment"] = exp_dict[exp]["medium_name"]
 
         print(exp)
         print(df_monthly)
 
         for model_count, model in enumerate(model_dict.keys()):
 
+            # individual models
             if exp in model_dict[model]["exps"]:
-                line = (hv.Curve(df_monthly, "months", model_dict[model]["abbrv"])
+                line = (hv.Curve(df_monthly, "month",vdims=[model_dict[model]["abbrv"], "experiment"],label=exp_dict[exp]["short_name"])
                         .opts(
                             line_color= exp_dict[exp]["color"],
                             alpha=1.0,
-                            line_width=0.2,
-                            interpolation="linear")
+                            line_width=0.5,
+                            line_dash="dashed",
+                            )
                         )
                 lines.append(line)
         
-            line = (hv.Curve(df_monthly, "months", "mean")
-                    .opts(
-                        line_color= exp_dict[exp]["color"],
-                        alpha=1.0,
-                        line_width=2.0,)
-                    )
-            lines.append(line)
+        # ensemble mean
+        line = (hv.Curve(df_monthly, "month", vdims=["ensemble mean", "experiment"],label=exp_dict[exp]["short_name"])
+                .opts(
+                    line_color= exp_dict[exp]["color"],
+                    alpha=1.0,
+                    line_width=5.0)
+                )
+        lines.append(line)
 
-    lineoverlay = (hv.Overlay(lines)
+        # ensemble spread
+        # ens_std = df_monthly.loc[:, df_monthly.columns != 'month'].std(axis=1)
+
+        # # only plot spread if it is not zero
+        # if (any(ens_std!=0)):
+        #     # if exp == "deepmip_sens_1xCO2":
+        #     spread = (hv.Spread((df_monthly["month"], df_monthly["ensemble mean"], ens_std))
+        #         .opts(
+        #             fill_color= exp_dict[exp]["color"],
+        #             fill_alpha=0.2)
+        #         )
+        #     spreads.append(spread)
+
+    # generate plot labels
+    xlabel = "calendar month"
+    unit = df.iloc[0]["unit"]
+    ylabel = df.iloc[0]["long_name"] + " [" + unit + "]"
+
+    variable = df.iloc[0]["var"]
+    titleString = "DeepMIP " + variable_dict[variable]["longname"]+ " (annual cycle)" 
+
+    # add proxy reference annotations
+    if proxy_check:
+        hline = hv.HLine(proxy_mean ).opts(
+            opts.HLine(color="coral", alpha=1.0)
+        )
+        if proxy_std >= 0.0:
+            hspan = hv.HSpan(proxy_mean - proxy_std, proxy_mean + proxy_std).opts(
+                opts.HSpan(color="lightcoral", alpha=0.4)
+            )
+            label_offset = 0.7 * proxy_std
+        else:
+            label_offset = 0.1 * proxy_mean
+
+        text_x = "Feb"
+
+        htext = hv.Text(text_x, proxy_mean + label_offset, proxy_label).opts(
+            opts.Text(color="lightcoral",align="start")
+        )
+    overlay_lines = (hv.Overlay(lines)
                     .opts(
                         opts.Curve(
-                            # logx=log_x,
-                            # xlabel=xlabel,
-                            # ylabel=ylabel,
-                            # title=titleString,
+                            xlabel=xlabel,
+                            ylabel=ylabel,
+                            title=titleString,
                             height=500,
                             responsive=True,
                             show_legend=True,
                             tools=["hover", "wheel_zoom"],
                             fontsize={
-                                "legend": 10.8,
+                                "legend": 9,
                                 "title": 14,
                                 "labels": 14,
                                 "xticks": 11,
                                 "yticks": 11,
                             },
-                        )
+                        ),
                     )
-                )
-    
-    return lineoverlay
+                )  
+
+    if proxy_check:
+        if proxy_std >= 0.0:
+            composition = hspan * hline * overlay_lines
+        else:
+            composition = hline * overlay_lines
+    else:
+        composition = overlay_lines
+
+    composition.opts(legend_position='top')
+
+    # overlay_spread = (hv.Overlay(lines)
+    #                 .opts(
+    #                     opts.Curve(
+    #                         # logx=log_x,
+    #                         # xlabel=xlabel,
+    #                         # ylabel=ylabel,
+    #                         # title=titleString,
+    #                         height=500,
+    #                         responsive=True,
+    #                         show_legend=True,
+    #                         tools=["hover", "wheel_zoom"],
+    #                         fontsize={
+    #                             "legend": 10.8,
+    #                             "title": 14,
+    #                             "labels": 14,
+    #                             "xticks": 11,
+    #                             "yticks": 11,
+    #                         },
+    #                     )
+    #                 )
+    #             ) * (hv.Overlay(spreads)
+    #                 .opts(
+    #                     opts.Spread(
+    #                         height=500,
+    #                         responsive=True,
+    #                         show_legend=True,
+    #                         tools=["hover", "wheel_zoom"],
+    #                         fontsize={
+    #                             "legend": 10.8,
+    #                             "title": 14,
+    #                             "labels": 14,
+    #                             "xticks": 11,
+    #                             "yticks": 11,
+    #                         },
+    #                     )
+    #                 )
+    #             )
+
+    return composition
 
 
 def plot_global_paleogeography(

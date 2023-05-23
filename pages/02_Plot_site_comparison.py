@@ -118,120 +118,126 @@ for key, value in variable_dict.items():
 ## step 3: get model data for paleo position(s) and chosen variable
 df_model = get_model_point_data(df_paleo_locations, deepmip_var)
 
-if analysis_type == "Single site":
-    if "site_name" in st.session_state:
-        del st.session_state["site_name"]
 
-site_name = st.selectbox(
-    label="site to plot",
-    options=df_paleo_locations.name,
-    key="site_name",
-)
-for v in [site_name]:
-    st.session_state.v = v
-
-if analysis_type == "Multiple sites":
-    site_index = list(df_paleo_locations.name).index(site_name)
-    if proxy_means[site_index] != -999.9:
-        proxy_check = True
-    else:
-        proxy_check = False
-    proxy_mean = float(proxy_means[site_index])
-    proxy_std = float(proxy_stds[site_index])
-    proxy_label = float(proxy_stds[site_index])
-
-# get paleolocation
-plat = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lat"]
-plon = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lon"]
-
-ct = datetime.datetime.now()
-ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
+col_fig1, col_fig2 = st.columns(2)
 
 # Figure 1
-st.subheader("Figure 1: annual cycle overview")
+with col_fig1:
+    st.subheader("Figure 1: annual cycle overview")
 
-comp_cycle = annual_cycle_plot(
-    df_model[df_model.site_name == site_name], proxy_check, proxy_mean, proxy_std, "proxy estimate",
-)
+    if analysis_type == "Single site":
+        if "site_name" in st.session_state:
+            del st.session_state["site_name"]
 
-p1 = hv.render(comp_cycle, backend="bokeh")
-p1.add_layout(
-    Title(
-        text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
-        text_font_size="12pt",
-        text_font_style="italic",
-    ),
-    "above",
-)
+    site_name = st.selectbox(
+        label="site to plot",
+        options=df_paleo_locations.name,
+        key="site_name",
+    )
+    for v in [site_name]:
+        st.session_state.v = v
 
-st.bokeh_chart(p1)
+    if analysis_type == "Multiple sites":
+        site_index = list(df_paleo_locations.name).index(site_name)
+        if proxy_means[site_index] != -999.9:
+            proxy_check = True
+        else:
+            proxy_check = False
+        proxy_mean = float(proxy_means[site_index])
+        proxy_std = float(proxy_stds[site_index])
+        proxy_label = float(proxy_stds[site_index])
+
+    # get paleolocation
+    plat = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lat"]
+    plon = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lon"]
+
+    ct = datetime.datetime.now()
+    ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
+
+    comp_cycle = annual_cycle_plot(
+        df_model[df_model.site_name == site_name], proxy_check, proxy_mean, proxy_std, "proxy estimate",
+    )
+
+    p1 = hv.render(comp_cycle, backend="bokeh")
+    p1.add_layout(
+        Title(
+            text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
+            text_font_size="12pt",
+            text_font_style="italic",
+        ),
+        "above",
+    )
+
+    st.bokeh_chart(p1)
 
 # Figure 2
-st.subheader("Figure 2: individual scatter plots")
+with col_fig2:
+
+    st.subheader("Figure 2: individual scatter plots")
 
 
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
-with col1:
-    var_y = st.selectbox(
-        label="y-axis variable",
-        options=[
-            "annual_mean",
-            "monthly_min",
-            "monthly_max",
-            "DJF",
-            "MAM",
-            "JJA",
-            "SON",
-            "Jan",
-            "Feb",
-            "Mar",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-        ],
-        key="y_axis",
+    with col1:
+        var_y = st.selectbox(
+            label="y-axis variable",
+            options=[
+                "annual_mean",
+                "monthly_min",
+                "monthly_max",
+                "DJF",
+                "MAM",
+                "JJA",
+                "SON",
+                "Jan",
+                "Feb",
+                "Mar",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
+            ],
+            key="y_axis",
+        )
+
+    with col2:
+        var_x = st.selectbox(
+            label="x-axis variable",
+            options=[
+                "GMST",
+                "CO2",
+                "experiment"
+            ],
+            key="x_axis",
+        )
+
+    comp_scatter = scatter_line_plot(
+        df_model[df_model.site_name == site_name],
+        var_y,
+        var_x,
+        proxy_check,
+        proxy_mean,
+        proxy_std,
+        "proxy estimate",
     )
 
-with col2:
-    var_x = st.selectbox(
-        label="x-axis variable",
-        options=[
-            "GMST",
-            "CO2",
-            "experiment"
-        ],
-        key="x_axis",
+    p2 = hv.render(comp_scatter, backend="bokeh")
+    p2.add_layout(
+        Title(
+            text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
+            text_font_size="12pt",
+            text_font_style="italic",
+        ),
+        "above",
     )
 
-comp_scatter = scatter_line_plot(
-    df_model[df_model.site_name == site_name],
-    var_y,
-    var_x,
-    proxy_check,
-    proxy_mean,
-    proxy_std,
-    "proxy estimate",
-)
+    st.bokeh_chart(p2)
 
-p2 = hv.render(comp_scatter, backend="bokeh")
-p2.add_layout(
-    Title(
-        text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
-        text_font_size="12pt",
-        text_font_style="italic",
-    ),
-    "above",
-)
-
-st.bokeh_chart(p2)
-
-filename = f"figures/DeepMIP_{var_y}_vs_CO2_{site_name}_{ct}"
+    filename = f"figures/DeepMIP_{var_y}_vs_CO2_{site_name}_{ct}"
 
 # customDownloadButton(p1, p2, filename, filename2)
 
