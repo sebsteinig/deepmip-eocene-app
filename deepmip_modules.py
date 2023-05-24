@@ -128,7 +128,7 @@ def get_csv_data(csv_template, proxy_flag):
     return csv_data
 
 
-@st.cache_data
+# @st.cache_data
 def get_paleo_locations(modern_lats, modern_lons, names):
     # models use two different paleogeographic reconstructions:
     # 1. most model use the Herold et al. (2014) reconstruction, hereafter "H14"
@@ -239,7 +239,7 @@ def get_paleo_locations(modern_lats, modern_lons, names):
 
 
 # def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable):
-@st.cache_data
+# @st.cache_data
 def get_model_point_data(df, variable):
     # allocate empty list to store results for all models
     data_list = []
@@ -354,11 +354,11 @@ def get_model_point_data(df, variable):
                     else:
                         site_data = (
                             var_data.sel(
-                            **{lat_name: lookup_lat},
+                                **{lat_name: lookup_lat},
                                 **{lon_name: lookup_lon_model},
                                 method="nearest",
-                        ).values
-                        * 1.0
+                            ).values
+                            * 1.0
                         )
                         unit = variable_dict[variable]["unit"]
 
@@ -443,7 +443,9 @@ def get_model_point_data(df, variable):
             df_out.loc[len(df_out) - 1, "model_short"] = "mean"
             df_out.loc[len(df_out) - 1, "experiment"] = exp_dict[exp]["medium_name"]
             df_out.loc[len(df_out) - 1, "var"] = variable
-            df_out.loc[len(df_out) - 1, "long_name"] = variable_dict[variable]["longname"]
+            df_out.loc[len(df_out) - 1, "long_name"] = variable_dict[variable][
+                "longname"
+            ]
             df_out.loc[len(df_out) - 1, "unit"] = unit
             df_out.loc[len(df_out) - 1, "site_name"] = row["name"]
 
@@ -604,6 +606,7 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
 
     return fig
 
+
 def scatter_line_plot(
     df, var_y, var_x, proxy_check, proxy_mean, proxy_std, proxy_label
 ):
@@ -631,9 +634,7 @@ def scatter_line_plot(
 
     # add proxy reference annotations
     if proxy_check:
-        hline = hv.HLine(proxy_mean ).opts(
-            opts.HLine(color="coral", alpha=1.0)
-        )
+        hline = hv.HLine(proxy_mean).opts(opts.HLine(color="coral", alpha=1.0))
         if proxy_std >= 0.0:
             hspan = hv.HSpan(proxy_mean - proxy_std, proxy_mean + proxy_std).opts(
                 opts.HSpan(color="lightcoral", alpha=0.4)
@@ -641,7 +642,7 @@ def scatter_line_plot(
             label_offset = 0.7 * proxy_std
         else:
             label_offset = 0.1 * proxy_mean
-        
+
         if var_x == "experiment":
             text_x = "DeepMIP_1x"
         elif var_x == "CO2":
@@ -650,9 +651,8 @@ def scatter_line_plot(
             text_x = 20
 
         htext = hv.Text(text_x, proxy_mean + label_offset, proxy_label).opts(
-            opts.Text(color="lightcoral",align="start")
+            opts.Text(color="lightcoral", align="start")
         )
-
 
     # generate plot labels
     if var_x == "experiment":
@@ -663,7 +663,13 @@ def scatter_line_plot(
         xlabel = "GMST [°C]"
 
     variable = df_plot.iloc[0]["var"]
-    titleString = "DeepMIP " + variable_dict[variable]["longname"]+ " (" + var_y.replace("_", " ") + ")" 
+    titleString = (
+        "DeepMIP "
+        + variable_dict[variable]["longname"]
+        + " ("
+        + var_y.replace("_", " ")
+        + ")"
+    )
 
     scatter = (
         hv.Scatter(
@@ -745,33 +751,45 @@ def scatter_line_plot(
 
     return composition
 
-def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
 
+def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
     # df["monthly"] = df["Jan"] + df["Feb"]
     # df_ensemble = df[(df.model != "ensemble_mean")]
 
-    months =  ["model_short","Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    months = [
+        "model_short",
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+    ]
     # df_monthly = df_exp[months].transpose().rename(columns={35:'model'})
-
 
     # # generate list of medium-length experiment anmes for plot ordering
     # short_names = []
     # for key, value in model_dict.items():
     #     short_names.append(value["abbrv"])
 
-
     lines = []
     spreads = []
 
     # loop over all models and experiments
     for exp_count, exp in enumerate(exp_dict.keys()):
-        if (exp == "piControl"):
+        if exp == "piControl":
             continue
         df_exp = df[(df.experiment == exp_dict[exp]["medium_name"])]
         # df_monthly = df_exp[months].transpose().rename(columns={'mean':'ensemble mean'}, inplace=True)
         df_monthly = df_exp[months].transpose()
         df_monthly.columns = df_monthly.iloc[0]
-        df_monthly = df_monthly[1:].rename(columns={'mean':'ensemble mean'})
+        df_monthly = df_monthly[1:].rename(columns={"mean": "ensemble mean"})
         df_monthly["month"] = months[1:13]
         df_monthly["experiment"] = exp_dict[exp]["medium_name"]
 
@@ -779,26 +797,28 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
         print(df_monthly)
 
         for model_count, model in enumerate(model_dict.keys()):
-
             # individual models
             if exp in model_dict[model]["exps"]:
-                line = (hv.Curve(df_monthly, "month",vdims=[model_dict[model]["abbrv"], "experiment"],label=exp_dict[exp]["short_name"])
-                        .opts(
-                            line_color= exp_dict[exp]["color"],
-                            alpha=1.0,
-                            line_width=0.5,
-                            line_dash="dashed",
-                            )
-                        )
-                lines.append(line)
-        
-        # ensemble mean
-        line = (hv.Curve(df_monthly, "month", vdims=["ensemble mean", "experiment"],label=exp_dict[exp]["short_name"])
-                .opts(
-                    line_color= exp_dict[exp]["color"],
+                line = hv.Curve(
+                    df_monthly,
+                    "month",
+                    vdims=[model_dict[model]["abbrv"], "experiment"],
+                    label=exp_dict[exp]["short_name"],
+                ).opts(
+                    line_color=exp_dict[exp]["color"],
                     alpha=1.0,
-                    line_width=5.0)
+                    line_width=0.5,
+                    line_dash="dashed",
                 )
+                lines.append(line)
+
+        # ensemble mean
+        line = hv.Curve(
+            df_monthly,
+            "month",
+            vdims=["ensemble mean", "experiment"],
+            label=exp_dict[exp]["short_name"],
+        ).opts(line_color=exp_dict[exp]["color"], alpha=1.0, line_width=5.0)
         lines.append(line)
 
         # ensemble spread
@@ -820,13 +840,11 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
     ylabel = df.iloc[0]["long_name"] + " [" + unit + "]"
 
     variable = df.iloc[0]["var"]
-    titleString = "DeepMIP " + variable_dict[variable]["longname"]+ " (annual cycle)" 
+    titleString = "DeepMIP " + variable_dict[variable]["longname"] + " (annual cycle)"
 
     # add proxy reference annotations
     if proxy_check:
-        hline = hv.HLine(proxy_mean ).opts(
-            opts.HLine(color="coral", alpha=1.0)
-        )
+        hline = hv.HLine(proxy_mean).opts(opts.HLine(color="coral", alpha=1.0))
         if proxy_std >= 0.0:
             hspan = hv.HSpan(proxy_mean - proxy_std, proxy_mean + proxy_std).opts(
                 opts.HSpan(color="lightcoral", alpha=0.4)
@@ -838,29 +856,27 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
         text_x = "Feb"
 
         htext = hv.Text(text_x, proxy_mean + label_offset, proxy_label).opts(
-            opts.Text(color="lightcoral",align="start")
+            opts.Text(color="lightcoral", align="start")
         )
-    overlay_lines = (hv.Overlay(lines)
-                    .opts(
-                        opts.Curve(
-                            xlabel=xlabel,
-                            ylabel=ylabel,
-                            title=titleString,
-                            height=500,
-                            width=600,
-                            # responsive=True,
-                            show_legend=True,
-                            tools=["hover", "wheel_zoom"],
-                            fontsize={
-                                "legend": 9,
-                                "title": 14,
-                                "labels": 14,
-                                "xticks": 11,
-                                "yticks": 11,
-                            },
-                        ),
-                    )
-                )  
+    overlay_lines = hv.Overlay(lines).opts(
+        opts.Curve(
+            xlabel=xlabel,
+            ylabel=ylabel,
+            title=titleString,
+            height=500,
+            width=600,
+            # responsive=True,
+            show_legend=True,
+            tools=["hover", "wheel_zoom"],
+            fontsize={
+                "legend": 9,
+                "title": 14,
+                "labels": 14,
+                "xticks": 11,
+                "yticks": 11,
+            },
+        ),
+    )
 
     if proxy_check:
         if proxy_std >= 0.0:
@@ -870,7 +886,7 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
     else:
         composition = overlay_lines
 
-    composition.opts(legend_position='top')
+    composition.opts(legend_position="top")
 
     # overlay_spread = (hv.Overlay(lines)
     #                 .opts(

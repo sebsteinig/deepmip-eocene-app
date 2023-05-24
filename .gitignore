@@ -131,4 +131,6 @@ dmypy.json
 .DS_Store
 
 # app output images
-figures/
+figures/*.png
+figures/*.svg
+
