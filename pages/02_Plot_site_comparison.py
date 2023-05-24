@@ -33,7 +33,7 @@ st.markdown(
         The app calculates the respective early Eocene (~55 Ma) paleolocation consistent with the 
         model geographies and then extracts the data from the closest grid point for all available 
         models and simulations. You can download the extracted data in different data formats 
-        at the <a href='Extract_model_data' target='_self'>extraction page</a>.
+        at the <a href='Get_model_data' target='_self'>get model data page</a>.
     """,
     unsafe_allow_html=True,
 )
@@ -41,7 +41,7 @@ st.markdown(
 init_sidebar()
 
 for k, v in st.session_state.items():
-    if k != "FormSubmitter:my_form-UPDATE FIGURE":
+    if k != "FormSubmitter:my_form-UPDATE FIGURES":
         st.session_state[k] = v
 
 st.subheader("User input")
@@ -168,7 +168,7 @@ with col_fig1:
         "above",
     )
 
-    st.bokeh_chart(p1)
+    st.bokeh_chart(p1, use_container_width=True)
 
 # Figure 2
 with col_fig2:
@@ -235,7 +235,7 @@ with col_fig2:
         "above",
     )
 
-    st.bokeh_chart(p2)
+    st.bokeh_chart(p2, use_container_width=True)
 
 filename1 = f"figures/DeepMIP_annual_cycle_{site_name}_{ct}"
 filename2 = f"figures/DeepMIP_scatter_plot_{site_name}_{ct}"
