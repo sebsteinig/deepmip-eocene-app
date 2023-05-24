@@ -4,7 +4,12 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import io
 
-from app_modules import init_widgets, init_sidebar
+from app_modules import (
+    init_widgets_single_site_map,
+    init_widgets_multi_site_map,
+    init_sidebar,
+    sites_to_list,
+)
 from deepmip_modules import (
     get_paleo_locations,
     plot_global_paleogeography,
@@ -21,33 +26,48 @@ st.title("Paleogeographic reconstruction")
 init_sidebar()
 
 for k, v in st.session_state.items():
-    if k != "FormSubmitter:my_form-Get Data":
+    if k != "FormSubmitter:my_form-UPDATE MAPS":
         st.session_state[k] = v
 
-(
-    modern_lat,
-    modern_lon,
-    user_variable,
-    proxy_check,
-    proxy_mean,
-    proxy_std,
-    proxy_label,
-) = init_widgets()
+st.subheader("User input")
 
-for v in [
-    modern_lat,
-    modern_lon,
-    user_variable,
-    proxy_check,
-    proxy_mean,
-    proxy_std,
-    proxy_label,
-]:
-    st.session_state.v = v
+analysis_options = ["Single site", "Multiple sites"]
+if "analysis_type" in st.session_state:
+    var_index = analysis_options.index(st.session_state["analysis_type"])
+else:
+    var_index = 0
 
-## step 1: get paleo position consistent with DeepMIP model geography
+analysis_type = st.radio(
+    "Number of sites to plot:",
+    analysis_options,
+    horizontal=True,
+    index=var_index,
+    key="analysis_type",
+)
 
-df_locations = get_paleo_locations(modern_lat, modern_lon)
+# create user inputs for single site
+if analysis_type == "Single site":
+    modern_lat, modern_lon, user_site_name = init_widgets_single_site_map()
+
+    for v in [modern_lat, modern_lon, user_site_name, analysis_type]:
+        st.session_state.v = v
+
+# create user inputs for multiple sites (i.e. CSV input)
+elif analysis_type == "Multiple sites":
+    csv_choice, csv_input = init_widgets_multi_site_map()
+    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input)
+
+    for v in [csv_input, csv_choice, analysis_type]:
+        st.session_state.v = v
+
+if analysis_type == "Single site":
+    # convert single site to list for consistency with multi-site analysis
+    modern_lats = [modern_lat]
+    modern_lons = [modern_lon]
+    names = [user_site_name]
+
+## step 1: get paleo position(s) consistent with DeepMIP model geographies
+df_paleo_locations = get_paleo_locations(modern_lats, modern_lons, names)
 # st.dataframe(df_locations.style.format("{:.1f}"))
 
 st.subheader(" DeepMIP geography (Herold et al., 2014)")
@@ -69,7 +89,7 @@ with col1:
     )
 with col2:
     outline_colour = st.selectbox(
-        label="outline colour",
+        label="modern coastline colour",
         options=["none", "gray", "red", "black", "white"],
         index=1,
         key="outline_colour",
@@ -81,10 +101,11 @@ with col4:
     st.write("grid line labels")
     labels_check = st.checkbox(label="", key="labels_check", value=True)
 
+print(df_paleo_locations)
 fig = plot_global_paleogeography(
-    df_locations,
+    df_paleo_locations,
     projection,
-    proxy_label,
+    names,
     outline_colour,
     grid_check,
     labels_check,
@@ -146,10 +167,24 @@ st.markdown(
     """
 )
 
+if analysis_type == "Single site":
+    if "site_name" in st.session_state:
+        del st.session_state["site_name"]
+
+site_name = st.selectbox(
+    label="site to plot",
+    options=df_paleo_locations.name,
+    key="site_name",
+)
+for v in [site_name]:
+    st.session_state.v = v
+
+print(df_paleo_locations)
+
 fig_models, progress_bar = plot_model_geographies(
-    df_locations,
+    df_paleo_locations[df_paleo_locations.name == site_name],
     projection,
-    proxy_label,
+    site_name,
     outline_colour,
     grid_check,
     labels_check,

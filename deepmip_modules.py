@@ -96,31 +96,48 @@ def get_csv_data(csv_template, proxy_flag):
         else:
             proxy_db_reduced = proxy_db[["site", "lat", "lon"]]
 
-        if csv_template == "DeepMIP ocean (latest Paleocene)":
+        if csv_template == "DeepMIP marine proxies (latest Paleocene)":
             proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "lp"]
             proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "sst"]
-        elif csv_template == "DeepMIP ocean (Paleocene–Eocene Thermal Maximum)":
+        elif (
+            csv_template == "DeepMIP marine proxies (Paleocene–Eocene Thermal Maximum)"
+        ):
             proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "petm"]
             proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "sst"]
-        elif csv_template == "DeepMIP ocean (early Eocene Climatic Optimum)":
+        elif csv_template == "DeepMIP marine proxies (early Eocene Climatic Optimum)":
             proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "eeco"]
             proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "sst"]
-        elif csv_template == "DeepMIP land (latest Paleocene)":
+        elif csv_template == "DeepMIP terrestrial proxies (latest Paleocene)":
             proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "lp"]
             proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "lat"]
-        elif csv_template == "DeepMIP land (Paleocene–Eocene Thermal Maximum)":
+        elif (
+            csv_template
+            == "DeepMIP terrestrial proxies (Paleocene–Eocene Thermal Maximum)"
+        ):
             proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "petm"]
             proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "lat"]
-        elif csv_template == "DeepMIP land (early Eocene Climatic Optimum)":
+        elif (
+            csv_template
+            == "DeepMIP terrestrial proxies (early Eocene Climatic Optimum)"
+        ):
             proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "eeco"]
             proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "lat"]
-        elif csv_template == "DeepMIP land+ocean (latest Paleocene)":
+        elif csv_template == "DeepMIP marine+terrestrial proxies (latest Paleocene)":
             proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "lp"]
-        elif csv_template == "DeepMIP land+ocean (Paleocene–Eocene Thermal Maximum)":
+        elif (
+            csv_template
+            == "DeepMIP marine+terrestrial proxies (Paleocene–Eocene Thermal Maximum)"
+        ):
             proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "petm"]
-        elif csv_template == "DeepMIP land+ocean (early Eocene Climatic Optimum)":
+        elif (
+            csv_template
+            == "DeepMIP marine+terrestrial proxies (early Eocene Climatic Optimum)"
+        ):
             proxy_db_reduced = proxy_db_reduced[proxy_db.timeslice == "eeco"]
-
+        elif csv_template == "DeepMIP land (all time periods)":
+            proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "lat"]
+        elif csv_template == "DeepMIP marine proxies (all time periods)":
+            proxy_db_reduced = proxy_db_reduced[proxy_db.temperature == "sst"]
         proxy_db_reduced = proxy_db_reduced.drop_duplicates(subset="site", keep="first")
 
         csv_data = proxy_db_reduced.to_csv(index=False, header=False)
@@ -128,7 +145,7 @@ def get_csv_data(csv_template, proxy_flag):
     return csv_data
 
 
-# @st.cache_data
+@st.cache_data
 def get_paleo_locations(modern_lats, modern_lons, names):
     # models use two different paleogeographic reconstructions:
     # 1. most model use the Herold et al. (2014) reconstruction, hereafter "H14"
@@ -239,7 +256,7 @@ def get_paleo_locations(modern_lats, modern_lons, names):
 
 
 # def get_model_point_data(modern_lat, modern_lon, paleo_lat, paleo_lon, variable):
-# @st.cache_data
+@st.cache_data
 def get_model_point_data(df, variable):
     # allocate empty list to store results for all models
     data_list = []
@@ -949,12 +966,20 @@ def plot_global_paleogeography(
         cbar_orientation = "horizontal"
         cbar_pad = 0.1
     elif projection == "Orthographic":
-        proj = ccrs.Orthographic(
-            central_longitude=float(df["Eocene (55Ma) lon H14"]),
-            central_latitude=float(df["Eocene (55Ma) lat H14"]),
-        )
-        cbar_orientation = "vertical"
-        cbar_pad = 0.05
+        if len(proxy_label) == 1:
+            proj = ccrs.Orthographic(
+                central_longitude=float(df["Eocene (55Ma) lon H14"]),
+                central_latitude=float(df["Eocene (55Ma) lat H14"]),
+            )
+            cbar_orientation = "vertical"
+            cbar_pad = 0.05
+        else:
+            proj = ccrs.Orthographic(
+                central_longitude=0.0,
+                central_latitude=0.0,
+            )
+            cbar_orientation = "vertical"
+            cbar_pad = 0.05
 
     # plot global map
     fig, ax = plt.subplots(1, subplot_kw=dict(projection=proj))
@@ -1013,82 +1038,99 @@ def plot_global_paleogeography(
     if projection == "Robinson" or projection == "Orthographic":
         gl.bottom_labels = False
 
-    if proxy_label != "":
-        ax.set_title(
-            label="55 Ma paleolocation for "
-            + proxy_label
-            + ": LAT = "
-            + str(np.round(float(df["Eocene (55Ma) lat H14"]), 1))
-            + ", LON = "
-            + str(np.round(float(df["Eocene (55Ma) lon H14"]), 1)),
-            fontsize=10,
-        )
+    if len(proxy_label) == 1:
+        if proxy_label[0] != "":
+            ax.set_title(
+                label="55 Ma paleolocation for "
+                + proxy_label[0]
+                + ": LAT = "
+                + str(np.round(float(df["Eocene (55Ma) lat H14"]), 1))
+                + ", LON = "
+                + str(np.round(float(df["Eocene (55Ma) lon H14"]), 1)),
+                fontsize=10,
+            )
+        else:
+            ax.set_title(
+                label="55 Ma paleolocation: LAT = "
+                + str(np.round(float(df["Eocene (55Ma) lat H14"]), 1))
+                + ", LON = "
+                + str(np.round(float(df["Eocene (55Ma) lon H14"]), 1)),
+                fontsize=10,
+            )
     else:
         ax.set_title(
-            label="55 Ma paleolocation: LAT = "
-            + str(np.round(float(df["Eocene (55Ma) lat H14"]), 1))
-            + ", LON = "
-            + str(np.round(float(df["Eocene (55Ma) lon H14"]), 1)),
+            label="55 Ma paleolocations (Herold et al. 2014)",
             fontsize=10,
         )
 
-    # add site marker at paleolocation
-    ax.plot(
-        df["modern lon"],
-        df["modern lat"],
-        "ro",
-        markersize=9,
-        markerfacecolor="none",
-        markeredgecolor="r",
-        transform=ccrs.PlateCarree(),
-    )
-    ax.plot(
-        df["Eocene (55Ma) lon H14"],
-        df["Eocene (55Ma) lat H14"],
-        "ro",
-        markersize=9,
-        markeredgecolor="black",
-        transform=ccrs.PlateCarree(),
-    )
+    # add site markers at paleolocation
+    # loop over all locations
+    for index, row in df.iterrows():
+        # ax.plot(
+        #     row["modern lon"],
+        #     row["modern lat"],
+        #     "ro",
+        #     markersize=9,
+        #     markerfacecolor="none",
+        #     markeredgecolor="r",
+        #     transform=ccrs.PlateCarree(),
+        # )
+        ax.plot(
+            row["Eocene (55Ma) lon H14"],
+            row["Eocene (55Ma) lat H14"],
+            "ro",
+            markersize=9,
+            markeredgecolor="black",
+            transform=ccrs.PlateCarree(),
+        )
     ax.set_global()
-    if proxy_label != "":
-        if float(df["Eocene (55Ma) lon H14"]) > -100:
-            labelLon = float(df["Eocene (55Ma) lon H14"]) - 5
-            labelAlignment = "right"
-        else:
-            labelLon = float(df["Eocene (55Ma) lon H14"]) + 5
-            labelAlignment = "left"
 
-        if projection == "Orthographic":
-            ax.text(
-                labelLon,
-                float(df["Eocene (55Ma) lat H14"]) - 7,
-                proxy_label,
-                horizontalalignment=labelAlignment,
-                bbox=dict(facecolor="white", edgecolor="black", boxstyle="round"),
-                fontsize=10,
-                transform=ccrs.PlateCarree(),
-            )
-        elif projection == "Robinson":
-            ax.text(
-                labelLon,
-                float(df["Eocene (55Ma) lat H14"]) - 15,
-                proxy_label,
-                horizontalalignment=labelAlignment,
-                bbox=dict(facecolor="white", edgecolor="black", boxstyle="round"),
-                fontsize=10,
-                transform=ccrs.PlateCarree(),
-            )
-        else:
-            ax.text(
-                labelLon,
-                float(df["Eocene (55Ma) lat H14"]) - 18,
-                proxy_label,
-                horizontalalignment=labelAlignment,
-                bbox=dict(facecolor="white", edgecolor="black", boxstyle="round"),
-                fontsize=10,
-                transform=ccrs.PlateCarree(),
-            )
+    if len(proxy_label) <= 5:
+        for index, row in df.iterrows():
+            if proxy_label[index] != "":
+                if float(row["Eocene (55Ma) lon H14"]) > -100:
+                    labelLon = float(row["Eocene (55Ma) lon H14"]) - 5
+                    labelAlignment = "right"
+                else:
+                    labelLon = float(row["Eocene (55Ma) lon H14"]) + 5
+                    labelAlignment = "left"
+
+                if projection == "Orthographic":
+                    ax.text(
+                        labelLon,
+                        float(row["Eocene (55Ma) lat H14"]) - 7,
+                        proxy_label[index],
+                        horizontalalignment=labelAlignment,
+                        bbox=dict(
+                            facecolor="white", edgecolor="black", boxstyle="round"
+                        ),
+                        fontsize=10,
+                        transform=ccrs.PlateCarree(),
+                    )
+                elif projection == "Robinson":
+                    ax.text(
+                        labelLon,
+                        float(row["Eocene (55Ma) lat H14"]) - 15,
+                        proxy_label[index],
+                        horizontalalignment=labelAlignment,
+                        bbox=dict(
+                            facecolor="white", edgecolor="black", boxstyle="round"
+                        ),
+                        fontsize=10,
+                        transform=ccrs.PlateCarree(),
+                    )
+                else:
+                    ax.text(
+                        labelLon,
+                        float(row["Eocene (55Ma) lat H14"]) - 18,
+                        proxy_label[index],
+                        horizontalalignment=labelAlignment,
+                        bbox=dict(
+                            facecolor="white", edgecolor="black", boxstyle="round"
+                        ),
+                        fontsize=10,
+                        transform=ccrs.PlateCarree(),
+                    )
 
     return fig
 
@@ -1107,13 +1149,20 @@ def plot_model_geographies(
         cbar_orientation = "horizontal"
         cbar_pad = 0.1
     elif projection == "Orthographic":
-        proj = ccrs.Orthographic(
-            central_longitude=float(df["Eocene (55Ma) lon H14"]),
-            central_latitude=float(df["Eocene (55Ma) lat H14"]),
-        )
-        cbar_orientation = "vertical"
-        cbar_pad = 0.05
-
+        if len(proxy_label) == 1:
+            proj = ccrs.Orthographic(
+                central_longitude=float(df["Eocene (55Ma) lon H14"]),
+                central_latitude=float(df["Eocene (55Ma) lat H14"]),
+            )
+            cbar_orientation = "vertical"
+            cbar_pad = 0.05
+        else:
+            proj = ccrs.Orthographic(
+                central_longitude=0.0,
+                central_latitude=0.0,
+            )
+            cbar_orientation = "vertical"
+            cbar_pad = 0.05
     # plot global map
     fig, ax = plt.subplots(
         nrows=len(model_dict.keys()),
