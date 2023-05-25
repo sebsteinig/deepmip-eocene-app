@@ -134,3 +134,7 @@ dmypy.json
 figures/*.png
 figures/*.svg
 
+# generated spreadsheets
+tables/*.xlsx
+tables/*.csv
+tables/*.json

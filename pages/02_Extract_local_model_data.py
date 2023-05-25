@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import io
-import matplotlib as plt
+import datetime
 
 from deepmip_dicts import variable_dict
 
@@ -121,10 +121,25 @@ st.subheader("Extracted model data")
 # display the dataframe on streamlit app
 st.write(df_model)
 
+
+
+ct = datetime.datetime.now()
+ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
+filename = f"DeepMIP-Eocene_model_site_data_{ct}"
+
+
 col1, col2, col3 = st.columns(3)
 
-# replace missing values with fill value of -999.9 for data export
-# df_model = df_model.fillna(-999.9)
+
+# save a copy of the spreadsheet to disk in case user clicks on download button
+def write_csv_to_disk(df):
+    df.to_csv(f"tables/{filename}.csv", index=False)
+
+def write_excel_to_disk(df):
+    df.to_excel(f"tables/{filename}.xlsx", sheet_name="DeepMIP-Eocene model site data", index=False)
+
+def write_json_to_disk(df):
+    df.to_json(f"tables/{filename}.json")
 
 with col1:
     csv = convert_to_csv(df_model)
@@ -132,25 +147,29 @@ with col1:
     download1 = st.download_button(
         label="Download data as CSV",
         data=csv,
-        file_name="deepmip_model_point_data.csv",
+        file_name=f"{filename}.csv",
         mime="text/csv",
         use_container_width=True,
+        on_click=write_csv_to_disk,
+        kwargs={"df": df_model},
     )
 
 with col2:
     # download button 2 to download dataframe as xlsx
     with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
         # Write each dataframe to a different worksheet.
-        df_model.to_excel(writer, sheet_name="Sheet1", index=False)
+        df_model.to_excel(writer, sheet_name="DeepMIP-Eocene model site data", index=False)
         # Close the Pandas Excel writer and output the Excel file to the buffer
-        # writer.save()
+        writer.save()
 
         download2 = st.download_button(
             label="Download data for Excel",
             data=buffer,
-            file_name="deepmip_model_point_data.xlsx",
+            file_name=f"{filename}.xlsx",
             mime="application/vnd.ms-excel",
             use_container_width=True,
+            on_click=write_excel_to_disk,
+            kwargs={"df": df_model},
         )
 
 with col3:
@@ -159,7 +178,9 @@ with col3:
     download1 = st.download_button(
         label="Download data as JSON",
         data=json,
-        file_name="deepmip_model_point_data.json",
+        file_name=f"{filename}.json",
         mime="text/csv",
         use_container_width=True,
+        on_click=write_json_to_disk,
+        kwargs={"df": df_model},
     )

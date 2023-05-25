@@ -33,7 +33,7 @@ st.markdown(
 )
 url = 'https://www.streamlit.io/'
 
-if st.button('Download global data from CEDA Archive (external)', type="primary"):
+if st.button('Download global data from CEDA Archive (link to follow once approved)', type="primary"):
     webbrowser.open_new_tab(url)
 
 # col1, col2, col3, col4 = st.columns(4)
