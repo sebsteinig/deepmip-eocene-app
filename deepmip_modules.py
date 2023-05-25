@@ -1145,6 +1145,7 @@ def plot_global_paleogeography(
     return fig
 
 
+@st.cache_data
 def plot_model_geographies(
     df, projection, proxy_label, outline_colour, grid_check, labels_check
 ):
