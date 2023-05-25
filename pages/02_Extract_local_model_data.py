@@ -20,12 +20,12 @@ st.set_page_config(
 
 init_sidebar()
 
-st.title("Get model point data")
+st.title("Extract local model data")
 
 st.markdown(
     """
 **Get all available model data for a variable of your choice anywhere on the globe.**
-The app calculates the respective early Eocene (~55 Ma) paleolocation(s) consistent with the 
+The app calculates the respective early Eocene (~55 Ma) paleolocations consistent with the 
 model geographies and then extracts the data from the closest grid point for all available 
 models and simulations. Results are listed in the interactive table below, which can also 
 be downloaded in different data formats. You can also create interactive charts of your 
@@ -66,7 +66,9 @@ if analysis_type == "Single site":
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
     csv_choice, csv_input, user_variable = init_widgets_multi_site()
-    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input, 3)
+    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(
+        csv_input, 3
+    )
 
     for v in [csv_input, csv_choice, user_variable, analysis_type]:
         st.session_state.v = v
@@ -103,6 +105,7 @@ df_model = get_model_point_data(df_paleo_locations, deepmip_var)
 # from https://stackoverflow.com/a/75334543
 buffer = io.BytesIO()
 
+
 @st.cache_data
 def convert_to_csv(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
@@ -122,7 +125,6 @@ st.subheader("Extracted model data")
 st.write(df_model)
 
 
-
 ct = datetime.datetime.now()
 ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
 filename = f"DeepMIP-Eocene_model_site_data_{ct}"
@@ -135,11 +137,18 @@ col1, col2, col3 = st.columns(3)
 def write_csv_to_disk(df):
     df.to_csv(f"tables/{filename}.csv", index=False)
 
+
 def write_excel_to_disk(df):
-    df.to_excel(f"tables/{filename}.xlsx", sheet_name="DeepMIP-Eocene model site data", index=False)
+    df.to_excel(
+        f"tables/{filename}.xlsx",
+        sheet_name="DeepMIP-Eocene model site data",
+        index=False,
+    )
+
 
 def write_json_to_disk(df):
     df.to_json(f"tables/{filename}.json")
+
 
 with col1:
     csv = convert_to_csv(df_model)
@@ -158,7 +167,9 @@ with col2:
     # download button 2 to download dataframe as xlsx
     with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
         # Write each dataframe to a different worksheet.
-        df_model.to_excel(writer, sheet_name="DeepMIP-Eocene model site data", index=False)
+        df_model.to_excel(
+            writer, sheet_name="DeepMIP-Eocene model site data", index=False
+        )
         # Close the Pandas Excel writer and output the Excel file to the buffer
         writer.save()
 
