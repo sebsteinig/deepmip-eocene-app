@@ -236,7 +236,33 @@ def get_paleo_locations(modern_lats, modern_lons, names):
                 )
                 st.stop()
             else:
-                skipped_sites.append(names[count])
+
+                # check whether we can get a location from Hollis et al. (2019)
+                proxy_db = pd.read_csv(
+                    "data/Hollis 2019 DeepMIP compilation.csv", encoding="unicode_escape"
+                )   
+
+                # if proxy is in Hollis et al. (2019) compilation, use that location
+                if (proxy_db['site'] == names[count]).any():
+                    mlat = proxy_db.loc[proxy_db.site == names[count]].iloc[0].mlat
+                    mlon = proxy_db.loc[proxy_db.site == names[count]].iloc[0].mlon
+                    plat = proxy_db.loc[proxy_db.site == names[count]].iloc[0].plat
+                    plon = proxy_db.loc[proxy_db.site == names[count]].iloc[0].plon
+
+                    d.append(
+                        {
+                            "modern lat": modern_lat,
+                            "modern lon": modern_lon,
+                            "Eocene (55Ma) lat H14": mlat,
+                            "Eocene (55Ma) lon H14": mlon,
+                            "Eocene (55Ma) lat B16": plat,
+                            "Eocene (55Ma) lon B16": plon,
+                            "name": names[count],
+                        }
+                    )    
+                else:
+                    skipped_sites.append(names[count])
+
                 continue
 
     if len(skipped_sites) > 0:

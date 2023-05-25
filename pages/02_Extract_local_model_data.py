@@ -143,7 +143,7 @@ with col2:
         # Write each dataframe to a different worksheet.
         df_model.to_excel(writer, sheet_name="Sheet1", index=False)
         # Close the Pandas Excel writer and output the Excel file to the buffer
-        writer.save()
+        # writer.save()
 
         download2 = st.download_button(
             label="Download data for Excel",
