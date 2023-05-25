@@ -86,7 +86,8 @@ if analysis_type == "Single site":
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
     csv_choice, csv_input, user_variable = init_widgets_multi_site_plot()
-    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input)
+    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input, 5)
+
 
     for v in [csv_input, csv_choice, user_variable]:
         st.session_state.v = v
@@ -110,6 +111,10 @@ if analysis_type == "Single site":
 
 ## step 1: get paleo position(s) consistent with DeepMIP model geographies
 df_paleo_locations = get_paleo_locations(modern_lats, modern_lons, names)
+
+# stop here if no sites selected
+if df_paleo_locations.empty:
+    st.stop()
 
 # step 2: convert user variable to DeepMIP variable name
 for key, value in variable_dict.items():

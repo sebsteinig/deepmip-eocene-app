@@ -66,7 +66,7 @@ if analysis_type == "Single site":
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
     csv_choice, csv_input = init_widgets_multi_site_map()
-    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input)
+    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input, 5)
 
     for v in [csv_input, csv_choice, analysis_type]:
         st.session_state.v = v

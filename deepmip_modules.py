@@ -49,36 +49,6 @@ def model_table():
 
     return df
 
-
-# def get_csv_data(csv_template, proxy_flag):
-#     proxy_db = pd.read_csv("data/Hollis 2019 DeepMIP compilation.csv", encoding= 'unicode_escape')
-#     if csv_template == "DeepMIP land+ocean":
-#         # get locations with proxy data estimates
-#         if proxy_flag:
-#             proxy_db_reduced = proxy_db[['site', 'lat', 'lon', 'deepmip lower error', '50', 'deepmip upper error', 'proxy']]
-#             proxy_db_reduced['site'] = proxy_db[['site', 'timeslice', 'proxy']].agg('-'.join, axis=1)
-#         # get locations without proxy data estimates
-#         else:
-#             proxy_db_reduced = proxy_db[['site', 'lat', 'lon']]
-#             proxy_db_reduced = proxy_db_reduced.drop_duplicates(subset='site', keep="first")
-
-#         csv_data = proxy_db_reduced.to_csv(index=False, header=False)
-#     elif csv_template == "DeepMIP EECO land+ocean":
-#         # get locations with proxy data estimates
-#         if proxy_flag:
-#             proxy_db_reduced = proxy_db[['site', 'lat', 'lon', 'deepmip lower error', '50', 'deepmip upper error', 'proxy']]
-#             proxy_db_reduced['site'] = proxy_db[['site', 'timeslice', 'proxy']].agg('-'.join, axis=1)
-#         # get locations without proxy data estimates
-#         else:
-#             proxy_db_reduced = proxy_db[['site', 'lat', 'lon']]
-#             proxy_db_reduced = proxy_db_reduced[ proxy_db.timeslice == 'eeco' ]
-#             proxy_db_reduced = proxy_db_reduced.drop_duplicates(subset='site', keep="first")
-#         csv_data = proxy_db_reduced.to_csv(index=False, header=False)
-#     else:
-#         csv_data = ""
-#     return csv_data
-
-
 def get_csv_data(csv_template, proxy_flag):
     if csv_template == "Enter your own data":
         csv_data = ""

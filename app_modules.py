@@ -159,6 +159,8 @@ def init_widgets_multi_site():
 
     csv_data = get_csv_data(csv_choice, False)
 
+
+
     
     # initialise user input widgets
     with st.form(key="my_form"):
@@ -400,7 +402,7 @@ def init_widgets_multi_site_plot():
         on_change=reset_csv_data,
     )
 
-    csv_data = get_csv_data(csv_choice, False)
+    csv_data = get_csv_data(csv_choice, True)
 
     # initialise user input widgets
     with st.form(key="my_form"):
@@ -592,7 +594,7 @@ def init_widgets_multi_site_map():
 
 # convert locations of single or multiple sites from user input to lists to easily \\
 # loop analysis over all chosen sites
-def sites_to_list(csv_input):
+def sites_to_list(csv_input, max_arguments):
     modern_lats = []
     modern_lons = []
     names = []
@@ -601,26 +603,82 @@ def sites_to_list(csv_input):
     lines = csv_input.split("\n")  # A list of lines
     for line in lines:
         if line != "":
+            # first check whether input has correct number of values
             if len(line.split(",")) == 3:
                 name, lat, lon = line.split(",")
                 mean = -999.9
                 std = -999.9
-            elif len(line.split(",")) == 4:
+            elif len(line.split(",")) == 4 and max_arguments == 5:
                 name, lat, lon, mean = line.split(",")
                 std = -999.9
-            elif len(line.split(",")) == 5:
+            elif len(line.split(",")) == 5 and max_arguments == 5:
                 name, lat, lon, mean, std = line.split(",")
             else:
                 st.error("Error in line: " + line)
+                if max_arguments == 3:
+                    st.error(
+                        "CSV input must be in the format: name, modern latitude, modern longitude"
+                    )
+                elif max_arguments == 5:
+                    st.error(
+                        "CSV input must be in the format: name, modern latitude, modern longitude, proxy mean (OPTIONAL), proxy uncertainty (OPTIONAL)"
+                    )
+
+                st.stop()
+
+            # split = 
+            if '' in line.split(","):
+                st.error("Error in line: " + line)
                 st.error(
-                    "CSV input must be in the format: name, modern latitude, modern longitude, proxy mean (OPTIONAL), proxy uncertainty (OPTIONAL)"
+                    "all values need to be defined"
                 )
                 st.stop()
-            modern_lats.append(float(lat))
-            modern_lons.append(float(lon))
+            
+            # check whether latitude is number
+            if lat.replace(".", "", 1).replace("-", "", 1).isdigit():
+                modern_lats.append(float(lat))
+            else:
+                st.error("Error in line: " + line)
+                st.error(
+                    "latitude must be a number"
+                )
+                st.stop()    
+
+            # check whether longitude is number
+            if lon.replace(".", "", 1).replace("-", "", 1).isdigit():
+                modern_lons.append(float(lon))
+            else:
+                st.error("Error in line: " + line)
+                st.error(
+                    "longitude must be a number"
+                )
+                st.stop()   
+
             names.append(name)
+
+            if mean != "" and mean != -999.9:
+                print(mean)
+                # check whether proxy mean is number
+                if mean.replace(".", "", 1).replace("-", "", 1).isdigit() == False:
+                    st.error("Error in line: " + line)
+                    st.error(
+                        "proxy mean must be a number"
+                    )
+                    st.stop() 
+
             proxy_means.append(float(mean))
+            
+            if std != "" and std != -999.9:
+                # check whether proxy std is number
+                if std.replace(".", "", 1).replace("-", "", 1).isdigit() == False:
+                    st.error("Error in line: " + line)
+                    st.error(
+                        "proxy uncertainty must be a number"
+                    )
+                    st.stop() 
+            
             proxy_stds.append(float(std))
+
 
     return modern_lats, modern_lons, names, proxy_means, proxy_stds
 
