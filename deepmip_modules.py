@@ -947,7 +947,15 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
 
 
 def plot_global_paleogeography(
-    df, projection, proxy_label, outline_colour, grid_check, labels_check
+    df,
+    projection,
+    proxy_label,
+    outline_colour,
+    grid_check,
+    labels_check,
+    central_lon,
+    central_lat,
+    sites_check,
 ):
     ### plot Eocene paleogeography with rotated site(s)
 
@@ -958,28 +966,20 @@ def plot_global_paleogeography(
     ds_herold = xr.open_dataset("data/herold_etal_eocene_topo_1x1.halo.nc")
 
     if projection == "Equirectangular":
-        proj = ccrs.PlateCarree()
+        proj = ccrs.PlateCarree(central_longitude=central_lon)
         cbar_orientation = "horizontal"
         cbar_pad = 0.1
     elif projection == "Robinson":
-        proj = ccrs.Robinson(central_longitude=0)
+        proj = ccrs.Robinson(central_longitude=central_lon)
         cbar_orientation = "horizontal"
         cbar_pad = 0.1
     elif projection == "Orthographic":
-        if len(proxy_label) == 1:
-            proj = ccrs.Orthographic(
-                central_longitude=float(df["Eocene (55Ma) lon H14"]),
-                central_latitude=float(df["Eocene (55Ma) lat H14"]),
-            )
-            cbar_orientation = "vertical"
-            cbar_pad = 0.05
-        else:
-            proj = ccrs.Orthographic(
-                central_longitude=0.0,
-                central_latitude=0.0,
-            )
-            cbar_orientation = "vertical"
-            cbar_pad = 0.05
+        proj = ccrs.Orthographic(
+            central_longitude=central_lon,
+            central_latitude=central_lat,
+        )
+        cbar_orientation = "vertical"
+        cbar_pad = 0.05
 
     # plot global map
     fig, ax = plt.subplots(1, subplot_kw=dict(projection=proj))
@@ -1085,7 +1085,7 @@ def plot_global_paleogeography(
         )
     ax.set_global()
 
-    if len(proxy_label) <= 5:
+    if sites_check:
         for index, row in df.iterrows():
             if proxy_label[index] != "":
                 if float(row["Eocene (55Ma) lon H14"]) > -100:

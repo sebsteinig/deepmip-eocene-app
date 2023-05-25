@@ -37,12 +37,22 @@ if "analysis_type" in st.session_state:
 else:
     var_index = 0
 
+
+def reset_central_location():
+    # delete previous input from session state
+    if "central_lon" in st.session_state:
+        del st.session_state["central_lon"]
+    if "central_lat" in st.session_state:
+        del st.session_state["central_lat"]
+
+
 analysis_type = st.radio(
     "Number of sites to plot:",
     analysis_options,
     horizontal=True,
     index=var_index,
     key="analysis_type",
+    on_change=reset_central_location,
 )
 
 # create user inputs for single site
@@ -78,30 +88,75 @@ st.markdown(
         [Herold et al. (2014)](https://doi.org/10.5194/gmd-7-2077-2014).
     """
 )
-col1, col2, col3, col4 = st.columns(4)
+col1a, col1b, col1c = st.columns(3)
 
-with col1:
+
+with col1a:
     projection = st.selectbox(
         label="projection",
         options=["Equirectangular", "Robinson", "Orthographic"],
         index=0,
         key="user_projection",
+        on_change=reset_central_location,
     )
-with col2:
+with col1b:
+    # if "central_lon" in st.session_state:
+    #     del st.session_state["central_lon"]
+
+    if analysis_type == "Single site":
+        central_lon_default = float(df_paleo_locations["Eocene (55Ma) lon H14"])
+    else:
+        central_lon_default = 0.0
+
+    central_lon = st.number_input(
+        label="central longitude",
+        min_value=-180.0,
+        max_value=180.0,
+        value=central_lon_default,
+        step=1.0,
+        format="%.1f",
+        key="central_lon",
+    )
+with col1c:
+    # if "central_lat" in st.session_state:
+    #     del st.session_state["central_lat"]
+
+    if analysis_type == "Single site" and projection == "Orthographic":
+        central_lat_default = float(df_paleo_locations["Eocene (55Ma) lat H14"])
+    else:
+        central_lat_default = 0.0
+
+    central_lat = st.number_input(
+        label="central latitude",
+        min_value=-90.0,
+        max_value=90.0,
+        value=central_lat_default,
+        step=1.0,
+        format="%.1f",
+        key="central_lat",
+        disabled=False if projection == "Orthographic" else True,
+    )
+
+
+col2a, col2b, col2c, col2d = st.columns(4)
+with col2a:
     outline_colour = st.selectbox(
         label="modern coastline colour",
         options=["none", "gray", "red", "black", "white"],
         index=1,
         key="outline_colour",
     )
-with col3:
+with col2b:
     st.write("grid lines")
     grid_check = st.checkbox(label="", key="grid_check", value=True)
-with col4:
+with col2c:
     st.write("grid line labels")
     labels_check = st.checkbox(label="", key="labels_check", value=True)
+with col2d:
+    st.write("site labels")
+    sites_check = st.checkbox(label="", key="sites_check", value=False)
 
-print(df_paleo_locations)
+
 fig = plot_global_paleogeography(
     df_paleo_locations,
     projection,
@@ -109,6 +164,9 @@ fig = plot_global_paleogeography(
     outline_colour,
     grid_check,
     labels_check,
+    central_lon,
+    central_lat,
+    sites_check,
 )
 
 # Create an in-memory buffer
