@@ -1,4 +1,5 @@
 cartopy==0.21.1
+bokeh==2.4.3
 xarray
 h5netcdf
 cmocean
