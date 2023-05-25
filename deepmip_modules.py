@@ -80,7 +80,7 @@ def model_table():
 
 
 def get_csv_data(csv_template, proxy_flag):
-    if csv_template == "custom data":
+    if csv_template == "Enter your own data":
         csv_data = ""
     else:
         proxy_db = pd.read_csv(

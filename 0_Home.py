@@ -19,18 +19,16 @@ st.markdown(
     is a collaboration of eight climate modelling groups from around the world, 
     each carrying out standardised simulations of the early Eocene climate optimum 
     (EECO, ∼ 50 million years ago). All generated data is freely available to
-    everyone. There are two main ways to access the data:
-    1. This website provides an interface to extract point data from all available 
-    simulations for quick and easy comparison with local proxy data.
-    2. The full database (size: TBC) can be downloaded from the CEDA Archive (link
-    to follow).
+    everyone. This website provides an interface to extract point data from all available 
+    simulations, as well as information on how to dowbload the global model data.
 
     ###  How to Get Started
     Select any of the following pages to start your analysis:
 
-    - <a href='Extract_model_data' target='_self'>Extract model data</a> for any location, ready to be imported into your spreadsheet.
-    - <a href='Plot_site_comparison' target='_self'>Plot model data</a> (monthly, seasonal, annual) and it's relation to CO$_2$ and global mean temperature.
-    - <a href='Plot_maps' target='_self'>Plot paleogeographic maps </a> for your site and see how it is represented in different models.
+    - <a href='Download_global_model_data' target='_self'>Download global model data</a> from the CEDA Archive.
+    - <a href='Extract_local_model_data' target='_self'>Extract local model data</a> for any location, ready to be imported into your spreadsheet.
+    - <a href='Plot_local_model_data' target='_self'>Plot local model data</a> (monthly, seasonal, annual) and it's relation to CO$_2$ and global mean temperature.
+    - <a href='Map_sites_and_boundary_conditions' target='_self'>Map sites and boundary conditions</a> to see how your sites are represented in different models.
 
     """,
     unsafe_allow_html=True,

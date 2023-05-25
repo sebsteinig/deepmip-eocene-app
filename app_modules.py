@@ -122,8 +122,15 @@ def reset_csv_data():
 
 
 def init_widgets_multi_site():
+
+    st.info(
+    """
+        Enter the names and present-day locations of your sites in the text box below. 
+        Or you can use the dropdown menu below to pick a selection of sites from the DeepMIP compilation.
+        """
+    )
     template_list = [
-        "custom data",
+        "Enter your own data",
         "DeepMIP marine proxies (latest Paleocene)",
         "DeepMIP marine proxies (Paleocene–Eocene Thermal Maximum)",
         "DeepMIP marine proxies (early Eocene Climatic Optimum)",
@@ -140,10 +147,10 @@ def init_widgets_multi_site():
     if "csv_choice" in st.session_state:
         var_index = template_list.index(st.session_state["csv_choice"])
     else:
-        var_index = 3
+        var_index = 0
 
     csv_choice = st.selectbox(
-        label="Select from a list of example CSV files from the DeepMIP proxy compilation or enter your own data:",
+        label="Choose a list of templates from the DeepMIP proxy compilation or enter your own data:",
         options=template_list,
         index=var_index,
         key="csv_choice",
@@ -152,10 +159,11 @@ def init_widgets_multi_site():
 
     csv_data = get_csv_data(csv_choice, False)
 
+    
     # initialise user input widgets
     with st.form(key="my_form"):
         csv_input = st.text_area(
-            label="CSV input of site locations (one per line)",
+            label="Enter your data below (CSV format)",
             value=csv_data,
             placeholder="name, modern latitude, modern longitude",
             height=200,
@@ -358,8 +366,14 @@ def reset_csv_data():
 
 
 def init_widgets_multi_site_plot():
+    st.info(
+    """
+        Enter the names and present-day locations of your sites in the text box below. 
+        Or you can use the dropdown menu below to pick a selection of sites from the DeepMIP compilation.
+        """
+    )
     template_list = [
-        "custom data",
+        "Enter your own data",
         "DeepMIP marine proxies (latest Paleocene)",
         "DeepMIP marine proxies (Paleocene–Eocene Thermal Maximum)",
         "DeepMIP marine proxies (early Eocene Climatic Optimum)",
@@ -376,17 +390,17 @@ def init_widgets_multi_site_plot():
     if "csv_choice" in st.session_state:
         var_index = template_list.index(st.session_state["csv_choice"])
     else:
-        var_index = 3
+        var_index = 0
 
     csv_choice = st.selectbox(
-        label="Select from a list of example CSV files from the DeepMIP proxy compilation or enter your own data:",
+        label="Choose a list of templates from the DeepMIP proxy compilation or enter your own data:",
         options=template_list,
         index=var_index,
         key="csv_choice",
         on_change=reset_csv_data,
     )
 
-    csv_data = get_csv_data(csv_choice, True)
+    csv_data = get_csv_data(csv_choice, False)
 
     # initialise user input widgets
     with st.form(key="my_form"):
@@ -513,8 +527,14 @@ def init_widgets_single_site_map():
 
 
 def init_widgets_multi_site_map():
+    st.info(
+    """
+        Enter the names and present-day locations of your sites in the text box below. 
+        Or you can use the dropdown menu below to pick a selection of sites from the DeepMIP compilation.
+        """
+    )
     template_list = [
-        "custom data",
+        "Enter your own data",
         "DeepMIP marine proxies (latest Paleocene)",
         "DeepMIP marine proxies (Paleocene–Eocene Thermal Maximum)",
         "DeepMIP marine proxies (early Eocene Climatic Optimum)",
@@ -531,10 +551,10 @@ def init_widgets_multi_site_map():
     if "csv_choice" in st.session_state:
         var_index = template_list.index(st.session_state["csv_choice"])
     else:
-        var_index = 3
+        var_index = 0
 
     csv_choice = st.selectbox(
-        label="Select from a list of example CSV files from the DeepMIP proxy compilation or enter your own data:",
+        label="Choose a list of templates from the DeepMIP proxy compilation or enter your own data:",
         options=template_list,
         index=var_index,
         key="csv_choice",
@@ -612,7 +632,7 @@ def get_base64(bin_file):
 
 
 def add_logo():
-    bin_str = get_base64("deepmip_logo.png")
+    bin_str = get_base64("img/deepmip_logo.png")
     # bin_str = get_base64('deepmip_banner2.jpg')
 
     page_bg_img = (
@@ -626,7 +646,7 @@ def add_logo():
             background-size: 150px 150px;
         }
         [data-testid="stSidebarNav"]::before {
-            content: "DeepMIP Eocene Database";
+            content: "DeepMIP-Eocene Database";
             margin-left: 22px;
             margin-top: 20px;
             font-size:22px;
@@ -646,12 +666,12 @@ def init_sidebar():
     st.sidebar.success("How to Get Started")
     st.sidebar.markdown(
         """
-        1. ☝️ Use the navigation above to select the analysis of your choice. 
-        2. Select the present-day location of your site and the variable you are 
+        1. ☝️ Use the navigation above to select the page of your choice. 
+        2. Select the present-day location of your site(s) and the variable you are 
         interested in.
         3. Optionally, you can add a proxy estimate for quick comparison with 
         the model data. 
-        4. Click 'Get Data' and wait for the results to update.
+        4. Click the red button below the form and wait for the results to update.
         """
     )
 

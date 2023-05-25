@@ -49,6 +49,7 @@ st.subheader("User input")
 analysis_options = ["Single site", "Multiple sites"]
 if "analysis_type" in st.session_state:
     var_index = analysis_options.index(st.session_state["analysis_type"])
+    del st.session_state["analysis_type"]
 else:
     var_index = 0
 
