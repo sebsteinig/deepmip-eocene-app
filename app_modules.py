@@ -122,9 +122,8 @@ def reset_csv_data():
 
 
 def init_widgets_multi_site():
-
     st.info(
-    """
+        """
         Enter the names and present-day locations of your sites in the text box below. 
         Or you can use the dropdown menu below to pick a selection of sites from the DeepMIP compilation.
         """
@@ -150,7 +149,7 @@ def init_widgets_multi_site():
         var_index = 0
 
     csv_choice = st.selectbox(
-        label="Choose a list of templates from the DeepMIP proxy compilation or enter your own data:",
+        label="Choose a template from the DeepMIP proxy compilation or enter your own data:",
         options=template_list,
         index=var_index,
         key="csv_choice",
@@ -159,9 +158,6 @@ def init_widgets_multi_site():
 
     csv_data = get_csv_data(csv_choice, False)
 
-
-
-    
     # initialise user input widgets
     with st.form(key="my_form"):
         csv_input = st.text_area(
@@ -369,7 +365,7 @@ def reset_csv_data():
 
 def init_widgets_multi_site_plot():
     st.info(
-    """
+        """
         Enter the names and present-day locations of your sites in the text box below. 
         Or you can use the dropdown menu below to pick a selection of sites from the DeepMIP compilation.
         """
@@ -395,7 +391,7 @@ def init_widgets_multi_site_plot():
         var_index = 0
 
     csv_choice = st.selectbox(
-        label="Choose a list of templates from the DeepMIP proxy compilation or enter your own data:",
+        label="Choose a template from the DeepMIP proxy compilation or enter your own data:",
         options=template_list,
         index=var_index,
         key="csv_choice",
@@ -530,7 +526,7 @@ def init_widgets_single_site_map():
 
 def init_widgets_multi_site_map():
     st.info(
-    """
+        """
         Enter the names and present-day locations of your sites in the text box below. 
         Or you can use the dropdown menu below to pick a selection of sites from the DeepMIP compilation.
         """
@@ -556,7 +552,7 @@ def init_widgets_multi_site_map():
         var_index = 0
 
     csv_choice = st.selectbox(
-        label="Choose a list of templates from the DeepMIP proxy compilation or enter your own data:",
+        label="Choose a template from the DeepMIP proxy compilation or enter your own data:",
         options=template_list,
         index=var_index,
         key="csv_choice",
@@ -626,33 +622,27 @@ def sites_to_list(csv_input, max_arguments):
 
                 st.stop()
 
-            # split = 
-            if '' in line.split(","):
+            # split =
+            if "" in line.split(","):
                 st.error("Error in line: " + line)
-                st.error(
-                    "all values need to be defined"
-                )
+                st.error("all values need to be defined")
                 st.stop()
-            
+
             # check whether latitude is number
             if lat.replace(".", "", 1).replace("-", "", 1).isdigit():
                 modern_lats.append(float(lat))
             else:
                 st.error("Error in line: " + line)
-                st.error(
-                    "latitude must be a number"
-                )
-                st.stop()    
+                st.error("latitude must be a number")
+                st.stop()
 
             # check whether longitude is number
             if lon.replace(".", "", 1).replace("-", "", 1).isdigit():
                 modern_lons.append(float(lon))
             else:
                 st.error("Error in line: " + line)
-                st.error(
-                    "longitude must be a number"
-                )
-                st.stop()   
+                st.error("longitude must be a number")
+                st.stop()
 
             names.append(name)
 
@@ -661,24 +651,19 @@ def sites_to_list(csv_input, max_arguments):
                 # check whether proxy mean is number
                 if mean.replace(".", "", 1).replace("-", "", 1).isdigit() == False:
                     st.error("Error in line: " + line)
-                    st.error(
-                        "proxy mean must be a number"
-                    )
-                    st.stop() 
+                    st.error("proxy mean must be a number")
+                    st.stop()
 
             proxy_means.append(float(mean))
-            
+
             if std != "" and std != -999.9:
                 # check whether proxy std is number
                 if std.replace(".", "", 1).replace("-", "", 1).isdigit() == False:
                     st.error("Error in line: " + line)
-                    st.error(
-                        "proxy uncertainty must be a number"
-                    )
-                    st.stop() 
-            
-            proxy_stds.append(float(std))
+                    st.error("proxy uncertainty must be a number")
+                    st.stop()
 
+            proxy_stds.append(float(std))
 
     return modern_lats, modern_lons, names, proxy_means, proxy_stds
 

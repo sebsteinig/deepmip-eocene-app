@@ -49,6 +49,7 @@ def model_table():
 
     return df
 
+
 def get_csv_data(csv_template, proxy_flag):
     if csv_template == "Enter your own data":
         csv_data = ""
@@ -206,14 +207,14 @@ def get_paleo_locations(modern_lats, modern_lons, names):
                 )
                 st.stop()
             else:
-
                 # check whether we can get a location from Hollis et al. (2019)
                 proxy_db = pd.read_csv(
-                    "data/Hollis 2019 DeepMIP compilation.csv", encoding="unicode_escape"
-                )   
+                    "data/Hollis 2019 DeepMIP compilation.csv",
+                    encoding="unicode_escape",
+                )
 
                 # if proxy is in Hollis et al. (2019) compilation, use that location
-                if (proxy_db['site'] == names[count]).any():
+                if (proxy_db["site"] == names[count]).any():
                     mlat = proxy_db.loc[proxy_db.site == names[count]].iloc[0].mlat
                     mlon = proxy_db.loc[proxy_db.site == names[count]].iloc[0].mlon
                     plat = proxy_db.loc[proxy_db.site == names[count]].iloc[0].plat
@@ -229,7 +230,7 @@ def get_paleo_locations(modern_lats, modern_lons, names):
                             "Eocene (55Ma) lon B16": plon,
                             "name": names[count],
                         }
-                    )    
+                    )
                 else:
                     skipped_sites.append(names[count])
 
@@ -703,13 +704,26 @@ def scatter_line_plot(
                 height=500,
                 width=600,
                 # responsive=True,
+                color_index="customer",
+                cmap=[
+                    "blue",
+                    "orange",
+                    "blue",
+                    "orange",
+                    "blue",
+                    "orange",
+                    "blue",
+                    "orange",
+                    "blue",
+                    "orange",
+                ],
                 show_legend=True,
                 legend_position="top",
                 size=12,
                 tools=["hover", "wheel_zoom"],
                 line_color="black",
                 fontsize={
-                    "legend": 9,
+                    "legend": 8,
                     "title": 14,
                     "labels": 14,
                     "xticks": 11,
@@ -809,7 +823,7 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
         print(exp)
         print(df_monthly)
 
-        for model_count, model in enumerate(model_dict.keys()):
+        for model in model_dict.keys():
             # individual models
             if exp in model_dict[model]["exps"]:
                 line = hv.Curve(
@@ -820,7 +834,7 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
                 ).opts(
                     line_color=exp_dict[exp]["color"],
                     alpha=1.0,
-                    line_width=0.5,
+                    line_width=1.0,
                     line_dash="dashed",
                 )
                 lines.append(line)
@@ -882,7 +896,7 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
             show_legend=True,
             tools=["hover", "wheel_zoom"],
             fontsize={
-                "legend": 9,
+                "legend": 8,
                 "title": 14,
                 "labels": 14,
                 "xticks": 11,

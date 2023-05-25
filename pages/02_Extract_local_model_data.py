@@ -14,7 +14,7 @@ from app_modules import (
 from deepmip_modules import get_paleo_locations, get_model_point_data
 
 st.set_page_config(
-    page_title="Get model data",
+    page_title="Extract local model data",
     layout="wide",
 )
 

@@ -11,21 +11,21 @@ from app_modules import (
     init_widgets_multi_site_plot,
     init_sidebar,
     sites_to_list,
-    customDownloadButton
+    customDownloadButton,
 )
 from deepmip_modules import (
     get_paleo_locations,
     get_model_point_data,
     scatter_line_plot,
-    annual_cycle_plot
+    annual_cycle_plot,
 )
 
 st.set_page_config(
-    page_title="Plot site comparison",
+    page_title="Plot local model data",
     layout="wide",
 )
 
-st.title("Plot site comparison")
+st.title("Plot local model data")
 
 st.markdown(
     """
@@ -86,8 +86,9 @@ if analysis_type == "Single site":
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
     csv_choice, csv_input, user_variable = init_widgets_multi_site_plot()
-    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input, 5)
-
+    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(
+        csv_input, 5
+    )
 
     for v in [csv_input, csv_choice, user_variable]:
         st.session_state.v = v
@@ -124,6 +125,18 @@ for key, value in variable_dict.items():
 ## step 3: get model data for paleo position(s) and chosen variable
 df_model = get_model_point_data(df_paleo_locations, deepmip_var)
 
+st.subheader("Interactive plots")
+st.markdown(
+    """
+    The displayed data (e.g., site to plot, annual/seasonal/monthly means) can be changed
+    by the dropdown menus below. You can also pan and zoom inside the plots to show
+    more detail by holding the left mouse button and scrolling/pinching, respectively. 
+    Hovering over the data points will display detailed information and the legend can be
+    used to hide/show individual parts of the data. Figures can be viewed in full screen
+    by clicking the double arrow icon in the top right corner of each figure and downloaded
+    at the bottom of the page.
+    """
+)
 
 col_fig1, col_fig2 = st.columns(2)
 
@@ -154,17 +167,26 @@ with col_fig1:
         proxy_label = float(proxy_stds[site_index])
 
     # get paleolocation
-    plat = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lat"]
-    plon = df_model.loc[(df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)].iloc[0]["lon"]
+    plat = df_model.loc[
+        (df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)
+    ].iloc[0]["lat"]
+    plon = df_model.loc[
+        (df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)
+    ].iloc[0]["lon"]
 
     ct = datetime.datetime.now()
     ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
 
     comp_cycle = annual_cycle_plot(
-        df_model[df_model.site_name == site_name], proxy_check, proxy_mean, proxy_std, "proxy estimate",
+        df_model[df_model.site_name == site_name],
+        proxy_check,
+        proxy_mean,
+        proxy_std,
+        "proxy estimate",
     )
 
     p1 = hv.render(comp_cycle, backend="bokeh")
+    p1.legend.click_policy = "hide"
     p1.add_layout(
         Title(
             text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
@@ -178,9 +200,7 @@ with col_fig1:
 
 # Figure 2
 with col_fig2:
-
     st.subheader("Figure 2: individual scatter plots")
-
 
     col1, col2 = st.columns(2)
 
@@ -213,11 +233,7 @@ with col_fig2:
     with col2:
         var_x = st.selectbox(
             label="x-axis variable",
-            options=[
-                "GMST",
-                "CO2",
-                "experiment"
-            ],
+            options=["GMST", "CO2", "experiment"],
             key="x_axis",
         )
 
@@ -232,6 +248,7 @@ with col_fig2:
     )
 
     p2 = hv.render(comp_scatter, backend="bokeh")
+    p2.legend.click_policy = "hide"
     p2.add_layout(
         Title(
             text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
@@ -247,5 +264,3 @@ filename1 = f"figures/DeepMIP_annual_cycle_{site_name}_{ct}"
 filename2 = f"figures/DeepMIP_scatter_plot_{site_name}_{ct}"
 
 customDownloadButton(p1, p2, filename1, filename2)
-
-
