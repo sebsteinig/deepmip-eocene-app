@@ -9,4 +9,3 @@ selenium
 scipy
 xlsxwriter
 streamlit==1.20.0
-geckodriver
