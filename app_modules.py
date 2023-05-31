@@ -3,6 +3,7 @@ import base64
 from bokeh.io import export_svgs, export_png
 import holoviews as hv
 import os
+import io
 
 from deepmip_modules import get_csv_data
 
@@ -750,7 +751,114 @@ def delete_figures(file1, file2, file3):
         if os.path.exists(file):
             os.remove(file)
 
-def customDownloadButton(render1, render2, filename1, filename2):
+def customDownloadButton_JPG_PNG_PDF(figure, filename):
+
+    if "single_map" not in st.session_state:
+    # if st.session_state.get('single_map') != True:
+
+        button_map = st.button("Download Map", type="primary", use_container_width=True, key=filename)
+
+        st.session_state['single_map'] = button_map # Saved the state
+
+    print(st.session_state['single_map'])
+    st.stop()
+
+    if st.session_state['single_map'] == True:
+        
+        progress_bar = st.progress(0)
+
+        progress_bar.progress(1 / 3, "Creating JPG")
+        fn3 =filename + ".jpg"
+        img3 = io.BytesIO()
+        figure.savefig(img3, format="jpg", dpi=200)
+
+
+        progress_bar.progress(2 / 3, "Creating PNG")
+        fn = filename + ".png"
+        img = io.BytesIO()
+        figure.savefig(img, format="png", dpi=300)
+
+
+        progress_bar.progress(3 / 3, "Creating PDF")
+        fn2 = filename + ".pdf"
+        img2 = io.BytesIO()
+        figure.savefig(img2, format="pdf")
+
+        progress_bar.empty()
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.download_button(
+                label="Download JPG",
+                data=img3,
+                file_name=fn3,
+                mime="image/jpg",
+                use_container_width=True,
+            )
+
+        with col2:
+            st.download_button(
+                label="Download PNG",
+                data=img,
+                file_name=fn,
+                mime="image/png",
+                use_container_width=True,
+            )
+
+        with col3:
+            st.download_button(
+                label="Download PDF",
+                data=img2,
+                file_name=fn2,
+                mime="image/pdf",
+                use_container_width=True,
+            )
+
+def customDownloadButton_JPG_PNG(figure, filename):
+
+    if "model_maps" not in st.session_state:
+    # if st.session_state.get('model_maps') != True:
+
+        button_models = st.button("Download Model Maps", type="primary", use_container_width=True, key=filename)
+
+        st.session_state['model_maps'] = button_models # Saved the state
+
+    if st.session_state['model_maps'] == True:
+        progress_bar = st.progress(0)
+
+        progress_bar.progress(1 / 2, "Creating JPG")
+        fn3 =filename + ".jpg"
+        img3 = io.BytesIO()
+        figure.savefig(img3, format="jpg", dpi=200)
+
+        progress_bar.progress(1 / 2, "Creating PNG")
+        fn = filename + ".png"
+        img = io.BytesIO()
+        figure.savefig(img, format="png", dpi=300)
+
+        progress_bar.empty()
+
+        col1, col2= st.columns(2)
+        with col1:
+            st.download_button(
+                label="Download JPG",
+                data=img3,
+                file_name=fn3,
+                mime="image/jpg",
+                use_container_width=True,
+            )
+
+        with col2:
+            st.download_button(
+                label="Download PNG",
+                data=img,
+                file_name=fn,
+                mime="image/png",
+                use_container_width=True,
+            )
+
+
+def customDownloadButton2(render1, render2, filename1, filename2):
     if st.button("Download Figures", type="primary", use_container_width=True):
         progress_bar = st.progress(0)
 

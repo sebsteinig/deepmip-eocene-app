@@ -955,7 +955,7 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
 
     return composition
 
-
+@st.cache_data
 def plot_global_paleogeography(
     df,
     projection,
@@ -1145,6 +1145,7 @@ def plot_global_paleogeography(
     return fig
 
 
+@st.cache_data
 def plot_model_geographies(
     df, projection, proxy_label, outline_colour, grid_check, labels_check
 ):
@@ -1478,4 +1479,7 @@ def plot_model_geographies(
 
     fig.subplots_adjust(bottom=0.06, hspace=0.2, wspace=0.0)
 
-    return fig, progress_bar
+    progress_bar.empty()
+
+    return fig
+    # return fig, progress_bar

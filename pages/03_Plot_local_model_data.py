@@ -11,7 +11,7 @@ from app_modules import (
     init_widgets_multi_site_plot,
     init_sidebar,
     sites_to_list,
-    customDownloadButton,
+    customDownloadButton2,
 )
 from deepmip_modules import (
     get_paleo_locations,
@@ -263,4 +263,4 @@ with col_fig2:
 filename1 = f"figures/DeepMIP_annual_cycle_{site_name}_{ct}"
 filename2 = f"figures/DeepMIP_scatter_plot_{site_name}_{ct}"
 
-customDownloadButton(p1, p2, filename1, filename2)
+customDownloadButton2(p1, p2, filename1, filename2)

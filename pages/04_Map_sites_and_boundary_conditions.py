@@ -10,6 +10,8 @@ from app_modules import (
     init_widgets_multi_site_map,
     init_sidebar,
     sites_to_list,
+    customDownloadButton_JPG_PNG,
+    customDownloadButton_JPG_PNG_PDF
 )
 from deepmip_modules import (
     get_paleo_locations,
@@ -170,52 +172,61 @@ fig = plot_global_paleogeography(
     sites_check,
 )
 
-# Create an in-memory buffer
-buffer = io.BytesIO()
-
-fn = "deepmip_paleogeography_herold.png"
-img = io.BytesIO()
-fig.savefig(img, format="png", dpi=200)
-
-fn2 = "deepmip_paleogeography_herold.pdf"
-img2 = io.BytesIO()
-fig.savefig(img2, format="pdf")
-
-fn3 = "deepmip_paleogeography_herold.jpg"
-img3 = io.BytesIO()
-fig.savefig(img3, format="jpg", dpi=200)
-
 st.pyplot(fig)
 
-col4, col5, col6 = st.columns(3)
+# create Download Buttons for JPG, PNG and PDF
+if st.button("Download Map", type="primary", use_container_width=True):
 
-with col4:
-    st.download_button(
-        label="Download JPG",
-        data=img3,
-        file_name=fn3,
-        mime="image/jpg",
-        use_container_width=True,
-    )
+    filename = "deepmip_paleogeography_herold"
 
-with col5:
-    st.download_button(
-        label="Download PNG",
-        data=img,
-        file_name=fn,
-        mime="image/png",
-        use_container_width=True,
-    )
+    progress_bar = st.progress(0)
 
-with col6:
-    st.download_button(
-        label="Download PDF",
-        data=img2,
-        file_name=fn2,
-        mime="image/pdf",
-        use_container_width=True,
-    )
+    progress_bar.progress(1 / 3, "Creating JPG")
+    fn3 =filename + ".jpg"
+    img3 = io.BytesIO()
+    fig.savefig(img3, format="jpg", dpi=200)
 
+
+    progress_bar.progress(2 / 3, "Creating PNG")
+    fn = filename + ".png"
+    img = io.BytesIO()
+    fig.savefig(img, format="png", dpi=300)
+
+
+    progress_bar.progress(3 / 3, "Creating PDF")
+    fn2 = filename + ".pdf"
+    img2 = io.BytesIO()
+    fig.savefig(img2, format="pdf")
+
+    progress_bar.empty()
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.download_button(
+            label="Download JPG",
+            data=img3,
+            file_name=fn3,
+            mime="image/jpg",
+            use_container_width=True,
+        )
+
+    with col2:
+        st.download_button(
+            label="Download PNG",
+            data=img,
+            file_name=fn,
+            mime="image/png",
+            use_container_width=True,
+        )
+
+    with col3:
+        st.download_button(
+            label="Download PDF",
+            data=img2,
+            file_name=fn2,
+            mime="image/pdf",
+            use_container_width=True,
+        )
 
 st.subheader("Individual model geographies")
 st.markdown(
@@ -240,7 +251,8 @@ for v in [site_name]:
 
 print(df_paleo_locations)
 
-fig_models, progress_bar = plot_model_geographies(
+# fig_models, progress_bar = plot_model_geographies(
+fig_models = plot_model_geographies(
     df_paleo_locations[df_paleo_locations.name == site_name],
     projection,
     site_name,
@@ -251,51 +263,40 @@ fig_models, progress_bar = plot_model_geographies(
 
 st.pyplot(fig_models)
 
-progress_bar.empty()
+# create Download Buttons for JPG, PNG and PDF
+if st.button("Download Model Maps", type="primary", use_container_width=True):
 
+    filename = "deepmip_model_geographies_herold_" + site_name.replace(" ", "_")
 
-# Create an in-memory buffer
-# buffer = io.BytesIO()
+    progress_bar = st.progress(0)
 
-# fn4 = 'deepmip_paleogeography_herold.png'
-# img4 = io.BytesIO()
-# fig_models.savefig(img4, format='png')
+    progress_bar.progress(1 / 2, "Creating JPG")
+    fn4 =filename + ".jpg"
+    img4 = io.BytesIO()
+    fig_models.savefig(img4, format="jpg", dpi=200)
 
-# fn5 = 'deepmip_paleogeography_herold.pdf'
-# img5 = io.BytesIO()
-# fig_models.savefig(img5, format='pdf')
+    progress_bar.progress(2 / 2, "Creating PNG")
+    fn5 = filename + ".png"
+    img5 = io.BytesIO()
+    fig_models.savefig(img5, format="png", dpi=300)
 
-# fn6 = 'deepmip_paleogeography_herold.jpg'
-# img6 = io.BytesIO()
-# fig_models.savefig(img6, format='jpg')
+    progress_bar.empty()
 
-# # st.pyplot(fig_models)
+    col1, col2= st.columns(2)
+    with col1:
+        st.download_button(
+            label="Download JPG",
+            data=img4,
+            file_name=fn4,
+            mime="image/jpg",
+            use_container_width=True,
+        )
 
-# col7, col8, col9 = st.columns(3)
-
-# with col7:
-#     st.download_button(
-#     label="Download JPG",
-#     data=img6,
-#     file_name=fn6,
-#     mime="image/jpg",
-#     use_container_width=True
-#     )
-
-# with col8:
-#     st.download_button(
-#     label="Download PNG",
-#     data=img4,
-#     file_name=fn4,
-#     mime="image/png",
-#     use_container_width=True
-#     )
-
-# with col9:
-#     st.download_button(
-#     label="Download PDF",
-#     data=img6,
-#     file_name=fn6,
-#     mime="image/pdf",
-#     use_container_width=True
-#     )
+    with col2:
+        st.download_button(
+            label="Download PNG",
+            data=img5,
+            file_name=fn5,
+            mime="image/png",
+            use_container_width=True,
+        )
