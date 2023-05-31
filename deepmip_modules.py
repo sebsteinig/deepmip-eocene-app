@@ -1205,6 +1205,8 @@ def plot_model_geographies(
     norm_slftf = colors.BoundaryNorm(
         [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], cmap_slftf.N
     )
+    cmap_slftf.set_under("DarkGray")
+
 
     progress_bar = st.progress(0)
 
@@ -1359,7 +1361,9 @@ def plot_model_geographies(
             im_sftlf = ax[model_count, 2].pcolormesh(
                 ds_sftlf[str(lon_name_orog)],
                 ds_sftlf[str(lat_name_orog)],
-                ds_sftlf.squeeze().sftlf,
+                ds_sftlf.squeeze()
+                .where(ds_sftlf.squeeze().sftlf > 0.01)
+                .fillna(-9999).sftlf,
                 transform=ccrs.PlateCarree(),
                 cmap=cmap_slftf,
                 norm=norm_slftf,
