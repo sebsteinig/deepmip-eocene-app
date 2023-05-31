@@ -785,6 +785,8 @@ def customDownloadButton(render1, render2, filename1, filename2):
                     file_name=filename1 + ".svg",
                     mime="image/svg",
                     use_container_width=True,
+                    on_click=delete_figures,
+                    args=(filename1 + ".png", filename2 + ".png", filename2 + ".svg")
                 )
 
         col3, col4 = st.columns(2)
@@ -796,6 +798,8 @@ def customDownloadButton(render1, render2, filename1, filename2):
                     file_name=filename2 + ".png",
                     mime="image/",
                     use_container_width=True,
+                    on_click=delete_figures,
+                    args=(filename1 + ".png", filename1 + ".svg", filename2 + ".svg")
                 )
             with open(filename2 + ".svg", "rb") as file:
                 st.download_button(
@@ -804,4 +808,6 @@ def customDownloadButton(render1, render2, filename1, filename2):
                     file_name=filename2 + ".svg",
                     mime="image/svg",
                     use_container_width=True,
+                    on_click=delete_figures,
+                    args=(filename1 + ".png", filename1 + ".svg", filename2 + ".png")
                 )

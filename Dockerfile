@@ -12,10 +12,7 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     libgeos-dev \
     && rm -rf /var/lib/apt/lists/*
- 
-# libgeos-dev above and next two lines necessary to fix issues with cartopy projections
-RUN python3 -m pip install --upgrade pip setuptools wheel
-RUN pip3 install "shapely<2" --no-binary shapely
+
 
 RUN git clone https://github.com/sebsteinig/deepmip_database_app.git .
 
@@ -27,6 +24,10 @@ RUN apt-get update                             \
  && curl -L https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz | tar xz -C /usr/local/bin \
  && apt-get purge -y ca-certificates curl
  
+# libgeos-dev above and next two lines necessary to fix issues with cartopy projections
+RUN python3 -m pip install --upgrade pip setuptools wheel
+RUN pip3 install "shapely<2" --no-binary shapely
+
 # install dependencies with pip
 ADD requirements.txt .
 RUN python3 -m pip install --no-cache-dir --compile -r requirements.txt
