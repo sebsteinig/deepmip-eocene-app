@@ -2,6 +2,7 @@ import streamlit as st
 import base64
 from bokeh.io import export_svgs, export_png
 import holoviews as hv
+import os
 
 from deepmip_modules import get_csv_data
 
@@ -744,6 +745,10 @@ def init_sidebar():
     # """
     # st.markdown(css, unsafe_allow_html=True)
 
+def delete_figures(file1, file2, file3):
+    for file in [file1, file2, file3]:
+        if os.path.exists(file):
+            os.remove(file)
 
 def customDownloadButton(render1, render2, filename1, filename2):
     if st.button("Download Figures", type="primary", use_container_width=True):
@@ -770,6 +775,8 @@ def customDownloadButton(render1, render2, filename1, filename2):
                     file_name=filename1 + ".png",
                     mime="image/",
                     use_container_width=True,
+                    on_click=delete_figures,
+                    args=(filename1 + ".svg", filename2 + ".png", filename2 + ".svg")
                 )
             with open(filename1 + ".svg", "rb") as file:
                 st.download_button(
