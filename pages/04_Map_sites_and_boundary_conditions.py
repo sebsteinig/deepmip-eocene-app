@@ -141,14 +141,10 @@ with col1c:
     )
 
 
-col2a, col2b, col2c, col2d = st.columns(4)
+col2a, col2b, col2c, col2d, col2e, col2f = st.columns(6)
 with col2a:
-    outline_colour = st.selectbox(
-        label="modern coastline colour",
-        options=["none", "gray", "red", "black", "white"],
-        index=1,
-        key="outline_colour",
-    )
+    st.write("modern coastline")
+    outline_check = st.checkbox(label="", key="outline_check", value=True)
 with col2b:
     st.write("grid lines")
     grid_check = st.checkbox(label="", key="grid_check", value=True)
@@ -158,18 +154,39 @@ with col2c:
 with col2d:
     st.write("site labels")
     sites_check = st.checkbox(label="", key="sites_check", value=False)
-
+with col2e:
+    label_fontsize = st.number_input(
+        label="site label size",
+        min_value=-0.,
+        max_value=20.,
+        value=10.,
+        step=1.0,
+        format="%.1f",
+        key="label_fontsize",
+    )
+with col2f:
+    marker_size = st.number_input(
+        label="site marker size",
+        min_value= 0.,
+        max_value=20.,
+        value=9.,
+        step=1.0,
+        format="%.1f",
+        key="marker_size",
+    )
 
 fig = plot_global_paleogeography(
     df_paleo_locations,
     projection,
     names,
-    outline_colour,
+    outline_check,
     grid_check,
     labels_check,
     central_lon,
     central_lat,
     sites_check,
+    label_fontsize,
+    marker_size
 )
 
 st.pyplot(fig)
@@ -256,7 +273,6 @@ fig_models = plot_model_geographies(
     df_paleo_locations[df_paleo_locations.name == site_name],
     projection,
     site_name,
-    outline_colour,
     grid_check,
     labels_check,
 )
