@@ -1057,24 +1057,24 @@ def plot_global_paleogeography(
             ax.set_title(
                 label="55 Ma paleolocation for "
                 + proxy_label[0]
-                + ": LAT = "
+                + ": pLAT = "
                 + str(np.round(float(df["Eocene (55Ma) lat H14"]), 1))
-                + ", LON = "
+                + ", pLON = "
                 + str(np.round(float(df["Eocene (55Ma) lon H14"]), 1)),
-                fontsize=10,
+                fontsize=8,
             )
         else:
             ax.set_title(
-                label="55 Ma paleolocation: LAT = "
+                label="55 Ma paleolocation: pLAT = "
                 + str(np.round(float(df["Eocene (55Ma) lat H14"]), 1))
-                + ", LON = "
+                + ", pLON = "
                 + str(np.round(float(df["Eocene (55Ma) lon H14"]), 1)),
-                fontsize=10,
+                fontsize=8,
             )
     else:
         ax.set_title(
             label="55 Ma paleolocations (Herold et al. 2014)",
-            fontsize=10,
+            fontsize=8,
         )
 
     # add site markers at paleolocation
@@ -1103,10 +1103,17 @@ def plot_global_paleogeography(
     if sites_check:
         for index, row in df.iterrows():
             if proxy_label[index] != "":
-                labelLon = float(row["Eocene (55Ma) lon H14"]) - 5 * (
-                    label_fontsize / 10.0
-                )
-                labelAlignment = "right"
+                if float(row["Eocene (55Ma) lon H14"]) > -100.:
+                    labelLon = float(row["Eocene (55Ma) lon H14"]) - 5 * (
+                        label_fontsize / 10.0
+                    )
+                    labelAlignment = "right"
+                else:
+                    labelLon = float(row["Eocene (55Ma) lon H14"]) + 5 * (
+                        label_fontsize / 10.0
+                    )                    
+                    labelAlignment = "left"
+
 
                 if projection == "Orthographic":
                     ax.text(

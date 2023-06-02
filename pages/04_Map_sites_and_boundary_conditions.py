@@ -4,6 +4,8 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import io
+import datetime
+
 
 from app_modules import (
     init_widgets_single_site_map,
@@ -25,7 +27,12 @@ st.set_page_config(
 )
 
 st.title("Paleogeographic reconstruction")
-
+st.markdown(
+    """
+        This site will produce paleogeographic maps using the selected site(s) and the DeepMIP-Eocene 
+        boundary conditions (~55 Ma). 
+    """
+)
 init_sidebar()
 
 for k, v in st.session_state.items():
@@ -47,6 +54,8 @@ def reset_central_location():
         del st.session_state["central_lon"]
     if "central_lat" in st.session_state:
         del st.session_state["central_lat"]
+    if "site_name" in st.session_state:
+        del st.session_state["site_name"]
 
 
 analysis_type = st.radio(
@@ -83,12 +92,12 @@ if analysis_type == "Single site":
 df_paleo_locations = get_paleo_locations(modern_lats, modern_lons, names)
 # st.dataframe(df_locations.style.format("{:.1f}"))
 
-st.subheader(" DeepMIP geography (Herold et al., 2014)")
+st.subheader("Figure 1: DeepMIP-Eocene geography (from Herold et al., 2014)")
 st.markdown(
     """
-        Reconstruction of the chosen site's paleolocation at ~55 Ma using the 
-        original DeepMIP paleogeography from 
-        [Herold et al. (2014)](https://doi.org/10.5194/gmd-7-2077-2014).
+        Global overview map using the [Herold et al. (2014)](https://doi.org/10.5194/gmd-7-2077-2014)
+        reconstruction and the respective ~55 Ma paleolocation(s) of the chosen site(s). The options below
+        allow customisation of the map, which can also be downloaded via the button below the Figure.
     """
 )
 col1a, col1b, col1c = st.columns(3)
@@ -153,13 +162,13 @@ with col2c:
     labels_check = st.checkbox(label="", key="labels_check", value=True)
 with col2d:
     st.write("site labels")
-    sites_check = st.checkbox(label="", key="sites_check", value=False)
+    sites_check = st.checkbox(label="", key="sites_check", value=True)
 with col2e:
     label_fontsize = st.number_input(
         label="site label size",
         min_value=-0.,
         max_value=20.,
-        value=10.,
+        value=8.,
         step=1.0,
         format="%.1f",
         key="label_fontsize",
@@ -194,7 +203,19 @@ st.pyplot(fig)
 # create Download Buttons for JPG, PNG and PDF
 if st.button("Download Map", type="primary", use_container_width=True):
 
-    filename = "deepmip_paleogeography_herold"
+    ct = datetime.datetime.now()
+    ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
+
+    filename = "DeepMIP_paleogeography_and_sites_" + ct
+
+    def save_image_to_disk(fig, filename, format):
+        if format == "jpg":
+            fig.savefig("figures/" + filename +  "." + format, format=format, dpi=200)
+        elif format == "png":
+            fig.savefig("figures/" + filename +  "." + format, format=format, dpi=300)
+        elif format == "pdf":
+            fig.savefig("figures/" + filename +  "." + format, format=format)
+        
 
     progress_bar = st.progress(0)
 
@@ -225,6 +246,8 @@ if st.button("Download Map", type="primary", use_container_width=True):
             file_name=fn3,
             mime="image/jpg",
             use_container_width=True,
+            on_click=save_image_to_disk,
+            kwargs={"fig":fig, "filename":filename, "format":"jpg"}
         )
 
     with col2:
@@ -234,6 +257,8 @@ if st.button("Download Map", type="primary", use_container_width=True):
             file_name=fn,
             mime="image/png",
             use_container_width=True,
+            on_click=save_image_to_disk,
+            kwargs={"fig":fig, "filename":filename, "format":"png"}
         )
 
     with col3:
@@ -243,20 +268,28 @@ if st.button("Download Map", type="primary", use_container_width=True):
             file_name=fn2,
             mime="image/pdf",
             use_container_width=True,
+            on_click=save_image_to_disk,
+            kwargs={"fig":fig, "filename":filename, "format":"pdf"}
         )
 
-st.subheader("Individual model geographies")
+
+if df_paleo_locations.empty:
+    st.stop()
+    
+st.subheader("Figure 2: Local model boundary conditions")
 st.markdown(
     """
-        Each model interpolates the original DeepMIP paleogeography from 
-        [Herold et al. (2014)](https://doi.org/10.5194/gmd-7-2077-2014)
-        onto different grids in the atmosphere and ocean ...
+        Each model interpolates the source paleogeography 
+        (either from [Herold et al. (2014)](https://doi.org/10.5194/gmd-7-2077-2014) or [Baatsen et al. (2016)](https://doi:10.5194/cp-12-1635-2016))
+        onto their respective models grids in the atmosphere and ocean. The local bathymetry, orography and land-sea mask at individual sites
+        might therefore be different between the models. The following maps show the local paleogeography for each model to help with the interpretation
+        and comparison of the extracted model results.
     """
 )
 
-if analysis_type == "Single site":
-    if "site_name" in st.session_state:
-        del st.session_state["site_name"]
+# if analysis_type == "Single site":
+#     if "site_name" in st.session_state:
+#         del st.session_state["site_name"]
 
 site_name = st.selectbox(
     label="site to plot",
@@ -265,8 +298,6 @@ site_name = st.selectbox(
 )
 for v in [site_name]:
     st.session_state.v = v
-
-print(df_paleo_locations)
 
 # fig_models, progress_bar = plot_model_geographies(
 fig_models = plot_model_geographies(
@@ -282,7 +313,10 @@ st.pyplot(fig_models)
 # create Download Buttons for JPG, PNG and PDF
 if st.button("Download Model Maps", type="primary", use_container_width=True):
 
-    filename = "deepmip_model_geographies_herold_" + site_name.replace(" ", "_")
+    ct = datetime.datetime.now()
+    ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
+
+    filename = "DeepMIP_model_geographies_" + site_name.replace(" ", "_") + "_" + ct
 
     progress_bar = st.progress(0)
 
