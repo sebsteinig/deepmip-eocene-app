@@ -955,6 +955,7 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
 
     return composition
 
+
 @st.cache_data
 def plot_global_paleogeography(
     df,
@@ -967,7 +968,7 @@ def plot_global_paleogeography(
     central_lat,
     sites_check,
     label_fontsize,
-    marker_size
+    marker_size,
 ):
     ### plot Eocene paleogeography with rotated site(s)
 
@@ -1094,7 +1095,7 @@ def plot_global_paleogeography(
             "ro",
             markersize=marker_size,
             markeredgecolor="black",
-            markeredgewidth=1.0 * (marker_size/9.),
+            markeredgewidth=1.0 * (marker_size / 9.0),
             transform=ccrs.PlateCarree(),
         )
     ax.set_global()
@@ -1102,18 +1103,23 @@ def plot_global_paleogeography(
     if sites_check:
         for index, row in df.iterrows():
             if proxy_label[index] != "":
-
-                labelLon = float(row["Eocene (55Ma) lon H14"]) - 5 * (label_fontsize/10.)
+                labelLon = float(row["Eocene (55Ma) lon H14"]) - 5 * (
+                    label_fontsize / 10.0
+                )
                 labelAlignment = "right"
 
                 if projection == "Orthographic":
                     ax.text(
                         labelLon,
-                        float(row["Eocene (55Ma) lat H14"]) - 6 * (label_fontsize/10.),
+                        float(row["Eocene (55Ma) lat H14"])
+                        - 6 * (label_fontsize / 10.0),
                         proxy_label[index],
                         horizontalalignment=labelAlignment,
                         bbox=dict(
-                            facecolor="white", edgecolor="black", linewidth=1.0 * (label_fontsize/10.), boxstyle="round"
+                            facecolor="white",
+                            edgecolor="black",
+                            linewidth=1.0 * (label_fontsize / 10.0),
+                            boxstyle="round",
                         ),
                         fontsize=label_fontsize,
                         transform=ccrs.PlateCarree(),
@@ -1121,11 +1127,15 @@ def plot_global_paleogeography(
                 elif projection == "Robinson":
                     ax.text(
                         labelLon,
-                        float(row["Eocene (55Ma) lat H14"]) - 15 * (label_fontsize/10.),
+                        float(row["Eocene (55Ma) lat H14"])
+                        - 15 * (label_fontsize / 10.0),
                         proxy_label[index],
                         horizontalalignment=labelAlignment,
                         bbox=dict(
-                            facecolor="white", edgecolor="black", linewidth=1.0 * (label_fontsize/10.), boxstyle="round"
+                            facecolor="white",
+                            edgecolor="black",
+                            linewidth=1.0 * (label_fontsize / 10.0),
+                            boxstyle="round",
                         ),
                         fontsize=label_fontsize,
                         transform=ccrs.PlateCarree(),
@@ -1133,11 +1143,15 @@ def plot_global_paleogeography(
                 else:
                     ax.text(
                         labelLon,
-                        float(row["Eocene (55Ma) lat H14"]) - 18 * (label_fontsize/10.),
+                        float(row["Eocene (55Ma) lat H14"])
+                        - 18 * (label_fontsize / 10.0),
                         proxy_label[index],
                         horizontalalignment=labelAlignment,
                         bbox=dict(
-                            facecolor="white", edgecolor="black", linewidth=1.0 * (label_fontsize/10.), boxstyle="round"
+                            facecolor="white",
+                            edgecolor="black",
+                            linewidth=1.0 * (label_fontsize / 10.0),
+                            boxstyle="round",
                         ),
                         fontsize=label_fontsize,
                         transform=ccrs.PlateCarree(),
@@ -1147,9 +1161,7 @@ def plot_global_paleogeography(
 
 
 @st.cache_data
-def plot_model_geographies(
-    df, projection, proxy_label, grid_check, labels_check
-):
+def plot_model_geographies(df, projection, proxy_label, grid_check, labels_check):
     ### plot Eocene paleogeography around rotated site for each DeepMIP model
 
     if projection == "Equirectangular":
@@ -1207,7 +1219,6 @@ def plot_model_geographies(
         [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], cmap_slftf.N
     )
     cmap_slftf.set_under("DarkGray")
-
 
     progress_bar = st.progress(0)
 
@@ -1364,7 +1375,8 @@ def plot_model_geographies(
                 ds_sftlf[str(lat_name_orog)],
                 ds_sftlf.squeeze()
                 .where(ds_sftlf.squeeze().sftlf > 0.0)
-                .fillna(-9999).sftlf,
+                .fillna(-9999)
+                .sftlf,
                 transform=ccrs.PlateCarree(),
                 cmap=cmap_slftf,
                 norm=norm_slftf,
