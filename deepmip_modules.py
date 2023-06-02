@@ -1168,8 +1168,10 @@ def plot_global_paleogeography(
 
 
 @st.cache_data
-def plot_model_geographies(df, projection, proxy_label, grid_check, labels_check):
+def plot_model_geographies(df, proxy_label, grid_check, labels_check):
     ### plot Eocene paleogeography around rotated site for each DeepMIP model
+
+    projection = "Equirectangular"
 
     if projection == "Equirectangular":
         proj = ccrs.PlateCarree()
@@ -1234,6 +1236,9 @@ def plot_model_geographies(df, projection, proxy_label, grid_check, labels_check
             ((model_count + 1) / (len(model_dict.keys()) + 1)),
             text="Processing data for " + model,
         )
+
+        # if model != "CESM1.2_CAM5":
+        #     continue
 
         # get boundary conditions from first Eocene simulation
         exp = model_dict[model]["exps"][1]
@@ -1346,8 +1351,63 @@ def plot_model_geographies(df, projection, proxy_label, grid_check, labels_check
                     lon_name_sftlf = coord
 
             sftlf, lonsc = add_cyclic_point(
-                ds_sftlf.squeeze().sftlf, ds_sftlf[str(lon_name_orog)]
+                ds_sftlf.squeeze().sftlf, ds_sftlf[str(lon_name_sftlf)]
             )
+
+            latsc = ds_sftlf[lat_name_sftlf].squeeze()
+
+            # deptho_dim_dict = {lon_name_deptho: slice(plon-30,plon+30), lat_name_deptho: slice(plat-25,plat+25) }
+
+            # print(ds_orog[lat_name_orog])
+            if ds_orog[lat_name_orog][0] < 0:
+                lat_slice = slice(plat-30,plat+30)
+            else:
+                lat_slice = slice(plat+30,plat-30)
+
+
+            if np.max(ds_orog[lon_name_orog]) > 180:
+                orog_dim_dict_1 = {lon_name_orog: slice(plon+360-35,plon+360), lat_name_orog: lat_slice }
+                orog_dim_dict_2 = {lon_name_orog: slice(plon,plon+35), lat_name_orog: lat_slice }
+                ds_orog= xr.concat([
+                    ds_orog.sel(**orog_dim_dict_1),
+                    ds_orog.sel(**orog_dim_dict_2)
+                ], dim=lon_name_orog)
+
+                sftlf_dim_dict_1 = {lon_name_sftlf: slice(plon+360-35,plon+360), lat_name_sftlf: lat_slice }
+                sftlf_dim_dict_2 = {lon_name_sftlf: slice(plon,plon+35), lat_name_sftlf: lat_slice }
+                ds_sftlf= xr.concat([
+                    ds_sftlf.sel(**sftlf_dim_dict_1),
+                    ds_sftlf.sel(**sftlf_dim_dict_2)
+                ], dim=lon_name_sftlf)
+            else:
+                orog_dim_dict = {lon_name_orog: slice(plon-35,plon+35), lat_name_orog: lat_slice }
+                ds_orog= ds_orog.sel(**orog_dim_dict)
+
+                sftlf_dim_dict = {lon_name_sftlf: slice(plon-35,plon+35), lat_name_sftlf: lat_slice }
+                ds_sftlf= ds_sftlf.sel(**sftlf_dim_dict)
+
+            # Shift longitudes to the range -180 to 180 using modulo arithmetic
+            # ds_orog[lon_name_orog] = (ds_orog[lon_name_orog] + 180) % 360 - 180
+            # ds_deptho= ds_deptho.sel(**deptho_dim_dict)
+
+            # orog_shift_dict = {lon_name_orog: ds_orog.dims[lon_name_orog] // 2 }
+            # sftlf_shift_dict = {lon_name_sftlf: ds_sftlf.dims[lon_name_sftlf] // 2 }
+
+            # ds_orog[lon_name_orog] = (ds_orog[lon_name_orog] + 180.) % 360. - 180.
+            # ds_orog = ds_orog.roll(**orog_shift_dict, roll_coords=True)
+
+            # ds_sftlf[lon_name_sftlf] = (ds_orog[lon_name_sftlf] + 180.) % 360. - 180.
+            # # ds_sftlf = ds_sftlf.roll(**1, roll_coords=True)
+
+            # print(ds_sftlf[lon_name_sftlf])
+
+
+            print(ds_sftlf)
+
+            # sftlf, lonsc = add_cyclic_point(
+            #     ds_sftlf.squeeze().sftlf, ds_sftlf[str(lon_name_sftlf)]
+            # )
+
 
             orog = ds_orog.squeeze().orog
 
@@ -1378,8 +1438,8 @@ def plot_model_geographies(df, projection, proxy_label, grid_check, labels_check
             )
 
             im_sftlf = ax[model_count, 2].pcolormesh(
-                ds_sftlf[str(lon_name_orog)],
-                ds_sftlf[str(lat_name_orog)],
+                ds_sftlf[str(lon_name_sftlf)],
+                ds_sftlf[str(lat_name_sftlf)],
                 ds_sftlf.squeeze()
                 .where(ds_sftlf.squeeze().sftlf > 0.0)
                 .fillna(-9999)
@@ -1404,6 +1464,15 @@ def plot_model_geographies(df, projection, proxy_label, grid_check, labels_check
             def clip(value, lower, upper):
                 return lower if value < lower else upper if value > upper else value
 
+            # ax[model_count, 0].set_extent(
+            #     [
+            #         clip(plon - 30.0, -180.0, 180.0),
+            #         clip(plon + 30.0, -180.0, 180.0),
+            #         clip(plat - 25.0, -90.0, 90.0),
+            #         clip(plat + 25, -90.0, 90.0),
+            #     ]
+            # )
+
             for count in range(3):
                 ax[model_count, count].set_extent(
                     [
@@ -1416,7 +1485,7 @@ def plot_model_geographies(df, projection, proxy_label, grid_check, labels_check
 
                 ax[model_count, count].contour(
                     lonsc,
-                    ds_orog[str(lat_name_orog)],
+                    latsc,
                     sftlf,
                     transform=ccrs.PlateCarree(),
                     levels=[0.5],

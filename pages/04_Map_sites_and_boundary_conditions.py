@@ -275,7 +275,7 @@ if st.button("Download Map", type="primary", use_container_width=True):
 
 if df_paleo_locations.empty:
     st.stop()
-    
+
 st.subheader("Figure 2: Local model boundary conditions")
 st.markdown(
     """
@@ -302,7 +302,6 @@ for v in [site_name]:
 # fig_models, progress_bar = plot_model_geographies(
 fig_models = plot_model_geographies(
     df_paleo_locations[df_paleo_locations.name == site_name],
-    projection,
     site_name,
     grid_check,
     labels_check,
@@ -350,3 +349,5 @@ if st.button("Download Model Maps", type="primary", use_container_width=True):
             mime="image/png",
             use_container_width=True,
         )
+
+
