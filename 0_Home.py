@@ -11,6 +11,14 @@ st.set_page_config(
 
 init_sidebar()
 
+st.warning(
+    """
+    **Warning:**
+    This application is still under development. Please double-check any results before using them in your research.
+    If you encounter any problems or bugs, please let me know by email at [sebastian.steinig@bristol.ac.uk](mailto:sebastian.steinig@bristol.ac.uk).
+    Thank you!
+    """)
+
 st.write("# Welcome to the DeepMIP-Eocene model database! 👋")
 
 st.markdown(

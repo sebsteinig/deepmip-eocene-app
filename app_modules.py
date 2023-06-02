@@ -726,7 +726,8 @@ def init_sidebar():
         unsafe_allow_html=True,
     )
     st.sidebar.markdown(
-        "Get in touch: [![Repo](https://badgen.net/badge/icon/sebsteinig?icon=twitter&label)](https://twitter.com/sebsteinig)",
+        # "Get in touch: [![Repo](https://badgen.net/badge/icon/sebsteinig?icon=twitter&label)](https://twitter.com/sebsteinig)",
+        "Get in touch: [![Repo](https://badgen.net/badge/icon/email?icon=telegram&label)](mailto:sebastian.steinig@bristol.ac.uk)",
         unsafe_allow_html=True,
     )
     st.sidebar.markdown(
