@@ -1,4 +1,3 @@
-
 import streamlit as st
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -11,14 +10,14 @@ from app_modules import (
     init_widgets_single_site_map,
     init_widgets_multi_site_map,
     init_sidebar,
-    sites_to_list,
     customDownloadButton_JPG_PNG,
-    customDownloadButton_JPG_PNG_PDF
+    customDownloadButton_JPG_PNG_PDF,
 )
 from deepmip_modules import (
     get_paleo_locations,
     plot_global_paleogeography,
     plot_model_geographies,
+    sites_to_list,
 )
 
 st.set_page_config(
@@ -77,7 +76,9 @@ if analysis_type == "Single site":
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
     csv_choice, csv_input = init_widgets_multi_site_map()
-    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(csv_input, 5)
+    modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(
+        csv_input, True
+    )
 
     for v in [csv_input, csv_choice, analysis_type]:
         st.session_state.v = v
@@ -166,9 +167,9 @@ with col2d:
 with col2e:
     label_fontsize = st.number_input(
         label="site label size",
-        min_value=-0.,
-        max_value=20.,
-        value=8.,
+        min_value=-0.0,
+        max_value=20.0,
+        value=8.0,
         step=1.0,
         format="%.1f",
         key="label_fontsize",
@@ -176,9 +177,9 @@ with col2e:
 with col2f:
     marker_size = st.number_input(
         label="site marker size",
-        min_value= 0.,
-        max_value=20.,
-        value=9.,
+        min_value=0.0,
+        max_value=20.0,
+        value=9.0,
         step=1.0,
         format="%.1f",
         key="marker_size",
@@ -195,14 +196,13 @@ fig = plot_global_paleogeography(
     central_lat,
     sites_check,
     label_fontsize,
-    marker_size
+    marker_size,
 )
 
 st.pyplot(fig)
 
 # create Download Buttons for JPG, PNG and PDF
 if st.button("Download Map", type="primary", use_container_width=True):
-
     ct = datetime.datetime.now()
     ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
 
@@ -210,26 +210,23 @@ if st.button("Download Map", type="primary", use_container_width=True):
 
     def save_image_to_disk(fig, filename, format):
         if format == "jpg":
-            fig.savefig("figures/" + filename +  "." + format, format=format, dpi=200)
+            fig.savefig("figures/" + filename + "." + format, format=format, dpi=200)
         elif format == "png":
-            fig.savefig("figures/" + filename +  "." + format, format=format, dpi=300)
+            fig.savefig("figures/" + filename + "." + format, format=format, dpi=300)
         elif format == "pdf":
-            fig.savefig("figures/" + filename +  "." + format, format=format)
-        
+            fig.savefig("figures/" + filename + "." + format, format=format)
 
     progress_bar = st.progress(0)
 
     progress_bar.progress(1 / 3, "Creating JPG")
-    fn3 =filename + ".jpg"
+    fn3 = filename + ".jpg"
     img3 = io.BytesIO()
     fig.savefig(img3, format="jpg", dpi=200)
-
 
     progress_bar.progress(2 / 3, "Creating PNG")
     fn = filename + ".png"
     img = io.BytesIO()
     fig.savefig(img, format="png", dpi=300)
-
 
     progress_bar.progress(3 / 3, "Creating PDF")
     fn2 = filename + ".pdf"
@@ -247,7 +244,7 @@ if st.button("Download Map", type="primary", use_container_width=True):
             mime="image/jpg",
             use_container_width=True,
             on_click=save_image_to_disk,
-            kwargs={"fig":fig, "filename":filename, "format":"jpg"}
+            kwargs={"fig": fig, "filename": filename, "format": "jpg"},
         )
 
     with col2:
@@ -258,7 +255,7 @@ if st.button("Download Map", type="primary", use_container_width=True):
             mime="image/png",
             use_container_width=True,
             on_click=save_image_to_disk,
-            kwargs={"fig":fig, "filename":filename, "format":"png"}
+            kwargs={"fig": fig, "filename": filename, "format": "png"},
         )
 
     with col3:
@@ -269,7 +266,7 @@ if st.button("Download Map", type="primary", use_container_width=True):
             mime="image/pdf",
             use_container_width=True,
             on_click=save_image_to_disk,
-            kwargs={"fig":fig, "filename":filename, "format":"pdf"}
+            kwargs={"fig": fig, "filename": filename, "format": "pdf"},
         )
 
 
@@ -311,7 +308,6 @@ st.pyplot(fig_models)
 
 # create Download Buttons for JPG, PNG and PDF
 if st.button("Download Model Maps", type="primary", use_container_width=True):
-
     ct = datetime.datetime.now()
     ct = ct.strftime("%Y-%m-%d_%H-%M-%S")
 
@@ -320,7 +316,7 @@ if st.button("Download Model Maps", type="primary", use_container_width=True):
     progress_bar = st.progress(0)
 
     progress_bar.progress(1 / 2, "Creating JPG")
-    fn4 =filename + ".jpg"
+    fn4 = filename + ".jpg"
     img4 = io.BytesIO()
     fig_models.savefig(img4, format="jpg", dpi=200)
 
@@ -331,7 +327,7 @@ if st.button("Download Model Maps", type="primary", use_container_width=True):
 
     progress_bar.empty()
 
-    col1, col2= st.columns(2)
+    col1, col2 = st.columns(2)
     with col1:
         st.download_button(
             label="Download JPG",
@@ -349,5 +345,3 @@ if st.button("Download Model Maps", type="primary", use_container_width=True):
             mime="image/png",
             use_container_width=True,
         )
-
-

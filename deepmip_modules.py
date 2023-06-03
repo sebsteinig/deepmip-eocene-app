@@ -213,12 +213,15 @@ def get_paleo_locations(modern_lats, modern_lons, names):
                     encoding="unicode_escape",
                 )
 
+                # get shjort name of site consistent with Hollis et al. (2019) data
+                name_short = names[count].split("-")[0]
+
                 # if proxy is in Hollis et al. (2019) compilation, use that location
-                if (proxy_db["site"] == names[count]).any():
-                    mlat = proxy_db.loc[proxy_db.site == names[count]].iloc[0].mlat
-                    mlon = proxy_db.loc[proxy_db.site == names[count]].iloc[0].mlon
-                    plat = proxy_db.loc[proxy_db.site == names[count]].iloc[0].plat
-                    plon = proxy_db.loc[proxy_db.site == names[count]].iloc[0].plon
+                if (proxy_db["site"] == name_short).any():
+                    mlat = proxy_db.loc[proxy_db.site == name_short].iloc[0].mlat
+                    mlon = proxy_db.loc[proxy_db.site == name_short].iloc[0].mlon
+                    plat = proxy_db.loc[proxy_db.site == name_short].iloc[0].plat
+                    plon = proxy_db.loc[proxy_db.site == name_short].iloc[0].plon
 
                     d.append(
                         {
@@ -466,6 +469,89 @@ def get_model_point_data(df, variable):
     progress_bar.empty()
 
     return df_out.round(1)
+
+
+# convert locations of single or multiple sites from user input to lists to easily \\
+# loop analysis over all chosen sites
+def sites_to_list(csv_input, split_sites):
+    modern_lats = []
+    modern_lons = []
+    names = []
+    proxy_means = []
+    proxy_stds = []
+    lines = csv_input.split("\n")  # A list of lines
+    for line in lines:
+        if line != "":
+            # first check whether input has correct number of values
+            if len(line.split(",")) == 3:
+                name, lat, lon = line.split(",")
+                mean = -999.9
+                std = -999.9
+            elif len(line.split(",")) == 4:
+                name, lat, lon, mean = line.split(",")
+                std = -999.9
+            elif len(line.split(",")) == 5:
+                name, lat, lon, mean, std = line.split(",")
+                if (
+                    split_sites == False
+                ):  # get shjort name of site consistent with Hollis et al. (2019) data
+                    name = name.split("-")[0]
+            else:
+                st.error("Error in line: " + line)
+                st.error(
+                    "CSV input must be in the format: name, modern latitude, modern longitude, proxy mean (OPTIONAL), proxy uncertainty (OPTIONAL)"
+                )
+
+                st.stop()
+
+            # skip duplicate sites
+            if name in names:
+                continue
+
+            # split =
+            if "" in line.split(","):
+                st.error("Error in line: " + line)
+                st.error("all values need to be defined")
+                st.stop()
+
+            # check whether latitude is number
+            if lat.replace(".", "", 1).replace("-", "", 1).isdigit():
+                modern_lats.append(float(lat))
+            else:
+                st.error("Error in line: " + line)
+                st.error("latitude must be a number")
+                st.stop()
+
+            # check whether longitude is number
+            if lon.replace(".", "", 1).replace("-", "", 1).isdigit():
+                modern_lons.append(float(lon))
+            else:
+                st.error("Error in line: " + line)
+                st.error("longitude must be a number")
+                st.stop()
+
+            names.append(name)
+
+            if mean != "" and mean != -999.9:
+                print(mean)
+                # check whether proxy mean is number
+                if mean.replace(".", "", 1).replace("-", "", 1).isdigit() == False:
+                    st.error("Error in line: " + line)
+                    st.error("proxy mean must be a number")
+                    st.stop()
+
+            proxy_means.append(float(mean))
+
+            if std != "" and std != -999.9:
+                # check whether proxy std is number
+                if std.replace(".", "", 1).replace("-", "", 1).isdigit() == False:
+                    st.error("Error in line: " + line)
+                    st.error("proxy uncertainty must be a number")
+                    st.stop()
+
+            proxy_stds.append(float(std))
+
+    return modern_lats, modern_lons, names, proxy_means, proxy_stds
 
 
 @st.cache_data
@@ -738,12 +824,19 @@ def scatter_line_plot(
             opts.BoxWhisker(
                 logx=log_x,
                 box_color="white",
-                width=600,
-                height=800,
+                height=600,
+                width=800,
                 responsive=True,
                 show_legend=False,
                 whisker_color="black",
                 box_fill_color="#63c5da",
+                fontsize={
+                    "legend": 8,
+                    "title": 14,
+                    "labels": 14,
+                    "xticks": 10,
+                    "yticks": 11,
+                },
             )
         )
 

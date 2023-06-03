@@ -9,9 +9,8 @@ from app_modules import (
     init_widgets_single_site,
     init_widgets_multi_site,
     init_sidebar,
-    sites_to_list,
 )
-from deepmip_modules import get_paleo_locations, get_model_point_data
+from deepmip_modules import get_paleo_locations, get_model_point_data, sites_to_list
 
 st.set_page_config(
     page_title="Extract local model data",
@@ -67,7 +66,7 @@ if analysis_type == "Single site":
 elif analysis_type == "Multiple sites":
     csv_choice, csv_input, user_variable = init_widgets_multi_site()
     modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(
-        csv_input, 3
+        csv_input, False
     )
 
     for v in [csv_input, csv_choice, user_variable, analysis_type]:

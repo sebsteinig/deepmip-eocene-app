@@ -10,7 +10,6 @@ from app_modules import (
     init_widgets_single_site_plot,
     init_widgets_multi_site_plot,
     init_sidebar,
-    sites_to_list,
     customDownloadButton2,
 )
 from deepmip_modules import (
@@ -18,6 +17,7 @@ from deepmip_modules import (
     get_model_point_data,
     scatter_line_plot,
     annual_cycle_plot,
+    sites_to_list,
 )
 
 st.set_page_config(
@@ -88,7 +88,7 @@ if analysis_type == "Single site":
 elif analysis_type == "Multiple sites":
     csv_choice, csv_input, user_variable = init_widgets_multi_site_plot()
     modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(
-        csv_input, 5
+        csv_input, True
     )
 
     for v in [csv_input, csv_choice, user_variable]:

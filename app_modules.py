@@ -590,86 +590,6 @@ def init_widgets_multi_site_map():
     return (csv_choice, csv_input)
 
 
-# convert locations of single or multiple sites from user input to lists to easily \\
-# loop analysis over all chosen sites
-def sites_to_list(csv_input, max_arguments):
-    modern_lats = []
-    modern_lons = []
-    names = []
-    proxy_means = []
-    proxy_stds = []
-    lines = csv_input.split("\n")  # A list of lines
-    for line in lines:
-        if line != "":
-            # first check whether input has correct number of values
-            if len(line.split(",")) == 3:
-                name, lat, lon = line.split(",")
-                mean = -999.9
-                std = -999.9
-            elif len(line.split(",")) == 4 and max_arguments == 5:
-                name, lat, lon, mean = line.split(",")
-                std = -999.9
-            elif len(line.split(",")) == 5 and max_arguments == 5:
-                name, lat, lon, mean, std = line.split(",")
-            else:
-                st.error("Error in line: " + line)
-                if max_arguments == 3:
-                    st.error(
-                        "CSV input must be in the format: name, modern latitude, modern longitude"
-                    )
-                elif max_arguments == 5:
-                    st.error(
-                        "CSV input must be in the format: name, modern latitude, modern longitude, proxy mean (OPTIONAL), proxy uncertainty (OPTIONAL)"
-                    )
-
-                st.stop()
-
-            # split =
-            if "" in line.split(","):
-                st.error("Error in line: " + line)
-                st.error("all values need to be defined")
-                st.stop()
-
-            # check whether latitude is number
-            if lat.replace(".", "", 1).replace("-", "", 1).isdigit():
-                modern_lats.append(float(lat))
-            else:
-                st.error("Error in line: " + line)
-                st.error("latitude must be a number")
-                st.stop()
-
-            # check whether longitude is number
-            if lon.replace(".", "", 1).replace("-", "", 1).isdigit():
-                modern_lons.append(float(lon))
-            else:
-                st.error("Error in line: " + line)
-                st.error("longitude must be a number")
-                st.stop()
-
-            names.append(name)
-
-            if mean != "" and mean != -999.9:
-                print(mean)
-                # check whether proxy mean is number
-                if mean.replace(".", "", 1).replace("-", "", 1).isdigit() == False:
-                    st.error("Error in line: " + line)
-                    st.error("proxy mean must be a number")
-                    st.stop()
-
-            proxy_means.append(float(mean))
-
-            if std != "" and std != -999.9:
-                # check whether proxy std is number
-                if std.replace(".", "", 1).replace("-", "", 1).isdigit() == False:
-                    st.error("Error in line: " + line)
-                    st.error("proxy uncertainty must be a number")
-                    st.stop()
-
-            proxy_stds.append(float(std))
-
-    return modern_lats, modern_lons, names, proxy_means, proxy_stds
-
-
 def get_base64(bin_file):
     with open(bin_file, "rb") as f:
         data = f.read()
@@ -747,38 +667,38 @@ def init_sidebar():
     # """
     # st.markdown(css, unsafe_allow_html=True)
 
+
 def delete_figures(file1, file2, file3):
     for file in [file1, file2, file3]:
         if os.path.exists(file):
             os.remove(file)
 
+
 def customDownloadButton_JPG_PNG_PDF(figure, filename):
-
     if "single_map" not in st.session_state:
-    # if st.session_state.get('single_map') != True:
+        # if st.session_state.get('single_map') != True:
 
-        button_map = st.button("Download Map", type="primary", use_container_width=True, key=filename)
+        button_map = st.button(
+            "Download Map", type="primary", use_container_width=True, key=filename
+        )
 
-        st.session_state['single_map'] = button_map # Saved the state
+        st.session_state["single_map"] = button_map  # Saved the state
 
-    print(st.session_state['single_map'])
+    print(st.session_state["single_map"])
     st.stop()
 
-    if st.session_state['single_map'] == True:
-        
+    if st.session_state["single_map"] == True:
         progress_bar = st.progress(0)
 
         progress_bar.progress(1 / 3, "Creating JPG")
-        fn3 =filename + ".jpg"
+        fn3 = filename + ".jpg"
         img3 = io.BytesIO()
         figure.savefig(img3, format="jpg", dpi=200)
-
 
         progress_bar.progress(2 / 3, "Creating PNG")
         fn = filename + ".png"
         img = io.BytesIO()
         figure.savefig(img, format="png", dpi=300)
-
 
         progress_bar.progress(3 / 3, "Creating PDF")
         fn2 = filename + ".pdf"
@@ -815,20 +735,25 @@ def customDownloadButton_JPG_PNG_PDF(figure, filename):
                 use_container_width=True,
             )
 
+
 def customDownloadButton_JPG_PNG(figure, filename):
-
     if "model_maps" not in st.session_state:
-    # if st.session_state.get('model_maps') != True:
+        # if st.session_state.get('model_maps') != True:
 
-        button_models = st.button("Download Model Maps", type="primary", use_container_width=True, key=filename)
+        button_models = st.button(
+            "Download Model Maps",
+            type="primary",
+            use_container_width=True,
+            key=filename,
+        )
 
-        st.session_state['model_maps'] = button_models # Saved the state
+        st.session_state["model_maps"] = button_models  # Saved the state
 
-    if st.session_state['model_maps'] == True:
+    if st.session_state["model_maps"] == True:
         progress_bar = st.progress(0)
 
         progress_bar.progress(1 / 2, "Creating JPG")
-        fn3 =filename + ".jpg"
+        fn3 = filename + ".jpg"
         img3 = io.BytesIO()
         figure.savefig(img3, format="jpg", dpi=200)
 
@@ -839,7 +764,7 @@ def customDownloadButton_JPG_PNG(figure, filename):
 
         progress_bar.empty()
 
-        col1, col2= st.columns(2)
+        col1, col2 = st.columns(2)
         with col1:
             st.download_button(
                 label="Download JPG",
@@ -885,7 +810,7 @@ def customDownloadButton2(render1, render2, filename1, filename2):
                     mime="image/",
                     use_container_width=True,
                     on_click=delete_figures,
-                    args=(filename1 + ".svg", filename2 + ".png", filename2 + ".svg")
+                    args=(filename1 + ".svg", filename2 + ".png", filename2 + ".svg"),
                 )
             with open(filename1 + ".svg", "rb") as file:
                 st.download_button(
@@ -895,7 +820,7 @@ def customDownloadButton2(render1, render2, filename1, filename2):
                     mime="image/svg",
                     use_container_width=True,
                     on_click=delete_figures,
-                    args=(filename1 + ".png", filename2 + ".png", filename2 + ".svg")
+                    args=(filename1 + ".png", filename2 + ".png", filename2 + ".svg"),
                 )
 
         col3, col4 = st.columns(2)
@@ -908,7 +833,7 @@ def customDownloadButton2(render1, render2, filename1, filename2):
                     mime="image/",
                     use_container_width=True,
                     on_click=delete_figures,
-                    args=(filename1 + ".png", filename1 + ".svg", filename2 + ".svg")
+                    args=(filename1 + ".png", filename1 + ".svg", filename2 + ".svg"),
                 )
             with open(filename2 + ".svg", "rb") as file:
                 st.download_button(
@@ -918,5 +843,5 @@ def customDownloadButton2(render1, render2, filename1, filename2):
                     mime="image/svg",
                     use_container_width=True,
                     on_click=delete_figures,
-                    args=(filename1 + ".png", filename1 + ".svg", filename2 + ".png")
+                    args=(filename1 + ".png", filename1 + ".svg", filename2 + ".png"),
                 )
