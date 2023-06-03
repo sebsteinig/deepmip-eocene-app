@@ -18,9 +18,6 @@ st.set_page_config(
     layout="wide",
 )
 
-profiler = Profiler()
-profiler.start()
-
 init_sidebar()
 
 st.title("Extract local model data")
