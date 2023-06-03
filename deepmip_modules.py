@@ -1103,7 +1103,7 @@ def plot_global_paleogeography(
     if sites_check:
         for index, row in df.iterrows():
             if proxy_label[index] != "":
-                if float(row["Eocene (55Ma) lon H14"]) > -100.:
+                if float(row["Eocene (55Ma) lon H14"]) > -100.0:
                     labelLon = float(row["Eocene (55Ma) lon H14"]) - 5 * (
                         label_fontsize / 10.0
                     )
@@ -1111,9 +1111,8 @@ def plot_global_paleogeography(
                 else:
                     labelLon = float(row["Eocene (55Ma) lon H14"]) + 5 * (
                         label_fontsize / 10.0
-                    )                    
+                    )
                     labelAlignment = "left"
-
 
                 if projection == "Orthographic":
                     ax.text(
@@ -1350,64 +1349,93 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
                 ]:
                     lon_name_sftlf = coord
 
+            # add cyclic point to longitude to plot land-sea mask
             sftlf, lonsc = add_cyclic_point(
                 ds_sftlf.squeeze().sftlf, ds_sftlf[str(lon_name_sftlf)]
             )
-
             latsc = ds_sftlf[lat_name_sftlf].squeeze()
 
-            # deptho_dim_dict = {lon_name_deptho: slice(plon-30,plon+30), lat_name_deptho: slice(plat-25,plat+25) }
+            # Select only region around the selected site for orography and land-sea mask
+            # to speed up plotting in web app (if computation speed is not an issue we can
+            # skip this step). Not easily possible for bathymetry due to curvilinear grids.
 
-            # print(ds_orog[lat_name_orog])
+            # cover monotonically increasing and decreasing latitudes
             if ds_orog[lat_name_orog][0] < 0:
-                lat_slice = slice(plat-30,plat+30)
+                lat_slice = slice(plat - 30, plat + 30)
             else:
-                lat_slice = slice(plat+30,plat-30)
+                lat_slice = slice(plat + 30, plat - 30)
 
+            # Longitudes are a bit more complicated due to different ranges (either
+            # -180 to 180 or 0 to 360).
 
             if np.max(ds_orog[lon_name_orog]) > 180:
-                orog_dim_dict_1 = {lon_name_orog: slice(plon+360-35,plon+360), lat_name_orog: lat_slice }
-                orog_dim_dict_2 = {lon_name_orog: slice(plon,plon+35), lat_name_orog: lat_slice }
-                ds_orog= xr.concat([
-                    ds_orog.sel(**orog_dim_dict_1),
-                    ds_orog.sel(**orog_dim_dict_2)
-                ], dim=lon_name_orog)
+                if plon < -35:
+                    orog_dim_dict = {
+                        lon_name_orog: slice(360 + plon - 35, 360 + plon + 35),
+                        lat_name_orog: lat_slice,
+                    }
+                    sftlf_dim_dict = {
+                        lon_name_sftlf: slice(360 + plon - 35, 360 + plon + 35),
+                        lat_name_sftlf: lat_slice,
+                    }
+                elif plon > 35:
+                    orog_dim_dict = {
+                        lon_name_orog: slice(plon - 35, plon + 35),
+                        lat_name_orog: lat_slice,
+                    }
+                    sftlf_dim_dict = {
+                        lon_name_sftlf: slice(plon - 35, plon + 35),
+                        lat_name_sftlf: lat_slice,
+                    }
+                    ds_orog = ds_orog.sel(**orog_dim_dict)
+                    ds_sftlf = ds_sftlf.sel(**sftlf_dim_dict)
+                # select two regions
+                else:
+                    orog_dim_dict_1 = {
+                        lon_name_orog: slice(360 + plon - 35, 360),
+                        lat_name_orog: lat_slice,
+                    }
+                    orog_dim_dict_2 = {
+                        lon_name_orog: slice(0, plon + 35),
+                        lat_name_orog: lat_slice,
+                    }
 
-                sftlf_dim_dict_1 = {lon_name_sftlf: slice(plon+360-35,plon+360), lat_name_sftlf: lat_slice }
-                sftlf_dim_dict_2 = {lon_name_sftlf: slice(plon,plon+35), lat_name_sftlf: lat_slice }
-                ds_sftlf= xr.concat([
-                    ds_sftlf.sel(**sftlf_dim_dict_1),
-                    ds_sftlf.sel(**sftlf_dim_dict_2)
-                ], dim=lon_name_sftlf)
+                    sftlf_dim_dict_1 = {
+                        lon_name_sftlf: slice(360 + plon - 35, 360),
+                        lat_name_sftlf: lat_slice,
+                    }
+                    sftlf_dim_dict_2 = {
+                        lon_name_sftlf: slice(0, plon + 35),
+                        lat_name_sftlf: lat_slice,
+                    }
+                    ds_sftlf = xr.concat(
+                        [
+                            ds_sftlf.sel(**sftlf_dim_dict_1),
+                            ds_sftlf.sel(**sftlf_dim_dict_2),
+                        ],
+                        dim=lon_name_sftlf,
+                    )
+
+                    ds_orog = xr.concat(
+                        [
+                            ds_orog.sel(**orog_dim_dict_1),
+                            ds_orog.sel(**orog_dim_dict_2),
+                        ],
+                        dim=lon_name_orog,
+                    )
+
             else:
-                orog_dim_dict = {lon_name_orog: slice(plon-35,plon+35), lat_name_orog: lat_slice }
-                ds_orog= ds_orog.sel(**orog_dim_dict)
+                orog_dim_dict = {
+                    lon_name_orog: slice(plon - 35, plon + 35),
+                    lat_name_orog: lat_slice,
+                }
+                ds_orog = ds_orog.sel(**orog_dim_dict)
 
-                sftlf_dim_dict = {lon_name_sftlf: slice(plon-35,plon+35), lat_name_sftlf: lat_slice }
-                ds_sftlf= ds_sftlf.sel(**sftlf_dim_dict)
-
-            # Shift longitudes to the range -180 to 180 using modulo arithmetic
-            # ds_orog[lon_name_orog] = (ds_orog[lon_name_orog] + 180) % 360 - 180
-            # ds_deptho= ds_deptho.sel(**deptho_dim_dict)
-
-            # orog_shift_dict = {lon_name_orog: ds_orog.dims[lon_name_orog] // 2 }
-            # sftlf_shift_dict = {lon_name_sftlf: ds_sftlf.dims[lon_name_sftlf] // 2 }
-
-            # ds_orog[lon_name_orog] = (ds_orog[lon_name_orog] + 180.) % 360. - 180.
-            # ds_orog = ds_orog.roll(**orog_shift_dict, roll_coords=True)
-
-            # ds_sftlf[lon_name_sftlf] = (ds_orog[lon_name_sftlf] + 180.) % 360. - 180.
-            # # ds_sftlf = ds_sftlf.roll(**1, roll_coords=True)
-
-            # print(ds_sftlf[lon_name_sftlf])
-
-
-            print(ds_sftlf)
-
-            # sftlf, lonsc = add_cyclic_point(
-            #     ds_sftlf.squeeze().sftlf, ds_sftlf[str(lon_name_sftlf)]
-            # )
-
+                sftlf_dim_dict = {
+                    lon_name_sftlf: slice(plon - 35, plon + 35),
+                    lat_name_sftlf: lat_slice,
+                }
+                ds_sftlf = ds_sftlf.sel(**sftlf_dim_dict)
 
             orog = ds_orog.squeeze().orog
 
@@ -1463,15 +1491,6 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
 
             def clip(value, lower, upper):
                 return lower if value < lower else upper if value > upper else value
-
-            # ax[model_count, 0].set_extent(
-            #     [
-            #         clip(plon - 30.0, -180.0, 180.0),
-            #         clip(plon + 30.0, -180.0, 180.0),
-            #         clip(plat - 25.0, -90.0, 90.0),
-            #         clip(plat + 25, -90.0, 90.0),
-            #     ]
-            # )
 
             for count in range(3):
                 ax[model_count, count].set_extent(
