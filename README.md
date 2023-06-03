@@ -1,7 +1,7 @@
 # deepmip_database_app
 Interactive app for DeepMIP model-data comparison built with streamlit.
 
-Test the current version at: https://deepmip.climatearchive.org
+Test the current version at: https://data.deepmip.org
 
 **The app is currently in development and should not be used to extract data for any publication!**
 
