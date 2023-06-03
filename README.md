@@ -1,4 +1,4 @@
-# deepmip-eocene-app
+# DeepMIP-Eocene web app
 
 This repository houses a web application for interactive access to the DeepMIP-Eocene model database. 
 
