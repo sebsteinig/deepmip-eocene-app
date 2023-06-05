@@ -533,7 +533,6 @@ def sites_to_list(csv_input, split_sites):
             names.append(name)
 
             if mean != "" and mean != -999.9:
-                print(mean)
                 # check whether proxy mean is number
                 if mean.replace(".", "", 1).replace("-", "", 1).isdigit() == False:
                     st.error("Error in line: " + line)
@@ -912,9 +911,6 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
         df_monthly = df_monthly[1:].rename(columns={"mean": "ensemble mean"})
         df_monthly["month"] = months[1:13]
         df_monthly["experiment"] = exp_dict[exp]["medium_name"]
-
-        print(exp)
-        print(df_monthly)
 
         for model in model_dict.keys():
             # individual models
