@@ -186,13 +186,14 @@ def init_widgets_multi_site(page):
         on_change=reset_csv_data,
     )
 
-    csv_data = get_csv_data(csv_choice, csv_proxy_flag)
+    if "csv_input" not in st.session_state:
+        st.session_state.csv_input = get_csv_data(csv_choice, csv_proxy_flag)
 
     # initialise user input widgets
     with st.form(key="my_form"):
         csv_input = st.text_area(
             label="Enter your data below (CSV format)",
-            value=csv_data,
+            # value=csv_data,
             placeholder=csv_placeholder,
             height=200,
             key="csv_input",
