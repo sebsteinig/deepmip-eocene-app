@@ -7,8 +7,8 @@ import datetime
 
 
 from app_modules import (
-    init_widgets_single_site_map,
-    init_widgets_multi_site_map,
+    init_widgets_single_site,
+    init_widgets_multi_site,
     init_sidebar,
     customDownloadButton_JPG_PNG,
     customDownloadButton_JPG_PNG_PDF,
@@ -68,14 +68,14 @@ analysis_type = st.radio(
 
 # create user inputs for single site
 if analysis_type == "Single site":
-    modern_lat, modern_lon, user_site_name = init_widgets_single_site_map()
+    modern_lat, modern_lon, user_site_name = init_widgets_single_site("plot_map")
 
     for v in [modern_lat, modern_lon, user_site_name, analysis_type]:
         st.session_state.v = v
 
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
-    csv_choice, csv_input = init_widgets_multi_site_map()
+    csv_choice, csv_input = init_widgets_multi_site("plot_map")
     modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(
         csv_input, True
     )
@@ -113,43 +113,36 @@ with col1a:
         on_change=reset_central_location,
     )
 with col1b:
-    # if "central_lon" in st.session_state:
-    #     del st.session_state["central_lon"]
-
-    if analysis_type == "Single site":
-        central_lon_default = float(df_paleo_locations["Eocene (55Ma) lon H14"])
-    else:
-        central_lon_default = 0.0
+    if "central_lon" not in st.session_state:
+        st.session_state.central_lon = float(df_paleo_locations["Eocene (55Ma) lon H14"]) if analysis_type == "Single site" else 0.0
 
     central_lon = st.number_input(
         label="central longitude",
         min_value=-180.0,
         max_value=180.0,
-        value=central_lon_default,
         step=1.0,
         format="%.1f",
         key="central_lon",
     )
 with col1c:
-    # if "central_lat" in st.session_state:
-    #     del st.session_state["central_lat"]
-
-    if analysis_type == "Single site" and projection == "Orthographic":
-        central_lat_default = float(df_paleo_locations["Eocene (55Ma) lat H14"])
-    else:
-        central_lat_default = 0.0
+    if "central_lat" not in st.session_state:
+        if analysis_type == "Single site" and projection == "Orthographic":
+            st.session_state.central_lat = float(df_paleo_locations["Eocene (55Ma) lat H14"])
+        else:
+            st.session_state.central_lat= 0.0
 
     central_lat = st.number_input(
         label="central latitude",
         min_value=-90.0,
         max_value=90.0,
-        value=central_lat_default,
         step=1.0,
         format="%.1f",
         key="central_lat",
         disabled=False if projection == "Orthographic" else True,
     )
 
+for v in [central_lon, central_lat]:
+    st.session_state.v = v
 
 col2a, col2b, col2c, col2d, col2e, col2f = st.columns(6)
 with col2a:

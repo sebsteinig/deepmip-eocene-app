@@ -57,18 +57,20 @@ analysis_type = st.radio(
 
 # create user inputs for single site
 if analysis_type == "Single site":
-    modern_lat, modern_lon, user_variable, user_site_name = init_widgets_single_site()
+    modern_lat, modern_lon, user_variable, user_site_name = init_widgets_single_site("extract_data")
 
+    # update session state
     for v in [modern_lat, modern_lon, user_variable, user_site_name, analysis_type]:
         st.session_state.v = v
 
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
-    csv_choice, csv_input, user_variable = init_widgets_multi_site()
+    csv_choice, csv_input, user_variable = init_widgets_multi_site("extract_data")
     modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(
         csv_input, False
     )
 
+    # update session state
     for v in [csv_input, csv_choice, user_variable, analysis_type]:
         st.session_state.v = v
 

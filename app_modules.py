@@ -8,354 +8,131 @@ import io
 from deepmip_modules import get_csv_data
 
 
-def init_widgets_single_site():
-    # check whether user input is already in session state
-    # if yes, use the previous selection from the session state
-    # if not, use default values
-
+def init_widgets_single_site(page):
     # initialise user input widgets
     with st.form(key="my_form"):
-        st.info(
-            """
-                Select the present-day location of your site and the variable 
-                you are interested in.
+
+     # some settings that depend on the current page
+        if page == "extract_data":
+            st.info(
                 """
-        )
+                Select the present-day location of your site and the variable you are interested in.
+                """
+            )
+            button_label = "GET MODEL DATA"
+        elif page == "plot_local":
+            st.info(
+                """
+                Select the present-day location of your site and the variable you are interested in.
+                """
+            )
+            button_label = "UPDATE FIGURES"
+        elif page == "plot_map":
+            st.info(
+                """
+                Select the present-day location of your site and an optional label.
+                """
+            )
+            button_label = "UPDATE MAPS"
 
-        col1, col2, col3, col4 = st.columns(4)
+        col1a, col1b, col1c, col1d = st.columns(4)
 
-        with col1:
-            # check whether input has been defined before
-            if "modern_lat" in st.session_state:
-                # if yes, use previous value
-                modern_lat = st.number_input(
-                    label="modern latitude of site",
-                    min_value=-90.0,
-                    max_value=90.0,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lat",
-                )
-            else:
-                # if not, use default value
-                modern_lat = st.number_input(
-                    label="modern latitude of site",
-                    min_value=-90.0,
-                    max_value=90.0,
-                    value=51.5,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lat",
-                )
+        with col1a:
+            # use default value if input has not been defined before
+            if "modern_lat" not in st.session_state:
+                st.session_state.modern_lat = 51.5
+            modern_lat = st.number_input(
+                label="modern latitude of site",
+                min_value=-90.0,
+                max_value=90.0,
+                step=1.0,
+                format="%.1f",
+                key="modern_lat",
+            )
 
-        with col2:
-            # check whether input has been defined before
-            if "modern_lon" in st.session_state:
-                # if yes, use previous value
-                modern_lon = st.number_input(
-                    label="modern longitude of site",
-                    min_value=-180.0,
-                    max_value=180.0,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lon",
-                )
-            else:
-                # if not, use default value
-                modern_lon = st.number_input(
-                    label="modern longitude of site",
-                    min_value=-180.0,
-                    max_value=180.0,
-                    value=-2.6,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lon",
-                )
+        with col1b:
+            if "modern_lon" not in st.session_state:
+                st.session_state.modern_lon = -2.6
+            modern_lon = st.number_input(
+                label="modern longitude of site",
+                min_value=-180.0,
+                max_value=180.0,
+                step=1.0,
+                format="%.1f",
+                key="modern_lon",
+            )
 
-        with col3:
+        with col1c:
             variable_list = [
                 "near-surface air temperature",
                 "sea surface temperature",
                 "precipitation",
             ]
-            if "user_variable" in st.session_state:
-                var_index = variable_list.index(st.session_state["user_variable"])
-            else:
-                var_index = 0
-
+            if "user_variable" not in st.session_state:
+                st.session_state.user_variable = "near-surface air temperature"
             user_variable = st.selectbox(
                 label="variable",
-                options=[
-                    "near-surface air temperature",
-                    "sea surface temperature",
-                    "precipitation",
-                ],
-                index=var_index,
+                options=variable_list,
                 key="user_variable",
             )
 
-        with col4:
-            # check whether input has been defined before
-            if "user_site_name" in st.session_state:
-                # if yes, use previous value
-                user_site_name = st.text_input(
-                    label="OPTIONAL: name of site",
-                    key="user_site_name",
-                )
-            else:
-                # if not, use default value
-                user_site_name = st.text_input(
-                    label="OPTIONAL: name of site",
-                    value="untitled",
-                    key="user_site_name",
-                )
-
-        submit_button = st.form_submit_button(
-            label="GET MODEL DATA", use_container_width=True, type="primary"
-        )
-
-    return (modern_lat, modern_lon, user_variable, user_site_name)
-
-
-def reset_csv_data():
-    # delete previous input from session state
-    if "csv_input" in st.session_state:
-        del st.session_state["csv_input"]
-
-
-def init_widgets_multi_site():
-    st.info(
-        """
-        Enter the names and present-day locations of your sites in the text box below. 
-        Or you can use the dropdown menu below to pick a selection of sites from the DeepMIP compilation.
-        """
-    )
-    template_list = [
-        "Enter your own data",
-        "DeepMIP marine proxies (latest Paleocene)",
-        "DeepMIP marine proxies (Paleocene–Eocene Thermal Maximum)",
-        "DeepMIP marine proxies (early Eocene Climatic Optimum)",
-        "DeepMIP marine proxies (all time periods)",
-        "DeepMIP terrestrial proxies (latest Paleocene)",
-        "DeepMIP terrestrial proxies (Paleocene–Eocene Thermal Maximum)",
-        "DeepMIP terrestrial proxies (early Eocene Climatic Optimum)",
-        "DeepMIP terrestrial proxies (all time periods)",
-        "DeepMIP marine+terrestrial proxies  (latest Paleocene)",
-        "DeepMIP marine+terrestrial proxies  (Paleocene–Eocene Thermal Maximum)",
-        "DeepMIP marine+terrestrial proxies  (early Eocene Climatic Optimum)",
-        "DeepMIP marine+terrestrial proxies (all time periods)",
-    ]
-    if "csv_choice" in st.session_state:
-        var_index = template_list.index(st.session_state["csv_choice"])
-    else:
-        var_index = 0
-
-    csv_choice = st.selectbox(
-        label="Choose a template from the DeepMIP proxy compilation or enter your own data:",
-        options=template_list,
-        index=var_index,
-        key="csv_choice",
-        on_change=reset_csv_data,
-    )
-
-    csv_data = get_csv_data(csv_choice, False)
-
-    # initialise user input widgets
-    with st.form(key="my_form"):
-        csv_input = st.text_area(
-            label="Enter your data below (CSV format)",
-            value=csv_data,
-            placeholder="name, modern latitude, modern longitude",
-            height=200,
-            key="csv_input",
-        )
-
-        variable_list = [
-            "near-surface air temperature",
-            "sea surface temperature",
-            "precipitation",
-        ]
-        if "user_variable" in st.session_state:
-            var_index = variable_list.index(st.session_state["user_variable"])
-        else:
-            var_index = 0
-
-        user_variable = st.selectbox(
-            label="variable",
-            options=[
-                "near-surface air temperature",
-                "sea surface temperature",
-                "precipitation",
-            ],
-            index=var_index,
-            key="user_variable",
-        )
-
-        submit_button = st.form_submit_button(
-            label="GET MODEL DATA", use_container_width=True, type="primary"
-        )
-
-    return (csv_choice, csv_input, user_variable)
-
-
-def init_widgets_single_site_plot():
-    # check whether user input is already in session state
-    # if yes, use the previous selection from the session state
-    # if not, use default values
-
-    # initialise user input widgets
-    with st.form(key="my_form"):
-        st.info(
-            """
-                Select the present-day location of your site, the variable 
-                you are interested in and an optional proxy reference for the plot.
-                """
-        )
-
-        col1, col2, col3, col4 = st.columns(4)
-
-        with col1:
-            # check whether input has been defined before
-            if "modern_lat" in st.session_state:
-                # if yes, use previous value
-                modern_lat = st.number_input(
-                    label="modern latitude of site",
-                    min_value=-90.0,
-                    max_value=90.0,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lat",
-                )
-            else:
-                # if not, use default value
-                modern_lat = st.number_input(
-                    label="modern latitude of site",
-                    min_value=-90.0,
-                    max_value=90.0,
-                    value=51.5,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lat",
-                )
-
-        with col2:
-            # check whether input has been defined before
-            if "modern_lon" in st.session_state:
-                # if yes, use previous value
-                modern_lon = st.number_input(
-                    label="modern longitude of site",
-                    min_value=-180.0,
-                    max_value=180.0,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lon",
-                )
-            else:
-                # if not, use default value
-                modern_lon = st.number_input(
-                    label="modern longitude of site",
-                    min_value=-180.0,
-                    max_value=180.0,
-                    value=-2.6,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lon",
-                )
-
-        with col3:
-            variable_list = [
-                "near-surface air temperature",
-                "sea surface temperature",
-                "precipitation",
-            ]
-            if "user_variable" in st.session_state:
-                var_index = variable_list.index(st.session_state["user_variable"])
-            else:
-                var_index = 0
-
-            user_variable = st.selectbox(
-                label="variable",
-                options=[
-                    "near-surface air temperature",
-                    "sea surface temperature",
-                    "precipitation",
-                ],
-                index=var_index,
-                key="user_variable",
+        with col1d:
+            if "user_site_name" not in st.session_state:
+                st.session_state.user_site_name = "untitled"
+            user_site_name = st.text_input(
+                label="OPTIONAL: name of site",
+                key="user_site_name",
             )
 
-        with col4:
-            # check whether input has been defined before
-            if "user_site_name" in st.session_state:
-                # if yes, use previous value
-                user_site_name = st.text_input(
-                    label="OPTIONAL: name of site",
-                    key="user_site_name",
-                )
-            else:
-                # if not, use default value
-                user_site_name = st.text_input(
-                    label="OPTIONAL: name of site",
-                    value="untitled",
-                    key="user_site_name",
-                )
+        # add optional proxy comparison to user input
+        if page == "plot_local":
+            col2a, col2b, col2c = st.columns(3)
 
-        col5, col6, col7 = st.columns(3)
+            with col2a:
+                st.write("compare to proxy?")
+                if "proxy_check" in st.session_state:
+                    proxy_check = st.checkbox(label=" ", key="proxy_check")
+                else:
+                    proxy_check = st.checkbox(label=" ", key="proxy_check", value=False)
 
-        with col5:
-            st.write("compare to proxy?")
-            if "proxy_check" in st.session_state:
-                proxy_check = st.checkbox(label=" ", key="proxy_check")
-            else:
-                proxy_check = st.checkbox(label=" ", key="proxy_check", value=False)
-        with col6:
-            if "proxy_mean" in st.session_state:
+            with col2b:
+                if "proxy_mean" not in st.session_state:
+                    st.session_state.proxy_mean = 20.0
                 proxy_mean = st.number_input(
                     label="proxy mean",
                     step=1.0,
                     format="%.1f",
                     key="proxy_mean",
                 )
-            else:
-                proxy_mean = st.number_input(
-                    label="proxy mean",
-                    value=20.0,
-                    step=1.0,
-                    format="%.1f",
-                    key="proxy_mean",
-                )
 
-        with col7:
-            if "proxy_std" in st.session_state:
+            with col2c:
+                if "proxy_std" not in st.session_state:
+                    st.session_state.proxy_std = 4.0
                 proxy_std = st.number_input(
                     label="proxy uncertainty",
                     step=1.0,
                     format="%.1f",
                     key="proxy_std",
                 )
-            else:
-                proxy_std = st.number_input(
-                    label="proxy uncertainty",
-                    value=4.0,
-                    step=1.0,
-                    format="%.1f",
-                    key="proxy_std",
-                )
-
+                
         submit_button = st.form_submit_button(
-            label="UPDATE FIGURES", use_container_width=True, type="primary"
+            label=button_label, use_container_width=True, type="primary"
         )
 
-    return (
-        modern_lat,
-        modern_lon,
-        user_variable,
-        user_site_name,
-        proxy_check,
-        proxy_mean,
-        proxy_std,
-    )
-
+    if page == "extract_data":
+        return (modern_lat, modern_lon, user_variable, user_site_name)
+    elif page == "plot_local":
+        return (
+            modern_lat,
+            modern_lon,
+            user_variable,
+            user_site_name,
+            proxy_check,
+            proxy_mean,
+            proxy_std,
+        )
+    elif page == "plot_map":
+        return (modern_lat, modern_lon, user_site_name)
 
 def reset_csv_data():
     # delete previous input from session state
@@ -364,8 +141,22 @@ def reset_csv_data():
     if "site_name" in st.session_state:
         del st.session_state["site_name"]
 
+def init_widgets_multi_site(page):
 
-def init_widgets_multi_site_plot():
+     # some settings that depend on the current page
+    if page == "extract_data":
+        csv_proxy_flag = False
+        csv_placeholder = "name, modern latitude, modern longitude"
+        button_label = "GET MODEL DATA"
+    elif page == "plot_local":
+        csv_proxy_flag = True
+        csv_placeholder = "name, modern latitude, modern longitude, proxy mean (OPTIONAL), proxy uncertainty (OPTIONAL)"
+        button_label = "UPDATE FIGURES"
+    elif page == "plot_map":
+        csv_proxy_flag = False
+        csv_placeholder = "name, modern latitude, modern longitude"
+        button_label = "UPDATE MAPS"
+
     st.info(
         """
         Enter the names and present-day locations of your sites in the text box below. 
@@ -387,27 +178,22 @@ def init_widgets_multi_site_plot():
         "DeepMIP marine+terrestrial proxies  (early Eocene Climatic Optimum)",
         "DeepMIP marine+terrestrial proxies (all time periods)",
     ]
-    if "csv_choice" in st.session_state:
-        var_index = template_list.index(st.session_state["csv_choice"])
-    else:
-        var_index = 0
 
     csv_choice = st.selectbox(
         label="Choose a template from the DeepMIP proxy compilation or enter your own data:",
         options=template_list,
-        index=var_index,
         key="csv_choice",
         on_change=reset_csv_data,
     )
 
-    csv_data = get_csv_data(csv_choice, True)
+    csv_data = get_csv_data(csv_choice, csv_proxy_flag)
 
     # initialise user input widgets
     with st.form(key="my_form"):
         csv_input = st.text_area(
-            label="CSV input of site locations (one per line)",
+            label="Enter your data below (CSV format)",
             value=csv_data,
-            placeholder="name, modern latitude, modern longitude, proxy mean (OPTIONAL), proxy uncertainty (OPTIONAL)",
+            placeholder=csv_placeholder,
             height=200,
             key="csv_input",
         )
@@ -417,177 +203,21 @@ def init_widgets_multi_site_plot():
             "sea surface temperature",
             "precipitation",
         ]
-        if "user_variable" in st.session_state:
-            var_index = variable_list.index(st.session_state["user_variable"])
-        else:
-            var_index = 0
 
         user_variable = st.selectbox(
             label="variable",
-            options=[
-                "near-surface air temperature",
-                "sea surface temperature",
-                "precipitation",
-            ],
-            index=var_index,
+            options=variable_list,
             key="user_variable",
         )
 
         submit_button = st.form_submit_button(
-            label="UPDATE FIGURES", use_container_width=True, type="primary"
+            label=button_label, use_container_width=True, type="primary"
         )
 
-    return (csv_choice, csv_input, user_variable)
-
-
-def init_widgets_single_site_map():
-    # check whether user input is already in session state
-    # if yes, use the previous selection from the session state
-    # if not, use default values
-
-    # initialise user input widgets
-    with st.form(key="my_form"):
-        st.info(
-            """
-                Select the present-day location of your site and an optional label.
-                """
-        )
-
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            # check whether input has been defined before
-            if "modern_lat" in st.session_state:
-                # if yes, use previous value
-                modern_lat = st.number_input(
-                    label="modern latitude of site",
-                    min_value=-90.0,
-                    max_value=90.0,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lat",
-                )
-            else:
-                # if not, use default value
-                modern_lat = st.number_input(
-                    label="modern latitude of site",
-                    min_value=-90.0,
-                    max_value=90.0,
-                    value=51.5,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lat",
-                )
-
-        with col2:
-            # check whether input has been defined before
-            if "modern_lon" in st.session_state:
-                # if yes, use previous value
-                modern_lon = st.number_input(
-                    label="modern longitude of site",
-                    min_value=-180.0,
-                    max_value=180.0,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lon",
-                )
-            else:
-                # if not, use default value
-                modern_lon = st.number_input(
-                    label="modern longitude of site",
-                    min_value=-180.0,
-                    max_value=180.0,
-                    value=-2.6,
-                    step=1.0,
-                    format="%.1f",
-                    key="modern_lon",
-                )
-
-        with col3:
-            # check whether input has been defined before
-            if "user_site_name" in st.session_state:
-                # if yes, use previous value
-                user_site_name = st.text_input(
-                    label="OPTIONAL: name of site",
-                    key="user_site_name",
-                )
-            else:
-                # if not, use default value
-                user_site_name = st.text_input(
-                    label="OPTIONAL: name of site",
-                    value="Bristol",
-                    key="user_site_name",
-                )
-
-        submit_button = st.form_submit_button(
-            label="UPDATE MAPS", use_container_width=True, type="primary"
-        )
-
-    return (modern_lat, modern_lon, user_site_name)
-
-
-def init_widgets_multi_site_map():
-    st.info(
-        """
-        Enter the names and present-day locations of your sites in the text box below. 
-        Or you can use the dropdown menu below to pick a selection of sites from the DeepMIP compilation.
-        """
-    )
-    template_list = [
-        "Enter your own data",
-        "DeepMIP marine proxies (latest Paleocene)",
-        "DeepMIP marine proxies (Paleocene–Eocene Thermal Maximum)",
-        "DeepMIP marine proxies (early Eocene Climatic Optimum)",
-        "DeepMIP marine proxies (all time periods)",
-        "DeepMIP terrestrial proxies (latest Paleocene)",
-        "DeepMIP terrestrial proxies (Paleocene–Eocene Thermal Maximum)",
-        "DeepMIP terrestrial proxies (early Eocene Climatic Optimum)",
-        "DeepMIP terrestrial proxies (all time periods)",
-        "DeepMIP marine+terrestrial proxies  (latest Paleocene)",
-        "DeepMIP marine+terrestrial proxies  (Paleocene–Eocene Thermal Maximum)",
-        "DeepMIP marine+terrestrial proxies  (early Eocene Climatic Optimum)",
-        "DeepMIP marine+terrestrial proxies (all time periods)",
-    ]
-    if "csv_choice" in st.session_state:
-        var_index = template_list.index(st.session_state["csv_choice"])
+    if page == "plot_map":
+        return (csv_choice, csv_input)
     else:
-        var_index = 0
-
-    csv_choice = st.selectbox(
-        label="Choose a template from the DeepMIP proxy compilation or enter your own data:",
-        options=template_list,
-        index=var_index,
-        key="csv_choice",
-        on_change=reset_csv_data,
-    )
-
-    csv_data = get_csv_data(csv_choice, False)
-
-    # initialise user input widgets
-    with st.form(key="my_form"):
-        csv_input = st.text_area(
-            label="CSV input of site locations (one per line)",
-            value=csv_data,
-            placeholder="name, modern latitude, modern longitude",
-            height=200,
-            key="csv_input",
-        )
-
-        variable_list = [
-            "near-surface air temperature",
-            "sea surface temperature",
-            "precipitation",
-        ]
-        if "user_variable" in st.session_state:
-            var_index = variable_list.index(st.session_state["user_variable"])
-        else:
-            var_index = 0
-
-        submit_button = st.form_submit_button(
-            label="UPDATE MAPS", use_container_width=True, type="primary"
-        )
-
-    return (csv_choice, csv_input)
+        return (csv_choice, csv_input, user_variable)
 
 
 def get_base64(bin_file):

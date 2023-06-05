@@ -7,8 +7,8 @@ import numpy as np
 from deepmip_dicts import variable_dict
 
 from app_modules import (
-    init_widgets_single_site_plot,
-    init_widgets_multi_site_plot,
+    init_widgets_single_site,
+    init_widgets_multi_site,
     init_sidebar,
     customDownloadButton2,
 )
@@ -79,14 +79,14 @@ if analysis_type == "Single site":
         proxy_check,
         proxy_mean,
         proxy_std,
-    ) = init_widgets_single_site_plot()
+    ) = init_widgets_single_site("plot_local")
 
     for v in [modern_lat, modern_lon, user_variable, user_site_name, analysis_type]:
         st.session_state.v = v
 
 # create user inputs for multiple sites (i.e. CSV input)
 elif analysis_type == "Multiple sites":
-    csv_choice, csv_input, user_variable = init_widgets_multi_site_plot()
+    csv_choice, csv_input, user_variable = init_widgets_multi_site("plot_local")
     modern_lats, modern_lons, names, proxy_means, proxy_stds = sites_to_list(
         csv_input, True
     )
