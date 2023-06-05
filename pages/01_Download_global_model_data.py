@@ -6,13 +6,7 @@ import webbrowser
 
 from deepmip_dicts import variable_dict
 
-from app_modules import (
-    init_widgets_single_site,
-    init_widgets_multi_site,
-    init_sidebar,
-    sites_to_list,
-)
-from deepmip_modules import get_paleo_locations, get_model_point_data
+from app_modules import init_sidebar
 
 st.set_page_config(
     page_title="Download global model data",
@@ -36,8 +30,8 @@ url = 'https://www.streamlit.io/'
 if st.button('Download global data from CEDA Archive (link to follow once approved)', type="primary"):
     webbrowser.open_new_tab(url)
 
-# col1, col2, col3, col4 = st.columns(4)
-# with col1:
-#     st.image("img/ceda_archive_logo_transp_white_3_h80.png", width=400)
-# with col2:
-#     st.image("img/core-trust-seal-px-300_height.jpeg", width=100)
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.image("img/ceda_archive_logo_transp_white_3_h80.png", width=400)
+with col2:
+    st.image("img/core-trust-seal-px-300_height.jpeg", width=100)
