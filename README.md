@@ -6,7 +6,7 @@ This repository houses a web application for interactive access to the DeepMIP-E
 
 > **Note:** The application is currently under development. Please double-check any results before using them in your research.
 
-This tool uses Python to extract data from the open-access DeepMIP-Eocene database. You can access the database [here](https://www.deepmip.org/data-eocene/). The app enables users without programming experience to extract common variables such as temperature, precipitation, etc., from all DeepMIP models at any specified location. The extracted data can be visualized and downloaded in CSV format for offline model-data comparison. The individual Python functions may also serve as a launchpad for more advanced analyses.
+This tool uses Python to extract data from the open-access DeepMIP-Eocene database. You can access the database [here](https://www.deepmip.org/data-eocene/). The app enables users without programming experience to extract common variables such as temperature, precipitation, etc., from all DeepMIP models at any specified location. Batch processing of sites is possible and example sets of locations from the DeepMIP-Eocene proxie database [Hollis et al., 2019](https://gmd.copernicus.org/articles/12/3149/2019/) . The extracted data can be visualized and downloaded in CSV/Excel format for offline model-data comparison. The individual Python processing and analysis functions are saved in `deepmip_modules.py` and may also serve as a launchpad for more advanced analyses.
 
 ## About Streamlit
 
