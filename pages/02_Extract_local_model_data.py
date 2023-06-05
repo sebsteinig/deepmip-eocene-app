@@ -172,7 +172,7 @@ with col2:
             writer, sheet_name="DeepMIP-Eocene model site data", index=False
         )
         # Close the Pandas Excel writer and output the Excel file to the buffer
-        writer.save()
+        writer.close()
 
         download2 = st.download_button(
             label="Download data for Excel",
