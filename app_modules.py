@@ -1,7 +1,6 @@
 import streamlit as st
 import base64
 from bokeh.io import export_svgs, export_png
-import holoviews as hv
 import os
 import io
 
@@ -11,8 +10,7 @@ from deepmip_modules import get_csv_data
 def init_widgets_single_site(page):
     # initialise user input widgets
     with st.form(key="my_form"):
-
-     # some settings that depend on the current page
+        # some settings that depend on the current page
         if page == "extract_data":
             st.info(
                 """
@@ -114,7 +112,7 @@ def init_widgets_single_site(page):
                     format="%.1f",
                     key="proxy_std",
                 )
-                
+
         submit_button = st.form_submit_button(
             label=button_label, use_container_width=True, type="primary"
         )
@@ -134,6 +132,7 @@ def init_widgets_single_site(page):
     elif page == "plot_map":
         return (modern_lat, modern_lon, user_site_name)
 
+
 def reset_csv_data():
     # delete previous input from session state
     if "csv_input" in st.session_state:
@@ -141,9 +140,9 @@ def reset_csv_data():
     if "site_name" in st.session_state:
         del st.session_state["site_name"]
 
-def init_widgets_multi_site(page):
 
-     # some settings that depend on the current page
+def init_widgets_multi_site(page):
+    # some settings that depend on the current page
     if page == "extract_data":
         csv_proxy_flag = False
         csv_placeholder = "name, modern latitude, modern longitude"

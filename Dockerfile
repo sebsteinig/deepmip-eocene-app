@@ -31,12 +31,12 @@ RUN apt-get update                             \
  && apt-get install -y --no-install-recommends \
     ca-certificates curl firefox-esr           \
  && rm -fr /var/lib/apt/lists/*                \
- && curl -L https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz | tar xz -C /usr/local/bin
-
+ && curl -L https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz | tar xz -C /usr/local/bin \
+ && chmod +x /usr/local/bin/geckodriver
  
 # libgeos-dev above and next two lines necessary to fix issues with cartopy projections
-RUN python3 -m pip install --upgrade pip setuptools wheel
-RUN pip3 install "shapely<2" --no-binary shapely
+# RUN python3 -m pip install --upgrade pip setuptools wheel
+# RUN pip3 install "shapely<2" --no-binary shapely
 
 
 ADD requirements.txt .
