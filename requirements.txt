@@ -1,14 +1,12 @@
 cartopy==0.22.0
-# cartopy==0.21.1
 bokeh==2.4.3
 xarray
-numpy==1.24
+numpy==1.24.2
 h5netcdf
 cmocean
 holoviews==1.15.4
 seaborn
-selenium
+selenium==4.9.1
 scipy
 xlsxwriter
 streamlit==1.28.0
-# streamlit
