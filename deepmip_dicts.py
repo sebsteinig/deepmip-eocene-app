@@ -11,7 +11,7 @@ exp_dict["piControl"] = {
     "medium_name": "piControl",
     "short_name": "PI",
     "CO2": "280",
-    "color": "#BAB0AC"
+    "color": "#BAB0AC",
 }
 
 exp_dict["deepmip_sens_1xCO2"] = {
@@ -19,7 +19,7 @@ exp_dict["deepmip_sens_1xCO2"] = {
     "medium_name": "DeepMIP_1x",
     "short_name": "1xCO2",
     "CO2": "280",
-    "color": "black"
+    "color": "black",
 }
 
 exp_dict["deepmip_sens_1.5xCO2"] = {
@@ -27,7 +27,7 @@ exp_dict["deepmip_sens_1.5xCO2"] = {
     "medium_name": "DeepMIP_1.5x",
     "short_name": "1.5xCO2",
     "CO2": "420",
-    "color": "#273D54"
+    "color": "gray",
 }
 
 exp_dict["deepmip_sens_2xCO2"] = {
@@ -35,7 +35,7 @@ exp_dict["deepmip_sens_2xCO2"] = {
     "medium_name": "DeepMIP_2x",
     "short_name": "2xCO2",
     "CO2": "560",
-    "color": "#4E79A7"
+    "color": "#4E79A7",
 }
 
 exp_dict["deepmip_stand_3xCO2"] = {
@@ -43,7 +43,7 @@ exp_dict["deepmip_stand_3xCO2"] = {
     "medium_name": "DeepMIP_3x",
     "short_name": "3xCO2",
     "CO2": "840",
-    "color": "#59A14F"
+    "color": "#59A14F",
 }
 
 exp_dict["deepmip_sens_4xCO2"] = {
@@ -51,7 +51,7 @@ exp_dict["deepmip_sens_4xCO2"] = {
     "medium_name": "DeepMIP_4x",
     "short_name": "4xCO2",
     "CO2": "1120",
-    "color": "#F28E2B"
+    "color": "#F28E2B",
 }
 
 exp_dict["deepmip_stand_6xCO2"] = {
@@ -59,7 +59,7 @@ exp_dict["deepmip_stand_6xCO2"] = {
     "medium_name": "DeepMIP_6x",
     "short_name": "6xCO2",
     "CO2": "1680",
-    "color": "#E15759"
+    "color": "#E15759",
 }
 
 exp_dict["deepmip_sens_9xCO2"] = {
@@ -67,7 +67,7 @@ exp_dict["deepmip_sens_9xCO2"] = {
     "medium_name": "DeepMIP_9x",
     "short_name": "9xCO2",
     "CO2": "2520",
-    "color": "#B07AA1"
+    "color": "#B07AA1",
 }
 
 #################################################################################
@@ -80,7 +80,7 @@ model_dict["CESM1.2_CAM5"] = {
     "versn": "v1.0",
     "group": "CESM",
     "abbrv": "CESM",
-    "color": "red",
+    "color": "#1f77b4",  # tab:blue
     "exps": [
         "piControl",
         "deepmip_sens_1xCO2",
@@ -97,7 +97,7 @@ model_dict["COSMOS-landveg_r2413"] = {
     "versn": "v1.0",
     "group": "COSMOS",
     "abbrv": "COSMOS",
-    "color": "magenta",
+    "color": "#2ca02c",  # tab:green
     "exps": [
         "piControl",
         "deepmip_sens_1xCO2",
@@ -113,7 +113,7 @@ model_dict["GFDL_CM2.1"] = {
     "versn": "v1.0",
     "group": "GFDL",
     "abbrv": "GFDL",
-    "color": "orange",
+    "color": "#ff7f0e",  # tab:orange
     "exps": [
         "piControl",
         "deepmip_sens_1xCO2",
@@ -131,7 +131,7 @@ model_dict["HadCM3B_M2.1aN"] = {
     "versn": "v1.0",
     "group": "HadCM3",
     "abbrv": "HadCM3",
-    "color": "maroon",
+    "color": "#d62728",  # tab:red
     "exps": [
         "piControl",
         "deepmip_sens_1xCO2",
@@ -147,7 +147,7 @@ model_dict["HadCM3BL_M2.1aN"] = {
     "versn": "v1.0",
     "group": "HadCM3",
     "abbrv": "HadCM3L",
-    "color": "darkgoldenrod",
+    "color": "#e377c2",  # tab:pink
     "exps": [
         "piControl",
         "deepmip_sens_1xCO2",
@@ -163,7 +163,7 @@ model_dict["INM-CM4-8"] = {
     "versn": "v1.0",
     "group": "INMCM",
     "abbrv": "INM",
-    "color": "lime",
+    "color": "#9467bd",  # tab:purple
     "exps": ["piControl", "deepmip_stand_6xCO2"],
     "gmst": [13.2, 23.4],
     "rotation": "H14",
@@ -174,7 +174,7 @@ model_dict["IPSLCM5A2"] = {
     "versn": "v1.0",
     "group": "IPSL",
     "abbrv": "IPSL",
-    "color": "blue",
+    "color": "#8c564b",  # tab:brown
     "exps": ["piControl", "deepmip_sens_1.5xCO2", "deepmip_stand_3xCO2"],
     "gmst": [13.2, 19.4, 25.0],
     "rotation": "H14",
@@ -185,7 +185,7 @@ model_dict["MIROC4m"] = {
     "versn": "v1.0",
     "group": "MIROC",
     "abbrv": "MIROC",
-    "color": "darkgreen",
+    "color": "#bcbd22",  # tab:olive
     "exps": [
         "piControl",
         "deepmip_sens_1xCO2",
@@ -201,7 +201,7 @@ model_dict["NorESM1_F"] = {
     "versn": "v1.0",
     "group": "NorESM",
     "abbrv": "NorESM",
-    "color": "purple",
+    "color": "#17becf",  # tab:cyan
     "exps": ["piControl", "deepmip_sens_2xCO2", "deepmip_sens_4xCO2"],
     "gmst": [14.5, 21.2, 24.1],
     "rotation": "B16",
@@ -217,7 +217,7 @@ model_dict["NorESM1_F"] = {
 
 variable_dict = dict()
 variable_dict["tas"] = {
-    "longname": "near-surface air temperature",
+    "longname": "Near-surface air temperature",
     "label": "temperature",
     "unit": "K",
     "dimensions": 3,
@@ -225,7 +225,7 @@ variable_dict["tas"] = {
 }
 
 variable_dict["pr"] = {
-    "longname": "total precipitation",
+    "longname": "Precipitation",
     "label": "precipitation",
     "unit": "kgm^{-2}s^{-1}",
     "dimensions": 3,

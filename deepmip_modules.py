@@ -553,6 +553,14 @@ def sites_to_list(csv_input, split_sites):
     return modern_lats, modern_lons, names, proxy_means, proxy_stds
 
 
+# get color from model_dict
+def get_color(model_short):
+    col = model_dict.get(model_short, {}).get("color", "black")
+    print(model_short)
+    print(col)
+    return model_dict.get(model_short, {}).get("color", "black")
+
+
 @st.cache_data
 def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
     df_plot = df[(df.model != "ensemble_mean")]
@@ -770,11 +778,20 @@ def scatter_line_plot(
         + ")"
     )
 
+    # get colors from model_dict
+    df_redcued["color"] = df_redcued["model"].apply(get_color)
+
+    # Check if the 'color' column exists in the DataFrame
+    print("Does 'color' column exist?", "color" in df_redcued.columns)
+
+    # Output the first few rows to confirm the contents
+    print(df_redcued[["model_short", "color"]].head())
+
     scatter = (
         hv.Scatter(
             df_redcued,
             kdims=[var_x],
-            vdims=[var_y, "model_short", "experiment"],
+            vdims=[var_y, "model_short", "experiment", "color"],
         )
         .redim.values(**{"experiment": list_medium_names})
         .groupby("model_short")
@@ -788,20 +805,7 @@ def scatter_line_plot(
                 title=titleString,
                 height=600,
                 width=800,
-                # responsive=True,
-                color_index="customer",
-                cmap=[
-                    "blue",
-                    "orange",
-                    "blue",
-                    "orange",
-                    "blue",
-                    "orange",
-                    "blue",
-                    "orange",
-                    "blue",
-                    "orange",
-                ],
+                color="color",
                 show_legend=True,
                 legend_position="top",
                 size=12,
@@ -849,11 +853,18 @@ def scatter_line_plot(
 
     else:
         line = (
-            hv.Curve(df_redcued, kdims=[var_x], vdims=[var_y, "model_short"])
+            hv.Curve(df_redcued, kdims=[var_x], vdims=[var_y, "model_short", "color"])
             .redim.values(**{"experiment": list_medium_names})
             .groupby("model_short")
             .overlay()
-            .opts(opts.Scatter(size=12))
+            .opts(
+                opts.Scatter(size=12),
+                opts.Curve(
+                    logx=log_x,
+                    line_width=2,  # You can adjust the line width as needed
+                    color="color",  # Use the 'color' column for line colors
+                ),
+            )
         )
 
         # text  = (
@@ -872,9 +883,6 @@ def scatter_line_plot(
 
 
 def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
-    # df["monthly"] = df["Jan"] + df["Feb"]
-    # df_ensemble = df[(df.model != "ensemble_mean")]
-
     months = [
         "model_short",
         "Jan",
@@ -890,12 +898,6 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
         "Nov",
         "Dec",
     ]
-    # df_monthly = df_exp[months].transpose().rename(columns={35:'model'})
-
-    # # generate list of medium-length experiment anmes for plot ordering
-    # short_names = []
-    # for key, value in model_dict.items():
-    #     short_names.append(value["abbrv"])
 
     lines = []
     spreads = []
@@ -936,19 +938,6 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
             label=exp_dict[exp]["short_name"],
         ).opts(line_color=exp_dict[exp]["color"], alpha=1.0, line_width=5.0)
         lines.append(line)
-
-        # ensemble spread
-        # ens_std = df_monthly.loc[:, df_monthly.columns != 'month'].std(axis=1)
-
-        # # only plot spread if it is not zero
-        # if (any(ens_std!=0)):
-        #     # if exp == "deepmip_sens_1xCO2":
-        #     spread = (hv.Spread((df_monthly["month"], df_monthly["ensemble mean"], ens_std))
-        #         .opts(
-        #             fill_color= exp_dict[exp]["color"],
-        #             fill_alpha=0.2)
-        #         )
-        #     spreads.append(spread)
 
     # generate plot labels
     xlabel = "calendar month"
@@ -1003,44 +992,6 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
         composition = overlay_lines
 
     composition.opts(legend_position="top")
-
-    # overlay_spread = (hv.Overlay(lines)
-    #                 .opts(
-    #                     opts.Curve(
-    #                         # logx=log_x,
-    #                         # xlabel=xlabel,
-    #                         # ylabel=ylabel,
-    #                         # title=titleString,
-    #                         height=500,
-    #                         responsive=True,
-    #                         show_legend=True,
-    #                         tools=["hover", "wheel_zoom"],
-    #                         fontsize={
-    #                             "legend": 10.8,
-    #                             "title": 14,
-    #                             "labels": 14,
-    #                             "xticks": 11,
-    #                             "yticks": 11,
-    #                         },
-    #                     )
-    #                 )
-    #             ) * (hv.Overlay(spreads)
-    #                 .opts(
-    #                     opts.Spread(
-    #                         height=500,
-    #                         responsive=True,
-    #                         show_legend=True,
-    #                         tools=["hover", "wheel_zoom"],
-    #                         fontsize={
-    #                             "legend": 10.8,
-    #                             "title": 14,
-    #                             "labels": 14,
-    #                             "xticks": 11,
-    #                             "yticks": 11,
-    #                         },
-    #                     )
-    #                 )
-    #             )
 
     return composition
 

@@ -188,14 +188,24 @@ with col_fig1:
 
     p1 = hv.render(comp_cycle, backend="bokeh")
     p1.legend.click_policy = "hide"
-    p1.add_layout(
-        Title(
-            text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
-            text_font_size="12pt",
-            text_font_style="italic",
-        ),
-        "above",
+
+    # Adjust title properties
+    legend_title = Title(
+        text=f"solid lines: ensemble mean / dashed lines: individual models",
+        text_font_size="10pt",
+        text_font_style="normal",
     )
+    legend_title.standoff = 10  # Reduces margin around the title
+    site_title = Title(
+        text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
+        text_font_size="12pt",
+        text_font_style="italic",
+    )
+    site_title.standoff = 0  # Reduces margin around the title
+
+    # Add titles to the plot
+    p1.add_layout(legend_title, "above")
+    p1.add_layout(site_title, "above")
 
     st.bokeh_chart(p1, use_container_width=True)
 
@@ -250,14 +260,15 @@ with col_fig2:
 
     p2 = hv.render(comp_scatter, backend="bokeh")
     p2.legend.click_policy = "hide"
-    p2.add_layout(
-        Title(
-            text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
-            text_font_size="12pt",
-            text_font_style="italic",
-        ),
-        "above",
+    site_title2 = Title(
+        text=f"site: {site_name} (plat = {str(np.round(plat, 1))} / plon = {str(np.round(plon, 1))})",
+        text_font_size="12pt",
+        text_font_style="italic",
     )
+    site_title2.standoff = 0  # Reduces margin around the title
+
+    # Add titles to the plot
+    p2.add_layout(site_title2, "above")
 
     st.bokeh_chart(p2, use_container_width=True)
 
