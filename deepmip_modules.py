@@ -1266,7 +1266,7 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
 
     cmap_slftf = plt.cm.get_cmap("PiYG")
     norm_slftf = colors.BoundaryNorm(
-        [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], cmap_slftf.N
+        [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], cmap_slftf.N
     )
     cmap_slftf.set_under("DarkGray")
 
@@ -1277,9 +1277,6 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
             ((model_count + 1) / (len(model_dict.keys()) + 1)),
             text="Processing data for " + model,
         )
-
-        if model == "MIROC4m":
-            continue
 
         # get boundary conditions from first Eocene simulation
         exp = model_dict[model]["exps"][1]
@@ -1549,7 +1546,7 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
                     latsc,
                     sftlf,
                     transform=ccrs.PlateCarree(),
-                    levels=[0.5],
+                    levels=[50],
                     colors=["gray"],
                 )
 
@@ -1629,7 +1626,7 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
         im_sftlf, cax=cbar_ax3, extend="neither", orientation="horizontal"
     )
     cbar3.ax.tick_params(labelsize=10)
-    cbar3.set_label("land fraction [m]", size=14)
+    cbar3.set_label("land fraction [%]", size=14)
 
     fig.subplots_adjust(bottom=0.06, hspace=0.2, wspace=0.0)
 
