@@ -296,17 +296,6 @@ def init_sidebar():
         unsafe_allow_html=True,
     )
 
-    # fix sidebar width
-    # css = """
-    # <style>
-    #     [data-testid="stSidebar"]{
-    #         min-width: 300px;
-    #         max-width: 300px;
-    #     }
-    # </style>
-    # """
-    # st.markdown(css, unsafe_allow_html=True)
-
 
 def delete_figures(file1, file2, file3):
     for file in [file1, file2, file3]:
