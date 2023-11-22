@@ -39,7 +39,7 @@ st.markdown(
     - <a href='Extract_local_model_data' target='_self'>Extract local model data</a> for any location, ready to be imported into your spreadsheet.
     - <a href='Plot_local_model_data' target='_self'>Plot local model data</a> (monthly, seasonal, annual) and it's relation to CO$_2$ and global mean temperature.
     - <a href='Map_sites_and_boundary_conditions' target='_self'>Map sites and boundary conditions</a> to see how your sites are represented in different models.
-    - <a href='View_validation_tables' target='_self'>View the validation tables</a> for an overview of available data an ensemble consistency metrics. 
+    - <a href='Validation_tables' target='_self'>View the validation tables</a> for an overview of available data an ensemble consistency metrics. 
 
     """,
     unsafe_allow_html=True,

@@ -15,8 +15,24 @@ st.title("Validation tables")
 
 st.markdown(
     """
-        This site will produce paleogeographic maps using the selected site(s) and the DeepMIP-Eocene 
-        boundary conditions (~55 Ma). 
+    This page presents an overview of all available model fields for each simulation and 
+    validates the internal consistency of the database (i.e. the spread between model results).
+    To do this, we automatically parse all `mean` and `time_series` files in the database for 
+    any given experiment, interpolate them to a common grid, calculate the global mean, 
+    minimum and maximum values and compare these values across all models. We use annual mean fields 
+    for the validation of `mean` files and the last 12 available months of the `time_series` 
+    files. For variables with multiple vertical levels, we select the vertical index 
+    nearest to the 500 hPa pressure level or 1000 m depth for atmospheric and ocean data,
+    respectively. See the [database paper]() for a definition and 
+    dicussion of the z-score metric.
+    """
+)
+
+st.markdown(
+    """
+    Results are grouped by atmospheric and ocean variables, as well as by `mean` and `time_series`
+    files. Hovering over Individual tables reveals a "View fullscreen" button at the top right 
+    of the respective image. All tables can be downloaded as a single ZIP file at the bottom of the page.
     """
 )
 init_sidebar()

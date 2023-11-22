@@ -199,9 +199,9 @@ def init_widgets_multi_site(page):
         )
 
         variable_list = [
-            "near-surface air temperature",
-            "sea surface temperature",
-            "precipitation",
+            "Near-surface air temperature",
+            "Sea surface temperature",
+            "Precipitation",
         ]
 
         user_variable = st.selectbox(
