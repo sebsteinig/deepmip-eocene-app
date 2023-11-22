@@ -34,7 +34,7 @@ st.markdown(
         The app calculates the respective early Eocene (~55 Ma) paleolocation consistent with the 
         model geographies and then extracts the data from the closest grid point for all available 
         models and simulations. You can download the extracted data in different data formats 
-        at the <a href='Get_model_data' target='_self'>get model data page</a>.
+        at the <a href='Extract_local_model_data' target='_self'>extract local model data</a> page.
     """,
     unsafe_allow_html=True,
 )

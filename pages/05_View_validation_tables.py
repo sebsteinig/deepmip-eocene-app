@@ -1,10 +1,25 @@
 import os
 import streamlit as st
 
+from app_modules import (
+    init_sidebar,
+)
+
 st.set_page_config(
     page_title="View validation tables",
     layout="wide",
 )
+
+# Create a header row for types
+st.title("Validation tables")
+
+st.markdown(
+    """
+        This site will produce paleogeographic maps using the selected site(s) and the DeepMIP-Eocene 
+        boundary conditions (~55 Ma). 
+    """
+)
+init_sidebar()
 
 # Define the directory where your images are located
 image_directory = "img/validation_tables"
@@ -34,9 +49,6 @@ experiments_short = [
     "DeepMIP_9x",
 ]
 types = ["atmos mean", "ocean mean", "atmos time_series", "ocean time_series"]
-
-# Create a header row for types
-st.title("Validation tables")
 
 header_cols = st.columns([3, 4, 4, 4, 4])  # Adjust column widths as needed
 header_cols[0].write("")  # Empty for the corner

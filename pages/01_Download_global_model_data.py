@@ -30,7 +30,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 url_ceda = "https://www.streamlit.io/"
-url_onedrive = "https://uob-my.sharepoint.com/:f:/g/personal/wb19586_bristol_ac_uk/Ek5A-qvRrLJGrdIAXxYT4NMBDjLAY7t2IVtPKFg444ItCg?e=13PfCL"
+url_onedrive = "https://drive.google.com/drive/folders/1dH-OxAQi4eI0US6LlPrN8pfAYxNAEv0M?usp=share_link"
 
 st.link_button(
     "Download global data from CEDA Archive (link to follow once approved)",
@@ -45,12 +45,12 @@ st.markdown(
     """
     The link to the CEDA archive will be available once the peer review of the associated 
     database paper has been completed. In the meantime, the data can be downloaded from
-    the OneDrive link below. The data is organised in the same way as on the CEDA archive.
+    the Google Drive link below. The data is organised in the same way as on the CEDA archive.
     """,
     unsafe_allow_html=True,
 )
 st.link_button(
-    "Download global data from OneDrive",
+    "Download global data from Google Drive",
     url_onedrive,
     type="primary",
 )

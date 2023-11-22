@@ -38,7 +38,7 @@ def init_widgets_single_site(page):
         with col1a:
             # use default value if input has not been defined before
             if "modern_lat" not in st.session_state:
-                st.session_state.modern_lat = 51.5
+                st.session_state.modern_lat = 52.4
             modern_lat = st.number_input(
                 label="modern latitude of site",
                 min_value=-90.0,
@@ -50,7 +50,7 @@ def init_widgets_single_site(page):
 
         with col1b:
             if "modern_lon" not in st.session_state:
-                st.session_state.modern_lon = -2.6
+                st.session_state.modern_lon = 11.8
             modern_lon = st.number_input(
                 label="modern longitude of site",
                 min_value=-180.0,
@@ -76,7 +76,7 @@ def init_widgets_single_site(page):
 
         with col1d:
             if "user_site_name" not in st.session_state:
-                st.session_state.user_site_name = "untitled"
+                st.session_state.user_site_name = "Store Bælt (Denmark) "
             user_site_name = st.text_input(
                 label="OPTIONAL: name of site",
                 key="user_site_name",
@@ -91,11 +91,11 @@ def init_widgets_single_site(page):
                 if "proxy_check" in st.session_state:
                     proxy_check = st.checkbox(label=" ", key="proxy_check")
                 else:
-                    proxy_check = st.checkbox(label=" ", key="proxy_check", value=False)
+                    proxy_check = st.checkbox(label=" ", key="proxy_check", value=True)
 
             with col2b:
                 if "proxy_mean" not in st.session_state:
-                    st.session_state.proxy_mean = 20.0
+                    st.session_state.proxy_mean = 26.6
                 proxy_mean = st.number_input(
                     label="proxy mean",
                     step=1.0,
@@ -105,7 +105,7 @@ def init_widgets_single_site(page):
 
             with col2c:
                 if "proxy_std" not in st.session_state:
-                    st.session_state.proxy_std = 4.0
+                    st.session_state.proxy_std = 2.85
                 proxy_std = st.number_input(
                     label="proxy uncertainty",
                     step=1.0,
@@ -257,6 +257,16 @@ def add_logo():
 
 def init_sidebar():
     add_logo()
+
+    css = """
+    <style>
+        [data-testid='stSidebarNav'] > ul {
+            min-height: 330px;
+        }
+    </style>
+    """
+
+    st.markdown(css, unsafe_allow_html=True)
 
     st.sidebar.success("How to Get Started")
     st.sidebar.markdown(

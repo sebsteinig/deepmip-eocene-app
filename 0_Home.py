@@ -17,7 +17,8 @@ st.warning(
     This application is still under development. Please double-check any results before using them in your research.
     If you encounter any problems or bugs, please let me know by email at [sebastian.steinig@bristol.ac.uk](mailto:sebastian.steinig@bristol.ac.uk).
     Thank you!
-    """)
+    """
+)
 
 st.write("# Welcome to the DeepMIP-Eocene model database! 👋")
 
@@ -27,8 +28,9 @@ st.markdown(
     is a collaboration of eight climate modelling groups from around the world, 
     each carrying out standardised simulations of the early Eocene climate optimum 
     (EECO, ∼ 50 million years ago). All generated data is freely available to
-    everyone. This website provides an interface to extract point data from all available 
-    simulations, as well as information on how to dowbload the global model data.
+    everyone. This website provides an overview of the available data and an interface 
+    to easily extract point data from all available simulations for a streamlined
+    model-data comparison.
 
     ###  How to Get Started
     Select any of the following pages to start your analysis:
@@ -37,6 +39,7 @@ st.markdown(
     - <a href='Extract_local_model_data' target='_self'>Extract local model data</a> for any location, ready to be imported into your spreadsheet.
     - <a href='Plot_local_model_data' target='_self'>Plot local model data</a> (monthly, seasonal, annual) and it's relation to CO$_2$ and global mean temperature.
     - <a href='Map_sites_and_boundary_conditions' target='_self'>Map sites and boundary conditions</a> to see how your sites are represented in different models.
+    - <a href='View_validation_tables' target='_self'>View the validation tables</a> for an overview of available data an ensemble consistency metrics. 
 
     """,
     unsafe_allow_html=True,
@@ -63,7 +66,7 @@ st.markdown(
     [in prep.](https://doi.org/10.5194/cp-17-203-2021)
     - Official [DeepMIP website](https://www.deepmip.org)
     - Model description papers:
-        - CESM1.2_CAM5: [Zhu et al., (2019)](https://doi.org/10.1126/sciadv.aax1874)
+        - CESM1.2-CAM5: [Zhu et al., (2019)](https://doi.org/10.1126/sciadv.aax1874)
         - IPSLCM5A2: [Zhang et al., (2020)](https://doi.org/10.5194/cp-16-1263-2020)
         - all other: [Lunt et al. (2021)](https://doi.org/10.5194/cp-17-203-2021)
 
