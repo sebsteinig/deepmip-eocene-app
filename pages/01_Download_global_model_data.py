@@ -18,25 +18,39 @@ st.title("Download global model data")
 
 st.markdown(
     """
-    Global fields of model output are stored on the CEDA Archive. You can download the data by clicking the button below: 
-    
+    Processed netCDF files for all simulations are available from the CEDA Archive. The full 
+    directory structure can be accessed via the browser and files can be downloaded via HTTP, 
+    Wget, FTP or OPeNDAP. This allows easy access to the data via the browser, as well as 
+    scriptable interfaces for bulk downloading. The OPeNDAP (Open-source Project for a 
+    Network Data Access Protocol) protocol allows the remote subsetting and exploration of 
+    datasets directly in Python, R, IDL, and Matlab. The 
+    [CEDA Archive website](https://help.ceda.ac.uk/article/99-download-data-from-ceda-archives) 
+    gives an up to date overview of all available access options.    
     """,
     unsafe_allow_html=True,
 )
-url = "https://www.streamlit.io/"
-
+url_ceda = "https://www.streamlit.io/"
+url_onedrive = "https://uob-my.sharepoint.com/:f:/g/personal/wb19586_bristol_ac_uk/Ek5A-qvRrLJGrdIAXxYT4NMBDjLAY7t2IVtPKFg444ItCg?e=13PfCL"
 
 st.link_button(
     "Download global data from CEDA Archive (link to follow once approved)",
-    url,
+    url_ceda,
     type="primary",
+    disabled=True,
 )
 
-
-# col1, col2, col3, col4 = st.columns(4)
-# with col1:
-#     st.image("img/ceda_archive_logo_transp_white_3_h80.png", width=400)
-# with col2:
-#     st.image("img/core-trust-seal-px-300_height.jpeg", width=100)
-
 st.image("img/ceda_archive_logo_transp_white_3_h80.png")
+
+st.markdown(
+    """
+    The link to the CEDA archive will be available once the peer review of the associated 
+    database paper has been completed. In the meantime, the data can be downloaded from
+    the OneDrive link below. The data is organised in the same way as on the CEDA archive.
+    """,
+    unsafe_allow_html=True,
+)
+st.link_button(
+    "Download global data from OneDrive",
+    url_onedrive,
+    type="primary",
+)
