@@ -6,64 +6,64 @@
 
 exp_dict = dict()
 
-exp_dict["piControl"] = {
-    "long_name": "piControl",
-    "medium_name": "piControl",
+exp_dict["deepmip-eocene-p1-PI"] = {
+    "long_name": "deepmip-eocene-p1-PI",
+    "medium_name": "PI",
     "short_name": "PI",
     "CO2": "280",
     "color": "#BAB0AC",
 }
 
-exp_dict["deepmip_sens_1xCO2"] = {
-    "long_name": "deepmip_sens_1xCO2",
+exp_dict["deepmip-eocene-p1-x1"] = {
+    "long_name": "deepmip-eocene-p1-x1",
     "medium_name": "DeepMIP_1x",
     "short_name": "1xCO2",
     "CO2": "280",
     "color": "black",
 }
 
-exp_dict["deepmip_sens_1.5xCO2"] = {
-    "long_name": "deepmip_sens_1.5xCO2",
+exp_dict["deepmip-eocene-p1-x1.5"] = {
+    "long_name": "deepmip-eocene-p1-x1.5",
     "medium_name": "DeepMIP_1.5x",
     "short_name": "1.5xCO2",
     "CO2": "420",
     "color": "gray",
 }
 
-exp_dict["deepmip_sens_2xCO2"] = {
-    "long_name": "deepmip_sens_2xCO2",
+exp_dict["deepmip-eocene-p1-x2"] = {
+    "long_name": "deepmip-eocene-p1-x2",
     "medium_name": "DeepMIP_2x",
     "short_name": "2xCO2",
     "CO2": "560",
     "color": "#4E79A7",
 }
 
-exp_dict["deepmip_stand_3xCO2"] = {
-    "long_name": "deepmip_stand_3xCO2.5xCO2",
+exp_dict["deepmip-eocene-p1-x3"] = {
+    "long_name": "deepmip-eocene-p1-x3",
     "medium_name": "DeepMIP_3x",
     "short_name": "3xCO2",
     "CO2": "840",
     "color": "#59A14F",
 }
 
-exp_dict["deepmip_sens_4xCO2"] = {
-    "long_name": "deepmip_sens_4xCO2",
+exp_dict["deepmip-eocene-p1-x4"] = {
+    "long_name": "deepmip-eocene-p1-x4",
     "medium_name": "DeepMIP_4x",
     "short_name": "4xCO2",
     "CO2": "1120",
     "color": "#F28E2B",
 }
 
-exp_dict["deepmip_stand_6xCO2"] = {
-    "long_name": "deepmip_sens_6xCO2",
+exp_dict["deepmip-eocene-p1-x6"] = {
+    "long_name": "deepmip-eocene-p1-x6",
     "medium_name": "DeepMIP_6x",
     "short_name": "6xCO2",
     "CO2": "1680",
     "color": "#E15759",
 }
 
-exp_dict["deepmip_sens_9xCO2"] = {
-    "long_name": "deepmip_sens_9xCO2",
+exp_dict["deepmip-eocene-p1-x9"] = {
+    "long_name": "deepmip-eocene-p1-x9",
     "medium_name": "DeepMIP_9x",
     "short_name": "9xCO2",
     "CO2": "2520",
@@ -76,83 +76,83 @@ exp_dict["deepmip_sens_9xCO2"] = {
 
 model_dict = dict()
 
-model_dict["CESM1.2_CAM5"] = {
+model_dict["CESM1.2-CAM5"] = {
     "versn": "v1.0",
     "group": "CESM",
     "abbrv": "CESM",
     "color": "#1f77b4",  # tab:blue
     "exps": [
-        "piControl",
-        "deepmip_sens_1xCO2",
-        "deepmip_stand_3xCO2",
-        "deepmip_stand_6xCO2",
-        "deepmip_sens_9xCO2",
+        "deepmip-eocene-p1-PI",
+        "deepmip-eocene-p1-x1",
+        "deepmip-eocene-p1-x3",
+        "deepmip-eocene-p1-x6",
+        "deepmip-eocene-p1-x9",
     ],
     "gmst": [13.2, 18.4, 25.0, 29.8, 35.5],
     "rotation": "H14",
     "CMIP generation": "CMIP5",
 }
 
-model_dict["COSMOS-landveg_r2413"] = {
+model_dict["COSMOS-landveg-r2413"] = {
     "versn": "v1.0",
     "group": "COSMOS",
     "abbrv": "COSMOS",
     "color": "#2ca02c",  # tab:green
     "exps": [
-        "piControl",
-        "deepmip_sens_1xCO2",
-        "deepmip_stand_3xCO2",
-        "deepmip_sens_4xCO2",
+        "deepmip-eocene-p1-PI",
+        "deepmip-eocene-p1-x1",
+        "deepmip-eocene-p1-x3",
+        "deepmip-eocene-p1-x4",
     ],
     "gmst": [13.9, 17.0, 25.2, 26.9],
     "rotation": "H14",
     "CMIP generation": "CMIP3",
 }
 
-model_dict["GFDL_CM2.1"] = {
+model_dict["GFDL-CM2.1"] = {
     "versn": "v1.0",
     "group": "GFDL",
     "abbrv": "GFDL",
     "color": "#ff7f0e",  # tab:orange
     "exps": [
-        "piControl",
-        "deepmip_sens_1xCO2",
-        "deepmip_sens_2xCO2",
-        "deepmip_stand_3xCO2",
-        "deepmip_sens_4xCO2",
-        "deepmip_stand_6xCO2",
+        "deepmip-eocene-p1-PI",
+        "deepmip-eocene-p1-x1",
+        "deepmip-eocene-p1-x2",
+        "deepmip-eocene-p1-x3",
+        "deepmip-eocene-p1-x4",
+        "deepmip-eocene-p1-x6",
     ],
     "gmst": [15.6, 19.2, 22.9, 25.4, 27.5, 30.2],
     "rotation": "H14",
     "CMIP generation": "CMIP3",
 }
 
-model_dict["HadCM3B_M2.1aN"] = {
+model_dict["HadCM3B-M2.1aN"] = {
     "versn": "v1.0",
     "group": "HadCM3",
     "abbrv": "HadCM3",
     "color": "#d62728",  # tab:red
     "exps": [
-        "piControl",
-        "deepmip_sens_1xCO2",
-        "deepmip_sens_2xCO2",
-        "deepmip_stand_3xCO2",
+        "deepmip-eocene-p1-PI",
+        "deepmip-eocene-p1-x1",
+        "deepmip-eocene-p1-x2",
+        "deepmip-eocene-p1-x3",
     ],
     "gmst": [13.9, 17.4, 21.2, 25.0],
     "rotation": "H14",
     "CMIP generation": "CMIP3",
 }
 
-model_dict["HadCM3BL_M2.1aN"] = {
+model_dict["HadCM3BL-M2.1aN"] = {
     "versn": "v1.0",
     "group": "HadCM3",
     "abbrv": "HadCM3L",
     "color": "#e377c2",  # tab:pink
     "exps": [
-        "piControl",
-        "deepmip_sens_1xCO2",
-        "deepmip_sens_2xCO2",
-        "deepmip_stand_3xCO2",
+        "deepmip-eocene-p1-PI",
+        "deepmip-eocene-p1-x1",
+        "deepmip-eocene-p1-x2",
+        "deepmip-eocene-p1-x3",
     ],
     "gmst": [13.2, 16.9, 21.1, 26.0],
     "rotation": "H14",
@@ -164,7 +164,7 @@ model_dict["INM-CM4-8"] = {
     "group": "INMCM",
     "abbrv": "INM",
     "color": "#9467bd",  # tab:purple
-    "exps": ["piControl", "deepmip_stand_6xCO2"],
+    "exps": ["deepmip-eocene-p1-PI", "deepmip-eocene-p1-x6"],
     "gmst": [13.2, 23.4],
     "rotation": "H14",
     "CMIP generation": "CMIP6",
@@ -175,7 +175,7 @@ model_dict["IPSLCM5A2"] = {
     "group": "IPSL",
     "abbrv": "IPSL",
     "color": "#8c564b",  # tab:brown
-    "exps": ["piControl", "deepmip_sens_1.5xCO2", "deepmip_stand_3xCO2"],
+    "exps": ["deepmip-eocene-p1-PI", "deepmip-eocene-p1-x1.5", "deepmip-eocene-p1-x3"],
     "gmst": [13.2, 19.4, 25.0],
     "rotation": "H14",
     "CMIP generation": "CMIP5",
@@ -187,22 +187,22 @@ model_dict["MIROC4m"] = {
     "abbrv": "MIROC",
     "color": "#bcbd22",  # tab:olive
     "exps": [
-        "piControl",
-        "deepmip_sens_1xCO2",
-        "deepmip_sens_2xCO2",
-        "deepmip_stand_3xCO2",
+        "deepmip-eocene-p1-PI",
+        "deepmip-eocene-p1-x1",
+        "deepmip-eocene-p1-x2",
+        "deepmip-eocene-p1-x3",
     ],
     "gmst": [12.9, 16.6, 20.4, 23.5],
     "rotation": "H14",
     "CMIP generation": "CMIP3",
 }
 
-model_dict["NorESM1_F"] = {
+model_dict["NorESM1-F"] = {
     "versn": "v1.0",
     "group": "NorESM",
     "abbrv": "NorESM",
     "color": "#17becf",  # tab:cyan
-    "exps": ["piControl", "deepmip_sens_2xCO2", "deepmip_sens_4xCO2"],
+    "exps": ["deepmip-eocene-p1-PI", "deepmip-eocene-p1-x2", "deepmip-eocene-p1-x4"],
     "gmst": [14.5, 21.2, 24.1],
     "rotation": "B16",
     "CMIP generation": "CMIP5-6",

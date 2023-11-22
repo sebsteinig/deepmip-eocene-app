@@ -282,15 +282,15 @@ def get_model_point_data(df, variable):
                     + exp
                     + "/"
                     + model_dict[model]["versn"]
-                    + "/"
-                    + model
-                    + "-"
-                    + exp
-                    + "-"
+                    + "/climatology/"
                     + variable
-                    + "-"
+                    + "_"
+                    + model
+                    + "_"
+                    + exp
+                    + "_"
                     + model_dict[model]["versn"]
-                    + ".mean.r180x90.filled.nc"
+                    + ".mean.r360x180.filled.nc"
                 )
             else:
                 model_file = (
@@ -302,16 +302,18 @@ def get_model_point_data(df, variable):
                     + exp
                     + "/"
                     + model_dict[model]["versn"]
-                    + "/"
-                    + model
-                    + "-"
-                    + exp
-                    + "-"
+                    + "/climatology/"
                     + variable
-                    + "-"
+                    + "_"
+                    + model
+                    + "_"
+                    + exp
+                    + "_"
                     + model_dict[model]["versn"]
-                    + ".mean.r180x90.nc"
+                    + ".mean.r360x180.nc"
                 )
+
+            print(model_file)
 
             # load data if file for model/experiment combination exists
             if Path(model_file).exists():
@@ -326,7 +328,7 @@ def get_model_point_data(df, variable):
 
                 # loop over all locations
                 for index, row in df.iterrows():
-                    if exp == "piControl":
+                    if exp == "deepmip-eocene-p1-PI":
                         lookup_lat = float(row["modern lat"])
                         lookup_lon = float(row["modern lon"])
                     else:
@@ -396,7 +398,7 @@ def get_model_point_data(df, variable):
                             dict(
                                 model_short=model_dict[model]["abbrv"],
                                 model=model,
-                                experiment=exp_dict[exp]["medium_name"],
+                                experiment=exp_dict[exp]["long_name"],
                                 CO2=float(exp_dict[exp]["CO2"]),
                                 GMST=gmst,
                                 site_name=row["name"],
@@ -432,7 +434,7 @@ def get_model_point_data(df, variable):
                             dict(
                                 model_short=model_dict[model]["abbrv"],
                                 model=model,
-                                experiment=exp_dict[exp]["medium_name"],
+                                experiment=exp_dict[exp]["long_name"],
                                 CO2=float(exp_dict[exp]["CO2"]),
                                 GMST=gmst,
                                 site_name=row["name"],
@@ -452,13 +454,13 @@ def get_model_point_data(df, variable):
     for exp in exp_dict.keys():
         for index, row in df.iterrows():
             df_out.loc[len(df_out)] = df_out.loc[
-                (df_out["experiment"] == exp_dict[exp]["medium_name"])
+                (df_out["experiment"] == exp_dict[exp]["long_name"])
                 & (df_out["site_name"] == row["name"])
             ].mean(numeric_only=True)
             # set ensemble mean metadata
             df_out.loc[len(df_out) - 1, "model"] = "ensemble_mean"
             df_out.loc[len(df_out) - 1, "model_short"] = "mean"
-            df_out.loc[len(df_out) - 1, "experiment"] = exp_dict[exp]["medium_name"]
+            df_out.loc[len(df_out) - 1, "experiment"] = exp_dict[exp]["long_name"]
             df_out.loc[len(df_out) - 1, "var"] = variable
             df_out.loc[len(df_out) - 1, "long_name"] = variable_dict[variable][
                 "longname"
@@ -592,7 +594,7 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
     # define figure layout first
     fig, axes = plt.subplots(2, 1, figsize=(13, 16))
 
-    # generate list of medium-length experiment anmes for plot ordering
+    # generate list of medium-length experiment names for plot ordering
     list_medium_names = []
     for key, value in exp_dict.items():
         list_medium_names.append(value["medium_name"])
@@ -724,10 +726,10 @@ def scatter_line_plot(
         log_x = False
     elif var_x == "CO2":
         log_x = True
-        df_redcued = df_plot.loc[df_plot["experiment"] != "piControl"]
+        df_redcued = df_plot.loc[df_plot["experiment"] != "deepmip-eocene-p1-PI"]
     elif var_x == "GMST":
         log_x = False
-        df_redcued = df_plot.loc[df_plot["experiment"] != "piControl"]
+        df_redcued = df_plot.loc[df_plot["experiment"] != "deepmip-eocene-p1-PI"]
 
     unit = df_plot.iloc[0]["unit"]
     ylabel = var_y + " [" + unit + "]"
@@ -904,15 +906,15 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
 
     # loop over all models and experiments
     for exp_count, exp in enumerate(exp_dict.keys()):
-        if exp == "piControl":
+        if exp == "deepmip-eocene-p1-PI":
             continue
-        df_exp = df[(df.experiment == exp_dict[exp]["medium_name"])]
+        df_exp = df[(df.experiment == exp_dict[exp]["long_name"])]
         # df_monthly = df_exp[months].transpose().rename(columns={'mean':'ensemble mean'}, inplace=True)
         df_monthly = df_exp[months].transpose()
         df_monthly.columns = df_monthly.iloc[0]
         df_monthly = df_monthly[1:].rename(columns={"mean": "ensemble mean"})
         df_monthly["month"] = months[1:13]
-        df_monthly["experiment"] = exp_dict[exp]["medium_name"]
+        df_monthly["experiment"] = exp_dict[exp]["long_name"]
 
         for model in model_dict.keys():
             # individual models
@@ -1276,8 +1278,8 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
             text="Processing data for " + model,
         )
 
-        # if model != "CESM1.2_CAM5":
-        #     continue
+        if model == "MIROC4m":
+            continue
 
         # get boundary conditions from first Eocene simulation
         exp = model_dict[model]["exps"][1]
@@ -1291,11 +1293,11 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
             + exp
             + "/"
             + model_dict[model]["versn"]
-            + "/"
+            + "/climatology/orog_"
             + model
-            + "-"
+            + "_"
             + exp
-            + "-orog-"
+            + "_"
             + model_dict[model]["versn"]
             + ".nc"
         )
@@ -1308,11 +1310,11 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
             + exp
             + "/"
             + model_dict[model]["versn"]
-            + "/"
+            + "/climatology/deptho_"
             + model
-            + "-"
+            + "_"
             + exp
-            + "-deptho-"
+            + "_"
             + model_dict[model]["versn"]
             + ".nc"
         )
@@ -1326,11 +1328,11 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
             + exp
             + "/"
             + model_dict[model]["versn"]
-            + "/"
+            + "/climatology/sftlf_"
             + model
-            + "-"
+            + "_"
             + exp
-            + "-sftlf-"
+            + "_"
             + model_dict[model]["versn"]
             + ".nc"
         )

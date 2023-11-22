@@ -57,7 +57,9 @@ analysis_type = st.radio(
 
 # create user inputs for single site
 if analysis_type == "Single site":
-    modern_lat, modern_lon, user_variable, user_site_name = init_widgets_single_site("extract_data")
+    modern_lat, modern_lon, user_variable, user_site_name = init_widgets_single_site(
+        "extract_data"
+    )
 
     # update session state
     for v in [modern_lat, modern_lon, user_variable, user_site_name, analysis_type]:
@@ -74,7 +76,7 @@ elif analysis_type == "Multiple sites":
     for v in [csv_input, csv_choice, user_variable, analysis_type]:
         st.session_state.v = v
 
-if user_variable == "sea surface temperature":
+if user_variable == "Sea surface temperature":
     st.warning(
         """
         ⚠️ Warning: Land points for sea surface temperatures (SSTs) are filled

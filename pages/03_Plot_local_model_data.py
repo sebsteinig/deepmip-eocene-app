@@ -169,10 +169,12 @@ with col_fig1:
 
     # get paleolocation
     plat = df_model.loc[
-        (df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)
+        (df_model["experiment"] != "deepmip-eocene-p1-PI")
+        & (df_model["site_name"] == site_name)
     ].iloc[0]["lat"]
     plon = df_model.loc[
-        (df_model["experiment"] != "piControl") & (df_model["site_name"] == site_name)
+        (df_model["experiment"] != "deepmip-eocene-p1-PI")
+        & (df_model["site_name"] == site_name)
     ].iloc[0]["lon"]
 
     ct = datetime.datetime.now()
