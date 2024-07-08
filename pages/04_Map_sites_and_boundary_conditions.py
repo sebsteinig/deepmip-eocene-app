@@ -108,13 +108,17 @@ with col1a:
     projection = st.selectbox(
         label="projection",
         options=["Equirectangular", "Robinson", "Orthographic"],
-        index=0,
+        index=1,
         key="user_projection",
         on_change=reset_central_location,
     )
 with col1b:
     if "central_lon" not in st.session_state:
-        st.session_state.central_lon = float(df_paleo_locations["Eocene (55Ma) lon H14"]) if analysis_type == "Single site" else 0.0
+        st.session_state.central_lon = (
+            float(df_paleo_locations["Eocene (55Ma) lon H14"])
+            if analysis_type == "Single site"
+            else 0.0
+        )
 
     central_lon = st.number_input(
         label="central longitude",
@@ -127,9 +131,11 @@ with col1b:
 with col1c:
     if "central_lat" not in st.session_state:
         if analysis_type == "Single site" and projection == "Orthographic":
-            st.session_state.central_lat = float(df_paleo_locations["Eocene (55Ma) lat H14"])
+            st.session_state.central_lat = float(
+                df_paleo_locations["Eocene (55Ma) lat H14"]
+            )
         else:
-            st.session_state.central_lat= 0.0
+            st.session_state.central_lat = 0.0
 
     central_lat = st.number_input(
         label="central latitude",

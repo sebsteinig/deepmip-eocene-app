@@ -11,15 +11,6 @@ st.set_page_config(
 
 init_sidebar()
 
-st.warning(
-    """
-    **Warning:**
-    This application is still under development. Please double-check any results before using them in your research.
-    If you encounter any problems or bugs, please let me know by email at [sebastian.steinig@bristol.ac.uk](mailto:sebastian.steinig@bristol.ac.uk).
-    Thank you!
-    """
-)
-
 st.write("# Welcome to the DeepMIP-Eocene model database! 👋")
 
 st.markdown(
@@ -63,7 +54,7 @@ st.markdown(
     - Large-scale climate features in the simulations: 
     [Lunt et al. (2021)](https://doi.org/10.5194/cp-17-203-2021)
     - Overview of the DeepMIP database 
-    [in prep.](https://doi.org/10.5194/cp-17-203-2021)
+    [in review](https://sebsteinig.github.io/blog/2023/DeepMIP-database-paper/)
     - Official [DeepMIP website](https://www.deepmip.org)
     - Model description papers:
         - CESM1.2-CAM5: [Zhu et al., (2019)](https://doi.org/10.1126/sciadv.aax1874)
@@ -71,7 +62,7 @@ st.markdown(
         - all other: [Lunt et al. (2021)](https://doi.org/10.5194/cp-17-203-2021)
 
     ### Publications
-    The DeepMIP model data from this database have been used in the following publications: 
+    The DeepMIP model data from this data set have been used in the following publications: 
 
     """
 )

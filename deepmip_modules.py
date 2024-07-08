@@ -12,7 +12,9 @@ import matplotlib.colors as colors
 from cartopy.util import add_cyclic_point
 from pathlib import Path
 
-from deepmip_dicts import exp_dict, model_dict, variable_dict
+from deepmip_eocene_p1_experiments import exp_dict
+from deepmip_eocene_p1_models import model_dict
+from deepmip_variables import variable_dict
 
 hv.extension("bokeh")
 
@@ -32,9 +34,11 @@ def model_table():
             model,
             model_dict[model]["abbrv"],
             model_dict[model]["CMIP generation"],
-            "Herold et al. (2014)"
-            if model_dict[model]["rotation"] == "H14"
-            else "Baatsen et al. (2016)",
+            (
+                "Herold et al. (2014)"
+                if model_dict[model]["rotation"] == "H14"
+                else "Baatsen et al. (2016)"
+            ),
         ]
 
     for exp in exp_dict.keys():
@@ -275,7 +279,7 @@ def get_model_point_data(df, variable):
             if variable == "tos":
                 model_file = (
                     "data/data_for_DeepMIP_app/"
-                    + model_dict[model]["group"]
+                    + model_dict[model]["family"]
                     + "/"
                     + model
                     + "/"
@@ -295,7 +299,7 @@ def get_model_point_data(df, variable):
             else:
                 model_file = (
                     "data/data_for_DeepMIP_app/"
-                    + model_dict[model]["group"]
+                    + model_dict[model]["family"]
                     + "/"
                     + model
                     + "/"
@@ -405,7 +409,7 @@ def get_model_point_data(df, variable):
                                 lat=np.round(lookup_lat, 2),
                                 lon=np.round(lookup_lon, 2),
                                 var=variable,
-                                long_name=variable_dict[variable]["longname"],
+                                long_name=variable_dict[variable]["long_name"],
                                 unit=unit,
                                 annual_mean=np.mean(site_data),
                                 monthly_min=np.min(site_data),
@@ -441,7 +445,7 @@ def get_model_point_data(df, variable):
                                 lat=np.round(lookup_lat, 2),
                                 lon=np.round(lookup_lon, 2),
                                 var=variable,
-                                long_name=variable_dict[variable]["longname"],
+                                long_name=variable_dict[variable]["long_name"],
                                 unit=unit,
                                 annual_mean=float(site_data[0]),
                             )
@@ -463,7 +467,7 @@ def get_model_point_data(df, variable):
             df_out.loc[len(df_out) - 1, "experiment"] = exp_dict[exp]["long_name"]
             df_out.loc[len(df_out) - 1, "var"] = variable
             df_out.loc[len(df_out) - 1, "long_name"] = variable_dict[variable][
-                "longname"
+                "long_name"
             ]
             df_out.loc[len(df_out) - 1, "unit"] = unit
             df_out.loc[len(df_out) - 1, "site_name"] = row["name"]
@@ -687,7 +691,7 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
 
     titleString = (
         "DeepMIP "
-        + variable_dict[variable]["longname"]
+        + variable_dict[variable]["long_name"]
         + " (LAT = "
         + str(np.round(plat, 1))
         + " / LON = "
@@ -695,7 +699,7 @@ def location_data_boxplot(df, proxy_flag, proxy_mean, proxy_std, proxy_label):
         + ")"
     )
 
-    yLabel = variable_dict[variable]["longname"] + " [" + df.iloc[0]["unit"] + "]"
+    yLabel = variable_dict[variable]["long_name"] + " [" + df.iloc[0]["unit"] + "]"
 
     handles, labels = ax3.get_legend_handles_labels()
     ax3.legend(handles[0:3], labels[0:3], fontsize="16")
@@ -733,7 +737,7 @@ def scatter_line_plot(
 
     unit = df_plot.iloc[0]["unit"]
     ylabel = var_y + " [" + unit + "]"
-    # yLabel = variable_dict[variable]["longname"] + " [" + df.iloc[0]["unit"] + "]"
+    # yLabel = variable_dict[variable]["long_name"] + " [" + df.iloc[0]["unit"] + "]"
     ylabel = df.iloc[0]["long_name"] + " [" + unit + "]"
 
     # generate list of medium-length experiment anmes for plot ordering
@@ -774,7 +778,7 @@ def scatter_line_plot(
     variable = df_plot.iloc[0]["var"]
     titleString = (
         "DeepMIP "
-        + variable_dict[variable]["longname"]
+        + variable_dict[variable]["long_name"]
         + " ("
         + var_y.replace("_", " ")
         + ")"
@@ -782,12 +786,6 @@ def scatter_line_plot(
 
     # get colors from model_dict
     df_redcued["color"] = df_redcued["model"].apply(get_color)
-
-    # Check if the 'color' column exists in the DataFrame
-    print("Does 'color' column exist?", "color" in df_redcued.columns)
-
-    # Output the first few rows to confirm the contents
-    print(df_redcued[["model_short", "color"]].head())
 
     scatter = (
         hv.Scatter(
@@ -825,6 +823,8 @@ def scatter_line_plot(
     )
 
     if var_x == "experiment":
+        print("¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡")
+        print(var_y)
         box = hv.BoxWhisker(df_redcued, kdims=[var_x], vdims=[var_y]).opts(
             opts.BoxWhisker(
                 logx=log_x,
@@ -947,7 +947,7 @@ def annual_cycle_plot(df, proxy_check, proxy_mean, proxy_std, proxy_label):
     ylabel = df.iloc[0]["long_name"] + " [" + unit + "]"
 
     variable = df.iloc[0]["var"]
-    titleString = "DeepMIP " + variable_dict[variable]["longname"] + " (annual cycle)"
+    titleString = "DeepMIP " + variable_dict[variable]["long_name"] + " (annual cycle)"
 
     # add proxy reference annotations
     if proxy_check:
@@ -1283,7 +1283,7 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
 
         model_file_orog = (
             "data/data_for_DeepMIP_app/"
-            + model_dict[model]["group"]
+            + model_dict[model]["family"]
             + "/"
             + model
             + "/"
@@ -1300,7 +1300,7 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
         )
         model_file_deptho = (
             "data/data_for_DeepMIP_app/"
-            + model_dict[model]["group"]
+            + model_dict[model]["family"]
             + "/"
             + model
             + "/"
@@ -1318,7 +1318,7 @@ def plot_model_geographies(df, proxy_label, grid_check, labels_check):
 
         model_file_sftlf = (
             "data/data_for_DeepMIP_app/"
-            + model_dict[model]["group"]
+            + model_dict[model]["family"]
             + "/"
             + model
             + "/"

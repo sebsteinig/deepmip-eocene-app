@@ -23,7 +23,7 @@ st.markdown(
     for the validation of `mean` files and the last 12 available months of the `time_series` 
     files. For variables with multiple vertical levels, we select the vertical index 
     nearest to the 500 hPa pressure level or 1000 m depth for atmospheric and ocean data,
-    respectively. See the [database paper]() for a definition and 
+    respectively. See the [database paper](https://sebsteinig.github.io/blog/2023/DeepMIP-database-paper/) for a definition and 
     dicussion of the z-score metric.
     """
 )

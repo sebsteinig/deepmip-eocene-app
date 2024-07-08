@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import matplotlib as plt
 
-from deepmip_dicts import variable_dict
-
 from app_modules import init_sidebar
 
 st.set_page_config(
@@ -19,7 +17,7 @@ st.title("Download global model data")
 st.markdown(
     """
     Processed netCDF files for all simulations are available from the CEDA Archive. The full 
-    directory structure can be accessed via the browser and files can be downloaded via HTTP, 
+    directory structure can be accessed via the link below and files can be downloaded via HTTP, 
     Wget, FTP or OPeNDAP. This allows easy access to the data via the browser, as well as 
     scriptable interfaces for bulk downloading. The OPeNDAP (Open-source Project for a 
     Network Data Access Protocol) protocol allows the remote subsetting and exploration of 
@@ -29,28 +27,39 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-url_ceda = "https://www.streamlit.io/"
-url_onedrive = "https://drive.google.com/drive/folders/1dH-OxAQi4eI0US6LlPrN8pfAYxNAEv0M?usp=share_link"
-
-st.link_button(
-    "Download global data from CEDA Archive (link to follow once approved)",
-    url_ceda,
-    type="primary",
-    disabled=True,
-)
+url_ceda = "https://catalogue.ceda.ac.uk/uuid/95aa41439d564756950f89921b6ef215"
 
 st.image("img/ceda_archive_logo_transp_white_3_h80.png")
 
+st.link_button(
+    "Download global netCDF data from CEDA Archive",
+    url_ceda,
+    type="primary",
+    disabled=False,
+)
+
+st.subheader("Batch downloading with Wget")
+
 st.markdown(
     """
-    The link to the CEDA archive will be available once the peer review of the associated 
-    database paper has been completed. In the meantime, the data can be downloaded from
-    the Google Drive link below. The data is organised in the same way as on the CEDA archive.
-    """,
-    unsafe_allow_html=True,
+            [wget](https://www.gnu.org/software/wget/) is the easiest option to download large parts 
+            or the whole database (168.0 GB). The following command will download the entire data 
+            set to the current directory on your local machine:
+            """
 )
-st.link_button(
-    "Download global data from Google Drive",
-    url_onedrive,
-    type="primary",
-)
+code1 = """
+    wget -e robots=off --mirror --no-parent -r -c https://dap.ceda.ac.uk/badc/cmip6/data/CMIP6Plus/DeepMIP/deepmip-eocene-p1/
+    """
+st.code(code1, language="bash")
+
+st.markdown("Or only download the climatological mean files:")
+code2 = """
+    wget -e robots=off --mirror --no-parent -r --reject "*.time_series.nc,*.std.nc" https://dap.ceda.ac.uk/badc/cmip6/data/CMIP6Plus/DeepMIP/deepmip-eocene-p1/
+    """
+st.code(code2, language="bash")
+
+st.markdown("Or you can only download specific variables with:")
+code3 = """
+    wget -e robots=off --mirror --no-parent -r --accept "tas_*mean.nc,pr_*mean.nc" https://dap.ceda.ac.uk/badc/cmip6/data/CMIP6Plus/DeepMIP/deepmip-eocene-p1/    
+    """
+st.code(code3, language="bash")

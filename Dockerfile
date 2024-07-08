@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
     git \
     python3-dev \
     libgeos-dev \
+    pkg-config \
+    libhdf5-dev \
     && rm -rf /var/lib/apt/lists/*
 
 

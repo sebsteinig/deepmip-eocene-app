@@ -78,7 +78,7 @@ model_dict = dict()
 
 model_dict["CESM1.2-CAM5"] = {
     "versn": "v1.0",
-    "group": "CESM",
+    "family": "CESM",
     "abbrv": "CESM",
     "color": "#1f77b4",  # tab:blue
     "exps": [
@@ -95,7 +95,7 @@ model_dict["CESM1.2-CAM5"] = {
 
 model_dict["COSMOS-landveg-r2413"] = {
     "versn": "v1.0",
-    "group": "COSMOS",
+    "family": "COSMOS",
     "abbrv": "COSMOS",
     "color": "#2ca02c",  # tab:green
     "exps": [
@@ -111,7 +111,7 @@ model_dict["COSMOS-landveg-r2413"] = {
 
 model_dict["GFDL-CM2.1"] = {
     "versn": "v1.0",
-    "group": "GFDL",
+    "family": "GFDL",
     "abbrv": "GFDL",
     "color": "#ff7f0e",  # tab:orange
     "exps": [
@@ -129,7 +129,7 @@ model_dict["GFDL-CM2.1"] = {
 
 model_dict["HadCM3B-M2.1aN"] = {
     "versn": "v1.0",
-    "group": "HadCM3",
+    "family": "HadCM3",
     "abbrv": "HadCM3",
     "color": "#d62728",  # tab:red
     "exps": [
@@ -145,7 +145,7 @@ model_dict["HadCM3B-M2.1aN"] = {
 
 model_dict["HadCM3BL-M2.1aN"] = {
     "versn": "v1.0",
-    "group": "HadCM3",
+    "family": "HadCM3",
     "abbrv": "HadCM3L",
     "color": "#e377c2",  # tab:pink
     "exps": [
@@ -161,7 +161,7 @@ model_dict["HadCM3BL-M2.1aN"] = {
 
 model_dict["INM-CM4-8"] = {
     "versn": "v1.0",
-    "group": "INMCM",
+    "family": "INMCM",
     "abbrv": "INM",
     "color": "#9467bd",  # tab:purple
     "exps": ["deepmip-eocene-p1-PI", "deepmip-eocene-p1-x6"],
@@ -172,7 +172,7 @@ model_dict["INM-CM4-8"] = {
 
 model_dict["IPSLCM5A2"] = {
     "versn": "v1.0",
-    "group": "IPSL",
+    "family": "IPSL",
     "abbrv": "IPSL",
     "color": "#8c564b",  # tab:brown
     "exps": ["deepmip-eocene-p1-PI", "deepmip-eocene-p1-x1.5", "deepmip-eocene-p1-x3"],
@@ -183,7 +183,7 @@ model_dict["IPSLCM5A2"] = {
 
 model_dict["MIROC4m"] = {
     "versn": "v1.0",
-    "group": "MIROC",
+    "family": "MIROC",
     "abbrv": "MIROC",
     "color": "#bcbd22",  # tab:olive
     "exps": [
@@ -199,7 +199,7 @@ model_dict["MIROC4m"] = {
 
 model_dict["NorESM1-F"] = {
     "versn": "v1.0",
-    "group": "NorESM",
+    "family": "NorESM",
     "abbrv": "NorESM",
     "color": "#17becf",  # tab:cyan
     "exps": ["deepmip-eocene-p1-PI", "deepmip-eocene-p1-x2", "deepmip-eocene-p1-x4"],
@@ -217,7 +217,7 @@ model_dict["NorESM1-F"] = {
 
 variable_dict = dict()
 variable_dict["tas"] = {
-    "longname": "Near-surface air temperature",
+    "long_name": "Near-surface air temperature",
     "label": "temperature",
     "unit": "K",
     "dimensions": 3,
@@ -225,7 +225,7 @@ variable_dict["tas"] = {
 }
 
 variable_dict["pr"] = {
-    "longname": "Precipitation",
+    "long_name": "Precipitation",
     "label": "precipitation",
     "unit": "kgm^{-2}s^{-1}",
     "dimensions": 3,
@@ -233,259 +233,259 @@ variable_dict["pr"] = {
 }
 
 variable_dict["ts"] = {
-    "longname": "Surface skin temperature",
+    "long_name": "Surface skin temperature",
     "unit": "K",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["evspsbl"] = {
-    "longname": "Total evaporation",
+    "long_name": "Total evaporation",
     "unit": "kgm^{-2}s^{-1}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["clt"] = {
-    "longname": "Total cloud cover fraction",
+    "long_name": "Total cloud cover fraction",
     "unit": "[0,1]",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rlds"] = {
-    "longname": "Surface downwelling longwave radiation",
+    "long_name": "Surface downwelling longwave radiation",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rlus"] = {
-    "longname": "Surface upwelling longwave radiation",
+    "long_name": "Surface upwelling longwave radiation",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rsds"] = {
-    "longname": "Surface downwelling shortwave radiation",
+    "long_name": "Surface downwelling shortwave radiation",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rsus"] = {
-    "longname": "Surface upwelling shortwave radiation",
+    "long_name": "Surface upwelling shortwave radiation",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rsdt"] = {
-    "longname": "TOA incident shortwave radiation",
+    "long_name": "TOA incident shortwave radiation",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rsut"] = {
-    "longname": "TOA outgoing shortwave radiation",
+    "long_name": "TOA outgoing shortwave radiation",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rlut"] = {
-    "longname": "TOA outgoing longwave radiation",
+    "long_name": "TOA outgoing longwave radiation",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rldscs"] = {
-    "longname": "Surface downwelling longwave radiation (clear sky)",
+    "long_name": "Surface downwelling longwave radiation (clear sky)",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rsdscs"] = {
-    "longname": "Surface downwelling shortwave radiation (clear sky)",
+    "long_name": "Surface downwelling shortwave radiation (clear sky)",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rsuscs"] = {
-    "longname": "Surface upwelling shortwave radiation (clear sky)",
+    "long_name": "Surface upwelling shortwave radiation (clear sky)",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rsutcs"] = {
-    "longname": "TOA outgoing shortwave radiation (clear sky)",
+    "long_name": "TOA outgoing shortwave radiation (clear sky)",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["rlutcs"] = {
-    "longname": "TOA outgoing longwave radiation (clear sky)",
+    "long_name": "TOA outgoing longwave radiation (clear sky)",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["hfss"] = {
-    "longname": "Sensible heat flux (upward)",
+    "long_name": "Sensible heat flux (upward)",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["hfls"] = {
-    "longname": "Latent heat flux (upward)",
+    "long_name": "Latent heat flux (upward)",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["uas"] = {
-    "longname": "Near-surface eastward wind",
+    "long_name": "Near-surface eastward wind",
     "unit": "ms^{-1}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["vas"] = {
-    "longname": "Near-surface northward wind",
+    "long_name": "Near-surface northward wind",
     "unit": "ms^{-1}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["uas"] = {
-    "longname": "Near-surface eastward wind",
+    "long_name": "Near-surface eastward wind",
     "unit": "ms^{-1}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["tauu"] = {
-    "longname": "Surface eastward wind stress",
+    "long_name": "Surface eastward wind stress",
     "unit": "Nm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["tauv"] = {
-    "longname": "Surface northward wind stress",
+    "long_name": "Surface northward wind stress",
     "unit": "Nm^{-2}",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["psl"] = {
-    "longname": "Mean sea level pressure",
+    "long_name": "Mean sea level pressure",
     "unit": "Pa",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["ps"] = {
-    "longname": "Surface pressure",
+    "long_name": "Surface pressure",
     "unit": "Pa",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["ua"] = {
-    "longname": "Eastward wind on model levels",
+    "long_name": "Eastward wind on model levels",
     "unit": "ms^{-1}",
     "dimensions": 4,
     "realm": "atmos",
 }
 
 variable_dict["va"] = {
-    "longname": "Northward wind on model levels",
+    "long_name": "Northward wind on model levels",
     "unit": "ms^{-1}",
     "dimensions": 4,
     "realm": "atmos",
 }
 
 variable_dict["wa"] = {
-    "longname": "Vertical wind on model levels",
+    "long_name": "Vertical wind on model levels",
     "unit": "ms^{-1}",
     "dimensions": 4,
     "realm": "atmos",
 }
 
 variable_dict["uap"] = {
-    "longname": "Eastward wind on pressure levels",
+    "long_name": "Eastward wind on pressure levels",
     "unit": "ms^{-1}",
     "dimensions": 4,
     "realm": "atmos",
 }
 
 variable_dict["vap"] = {
-    "longname": "Northward wind on pressure levels",
+    "long_name": "Northward wind on pressure levels",
     "unit": "ms^{-1}",
     "dimensions": 4,
     "realm": "atmos",
 }
 
 variable_dict["wap"] = {
-    "longname": "Vertical wind on pressure levels",
+    "long_name": "Vertical wind on pressure levels",
     "unit": "Pas^{-1}",
     "dimensions": 4,
     "realm": "atmos",
 }
 
 variable_dict["zg"] = {
-    "longname": "Geopotential height on pressure levels",
+    "long_name": "Geopotential height on pressure levels",
     "unit": "m",
     "dimensions": 4,
     "realm": "atmos",
 }
 
 variable_dict["ta"] = {
-    "longname": "Temperature on pressure levels",
+    "long_name": "Temperature on pressure levels",
     "unit": "K",
     "dimensions": 4,
     "realm": "atmos",
 }
 
 variable_dict["hus"] = {
-    "longname": "Specific humidity on pressure levels",
+    "long_name": "Specific humidity on pressure levels",
     "unit": "kgkg^{-1}",
     "dimensions": 4,
     "realm": "atmos",
 }
 
 variable_dict["cl"] = {
-    "longname": "Cloud fraction on pressure levels",
+    "long_name": "Cloud fraction on pressure levels",
     "unit": "[0,1]",
     "dimensions": 4,
     "realm": "atmos",
 }
 
 variable_dict["cll"] = {
-    "longname": "Low-level cloud fraction",
+    "long_name": "Low-level cloud fraction",
     "unit": "[0,1]",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["clm"] = {
-    "longname": "Medium-level cloud fraction",
+    "long_name": "Medium-level cloud fraction",
     "unit": "[0,1]",
     "dimensions": 3,
     "realm": "atmos",
 }
 
 variable_dict["clh"] = {
-    "longname": "High-level cloud fraction",
+    "long_name": "High-level cloud fraction",
     "unit": "[0,1]",
     "dimensions": 3,
     "realm": "atmos",
@@ -494,7 +494,7 @@ variable_dict["clh"] = {
 #### Ocean variables
 
 variable_dict["tos"] = {
-    "longname": "Sea surface temperature",
+    "long_name": "Sea surface temperature",
     "label": "temperature",
     "unit": "°C",
     "dimensions": 3,
@@ -502,112 +502,112 @@ variable_dict["tos"] = {
 }
 
 variable_dict["siconc"] = {
-    "longname": "Sea-ice fraction",
+    "long_name": "Sea-ice fraction",
     "unit": "[0,1]",
     "dimensions": 3,
     "realm": "ocean",
 }
 
 variable_dict["uo"] = {
-    "longname": "Eastward velocity on model levels",
+    "long_name": "Eastward velocity on model levels",
     "unit": "cms^{-1}",
     "dimensions": 4,
     "realm": "ocean",
 }
 
 variable_dict["vo"] = {
-    "longname": "Northward velocity on model levels",
+    "long_name": "Northward velocity on model levels",
     "unit": "cms^{-1}",
     "dimensions": 4,
     "realm": "ocean",
 }
 
 variable_dict["wo"] = {
-    "longname": "Vertical velocity on model levels",
+    "long_name": "Vertical velocity on model levels",
     "unit": "cms^{-1}",
     "dimensions": 4,
     "realm": "ocean",
 }
 
 variable_dict["thetao"] = {
-    "longname": "Potential temperature on model levels",
+    "long_name": "Potential temperature on model levels",
     "unit": "°C",
     "dimensions": 4,
     "realm": "ocean",
 }
 
 variable_dict["so"] = {
-    "longname": "Salinity on model levels",
+    "long_name": "Salinity on model levels",
     "unit": "psu",
     "dimensions": 4,
     "realm": "ocean",
 }
 
 variable_dict["mlotst"] = {
-    "longname": "Mixed-layer depth",
+    "long_name": "Mixed-layer depth",
     "unit": "m",
     "dimensions": 3,
     "realm": "ocean",
 }
 
 variable_dict["zos"] = {
-    "longname": "Sea surface height",
+    "long_name": "Sea surface height",
     "unit": "m",
     "dimensions": 3,
     "realm": "ocean",
 }
 
 variable_dict["tauuo"] = {
-    "longname": "Surface eastward wind stress (on ocean grid)",
+    "long_name": "Surface eastward wind stress (on ocean grid)",
     "unit": "Nm^{-2}",
     "dimensions": 3,
     "realm": "ocean",
 }
 
 variable_dict["tauvo"] = {
-    "longname": "Surface northward wind stress (on ocean grid)",
+    "long_name": "Surface northward wind stress (on ocean grid)",
     "unit": "Nm^{-2}",
     "dimensions": 3,
     "realm": "ocean",
 }
 
 variable_dict["hfno"] = {
-    "longname": "Net surface heat flux (on ocean grid)",
+    "long_name": "Net surface heat flux (on ocean grid)",
     "unit": "Wm^{-2}",
     "dimensions": 3,
     "realm": "ocean",
 }
 
 variable_dict["wfno"] = {
-    "longname": "Net surface freshwater flux (on ocean grid)",
+    "long_name": "Net surface freshwater flux (on ocean grid)",
     "unit": "kgm^{-2}s^{-1}",
     "dimensions": 3,
     "realm": "ocean",
 }
 
 variable_dict["difvto"] = {
-    "longname": "Vertical ocean tracer diffusivity",
+    "long_name": "Vertical ocean tracer diffusivity",
     "unit": "m^{-2}s^{-1}",
     "dimensions": 4,
     "realm": "ocean",
 }
 
 variable_dict["difvmo"] = {
-    "longname": "Vertical ocean momentum diffusivity",
+    "long_name": "Vertical ocean momentum diffusivity",
     "unit": "m^{-2}s^{-1}",
     "dimensions": 4,
     "realm": "ocean",
 }
 
 variable_dict["sftbarot"] = {
-    "longname": "Barotropic streamfunction",
+    "long_name": "Barotropic streamfunction",
     "unit": "Sv",
     "dimensions": 3,
     "realm": "ocean",
 }
 
 variable_dict["sftmyz"] = {
-    "longname": "Global overturning streamfunction",
+    "long_name": "Global overturning streamfunction",
     "unit": "Sv",
     "dimensions": 3,
     "realm": "ocean",
@@ -616,28 +616,28 @@ variable_dict["sftmyz"] = {
 #### Boundary conditions
 
 variable_dict["sftlf"] = {
-    "longname": "Land-sea mask (on atmospheric grid)",
+    "long_name": "Land-sea mask (on atmospheric grid)",
     "unit": "[0,1]",
     "dimensions": 2,
     "realm": "atmos",
 }
 
 variable_dict["orog"] = {
-    "longname": "Topography (on atmospheric grid)",
+    "long_name": "Topography (on atmospheric grid)",
     "unit": "[0,1]",
     "dimensions": 2,
     "realm": "atmos",
 }
 
 variable_dict["deptho"] = {
-    "longname": "Bathymetry (on ocean grid)",
+    "long_name": "Bathymetry (on ocean grid)",
     "unit": "[0,1]",
     "dimensions": 2,
     "realm": "ocean",
 }
 
 variable_dict["lai"] = {
-    "longname": "Leaf area index",
+    "long_name": "Leaf area index",
     "unit": "1",
     "dimensions": 2,
     "realm": "atmos",

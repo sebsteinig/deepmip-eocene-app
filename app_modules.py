@@ -62,12 +62,12 @@ def init_widgets_single_site(page):
 
         with col1c:
             variable_list = [
-                "Near-surface air temperature",
-                "Sea surface temperature",
+                "Near-Surface Air Temperature",
+                "Sea Surface Temperature",
                 "Precipitation",
             ]
             if "user_variable" not in st.session_state:
-                st.session_state.user_variable = "Near-surface air temperature"
+                st.session_state.user_variable = "Near-Surface Air Temperature"
             user_variable = st.selectbox(
                 label="variable",
                 options=variable_list,

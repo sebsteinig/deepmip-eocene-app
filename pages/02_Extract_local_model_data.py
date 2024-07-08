@@ -3,7 +3,7 @@ import pandas as pd
 import io
 import datetime
 
-from deepmip_dicts import variable_dict
+from deepmip_variables import variable_dict
 
 from app_modules import (
     init_widgets_single_site,
@@ -98,7 +98,8 @@ df_paleo_locations = get_paleo_locations(modern_lats, modern_lons, names)
 
 # step 2: convert user variable to DeepMIP variable name
 for key, value in variable_dict.items():
-    if value["longname"] == user_variable:
+    print(user_variable)
+    if value["long_name"] == user_variable:
         deepmip_var = key
 
 ## step 3: get model data for paleo position(s) and chosen variable
