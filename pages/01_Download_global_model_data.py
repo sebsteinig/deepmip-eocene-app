@@ -38,7 +38,7 @@ st.link_button(
     disabled=False,
 )
 
-st.subheader("Batch downloading with Wget")
+st.subheader("Batch downloading with `wget`")
 
 st.markdown(
     """
@@ -52,14 +52,22 @@ code1 = """
     """
 st.code(code1, language="bash")
 
-st.markdown("Or only download the climatological mean files:")
+st.markdown("... or download only a single model:")
 code2 = """
-    wget -e robots=off --mirror --no-parent -r --reject "*.time_series.nc,*.std.nc" https://dap.ceda.ac.uk/badc/cmip6/data/CMIP6Plus/DeepMIP/deepmip-eocene-p1/
+    wget -e robots=off --mirror --no-parent -r -c https://dap.ceda.ac.uk/badc/cmip6/data/CMIP6Plus/DeepMIP/deepmip-eocene-p1/CESM/
     """
 st.code(code2, language="bash")
 
-st.markdown("Or you can only download specific variables with:")
+st.markdown("... or exclude the larger `time_series` data:")
 code3 = """
-    wget -e robots=off --mirror --no-parent -r --accept "tas_*mean.nc,pr_*mean.nc" https://dap.ceda.ac.uk/badc/cmip6/data/CMIP6Plus/DeepMIP/deepmip-eocene-p1/    
+    wget -e robots=off --mirror --no-parent -r --reject "*.time_series.nc" https://dap.ceda.ac.uk/badc/cmip6/data/CMIP6Plus/DeepMIP/deepmip-eocene-p1/
     """
 st.code(code3, language="bash")
+
+st.markdown(
+    "... or you can download only the climatological means for specific variables:"
+)
+code4 = """
+    wget -e robots=off --mirror --no-parent -r --accept "tas_*mean.nc,pr_*mean.nc" https://dap.ceda.ac.uk/badc/cmip6/data/CMIP6Plus/DeepMIP/deepmip-eocene-p1/    
+    """
+st.code(code4, language="bash")
