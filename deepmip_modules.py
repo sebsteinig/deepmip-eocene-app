@@ -740,10 +740,12 @@ def scatter_line_plot(
     # yLabel = variable_dict[variable]["long_name"] + " [" + df.iloc[0]["unit"] + "]"
     ylabel = df.iloc[0]["long_name"] + " [" + unit + "]"
 
-    # generate list of medium-length experiment anmes for plot ordering
+    # generate lists of experiment anmes for plot ordering
     list_medium_names = []
+    list_long_names = []
     for key, value in exp_dict.items():
         list_medium_names.append(value["medium_name"])
+        list_long_names.append(value["long_name"])
 
     # add proxy reference annotations
     if proxy_check:
@@ -783,9 +785,13 @@ def scatter_line_plot(
         + var_y.replace("_", " ")
         + ")"
     )
-
+    print(df_redcued)
     # get colors from model_dict
     df_redcued["color"] = df_redcued["model"].apply(get_color)
+
+    # Replace the values in the 'experiment' column
+    replacement_dict = dict(zip(list_long_names, list_medium_names))
+    df_redcued["experiment"] = df_redcued["experiment"].replace(replacement_dict)
 
     scatter = (
         hv.Scatter(
@@ -793,7 +799,6 @@ def scatter_line_plot(
             kdims=[var_x],
             vdims=[var_y, "model_short", "experiment", "color"],
         )
-        .redim.values(**{"experiment": list_medium_names})
         .groupby("model_short")
         .overlay()
         .opts(

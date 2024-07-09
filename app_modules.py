@@ -199,8 +199,8 @@ def init_widgets_multi_site(page):
         )
 
         variable_list = [
-            "Near-surface air temperature",
-            "Sea surface temperature",
+            "Near-Surface Air Temperature",
+            "Sea Surface Temperature",
             "Precipitation",
         ]
 
